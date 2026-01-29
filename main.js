@@ -38,6 +38,7 @@ window.JSdownloadSB2 = function(data, filename) {
 };
 
 var value = decodeURI(location.hash.slice(1));
+alert(value)
 if (value.includes('#')) {
     value = value.split('#').pop();
 } else if (value.startsWith('http')) {
