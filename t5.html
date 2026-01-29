@@ -3,37 +3,48 @@
 <head>
 <meta charset="utf-8">
 <title>Simple Test</title>
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <style>
-#log{white-space:pre-wrap;font-family:monospace}
-.download{background:#eef}
+#log{
+    white-space:pre-wrap;
+    font-family:monospace
+}
+.download{
+    background:#eef
+}
 </style>
 </head>
 <body>
 <pre id="log">hello</pre>
 <script>
+const log=document.getElementById('log')
+
 function JSwillDownload(){
     return value.length>0
 }
+
 function startDownload(v){
     const a=document.createElement('a')
     a.href='data:text/plain,'+encodeURIComponent(v)
     a.download='value.txt'
     a.click()
 }
-$("#log").text(location.hash+"\n"+$("#log").text())
-var value=decodeURI(location.hash.slice(1))
-$("#log").text(value+"\n"+$("#log").text())
+
+log.textContent=location.hash+"\n"+log.textContent
+
+let value=decodeURI(location.hash.slice(1))
+log.textContent=value+"\n"+log.textContent
+
 if(value.includes('#')){
     value=value.split('#').pop()
 }else if(value.startsWith('http')){
     value=value.split('/').find(part=>/^\d+$/.test(part))||''
 }
-$("#log").text(value+"\n"+$("#log").text())
-$("#log").text(JSwillDownload()+"\n"+$("#log").text())
+
+log.textContent=value+"\n"+log.textContent
+log.textContent=JSwillDownload()+"\n"+log.textContent
+
 if(JSwillDownload()){
     document.body.classList.add('download')
-    // startDownload(value)
 }
 </script>
 </body>
