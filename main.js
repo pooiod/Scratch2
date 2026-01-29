@@ -37,13 +37,18 @@ window.JSdownloadSB2 = function(data, filename) {
     a.click();
 };
 
-let v = location.hash.includes('#')
-    ? location.hash.split('#').pop()
-    : location.hash.startsWith('http')
-        ? (location.hash.split('/').find(s => /^\d+$/.test(s)) || '')
-        : '';
+var value;
+if (location.hash.includes('#')) {
+    value = location.hash.split('#').pop();
+} else if (location.hash.startsWith('http')) {
+    value = location.hash
+        .split('/')
+        .find(part => /^\d+$/.test(part)) || '';
+} else {
+    value = '';
+}
 
 if (JSwillDownload()) {
     document.body.classList.add('download');
-    startDownload(v);
+    startDownload(value);
 }
