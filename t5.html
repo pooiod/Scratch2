@@ -10,7 +10,7 @@
 </style>
 </head>
 <body>
-<pre id="log"></pre>
+<pre id="log">hello</pre>
 <script>
 function JSwillDownload(){
     return value.length>0
@@ -21,6 +21,7 @@ function startDownload(v){
     a.download='value.txt'
     a.click()
 }
+$("#log").text(location.hash+"\n"+$("#log").text())
 var value=decodeURI(location.hash.slice(1))
 $("#log").text(value+"\n"+$("#log").text())
 if(value.includes('#')){
@@ -32,7 +33,7 @@ $("#log").text(value+"\n"+$("#log").text())
 $("#log").text(JSwillDownload()+"\n"+$("#log").text())
 if(JSwillDownload()){
     document.body.classList.add('download')
-    startDownload(value)
+    // startDownload(value)
 }
 </script>
 </body>
