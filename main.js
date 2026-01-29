@@ -1,19 +1,20 @@
 var swf = document.querySelector('#scratch embed');
 
 window.gotZipBase64 = function(content) {
-    $("#log").text("Opening project"+"\n"+$("#log").text());
+    $("#log").text("Waiting for flash hook"+"\n"+$("#log").text());
     var tries = 0;
     var openTimeout = setInterval(()=>{
         tries += 1;
         if (swf.ASopenProjectFromData) {
+            $("#log").text("Opening project"+"\n"+$("#log").text());
             clearInterval(openTimeout);
             swf.ASopenProjectFromData(content);
             setTimeout(() => {
                 $('#downloader').animate({height: 0}, 1000);
             }, 100);
-        } else if (tries >= 100) {
+        } else if (tries >= 30) {
             clearInterval(openTimeout);
-            $("#log").text("Failed to open project"+"\n"+$("#log").text());
+            $("#log").text("Hook not found"+"\n"+$("#log").text());
             alert("Unable to access flash apis");
             setTimeout(() => {
                 $('#downloader').animate({height: 0}, 1000);
