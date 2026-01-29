@@ -18,7 +18,7 @@ window.gotZipBase64 = function(content) {
         } else if (tries >= 20) {
             clearInterval(openTimeout);
             $("#log").text("Hook not found"+"\n"+$("#log").text());
-            if () {
+            if (!hasFlash) {
                 location.href = `https://ie10.ieonchrome.com/#${location.href}`;
             }
             setTimeout(() => {
