@@ -1,10 +1,12 @@
-var swf = document.querySelector('#scratch embed');
+var swf = document.querySelector('#scratch embed') || document.querySelector('#scratch ruffle-embed');
 
 window.gotZipBase64 = function(content) {
     $("#log").text("Waiting for flash hook"+"\n"+$("#log").text());
     var tries = 0;
     var openTimeout = setInterval(()=>{
+        swf = document.querySelector('#scratch embed') || document.querySelector('#scratch ruffle-embed');
         tries += 1;
+
         if (swf && swf.ASopenProjectFromData) {
             $("#log").text("Opening project"+"\n"+$("#log").text());
             clearInterval(openTimeout);
