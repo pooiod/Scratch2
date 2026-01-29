@@ -4,7 +4,7 @@ window.gotZipBase64 = function(content) {
     if (swf.ASopenProjectFromData) {
         swf.ASopenProjectFromData(content);
     } else {
-        $("#log").text("Failed to open in flash"+"\n"+$("#log").text());
+        alert("Unable to access flash apis");
     }
     setTimeout(() => {
         $('#downloader').animate({height: 0}, 1000);
