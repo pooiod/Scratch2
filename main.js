@@ -1,11 +1,18 @@
 var swf = document.querySelector('#scratch embed');
 
 window.gotZipBase64 = function(content) {
-    if (swf.ASopenProjectFromData) {
-        swf.ASopenProjectFromData(content);
-    } else {
-        alert("Unable to access flash apis");
-    }
+    $("#log").text("Opening project"+"\n"+$("#log").text());
+    var tries = 0;
+    var openTimeout = setInterval(()=>{
+        tries += 1;
+        if (swf.ASopenProjectFromData) {
+            clearInterval(openTimeout);
+            swf.ASopenProjectFromData(content);
+        } else if (tries >= 100) {
+            clearInterval(openTimeout);
+            alert("Unable to access flash apis");
+        }
+    }, 1000);
     setTimeout(() => {
         $('#downloader').animate({height: 0}, 1000);
     }, 100);
