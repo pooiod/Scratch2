@@ -54,8 +54,6 @@ if (value.includes('#')) {
     value = value
         .split('/')
         .find(part => /^\d+$/.test(part)) || '';
-} else {
-    value = '';
 }
 
 $("#log").text(value+"\n"+$("#log").text());
