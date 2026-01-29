@@ -37,11 +37,11 @@ window.JSdownloadSB2 = function(data, filename) {
     a.click();
 };
 
-var value;
-if (location.hash.includes('#')) {
-    value = location.hash.split('#').pop();
-} else if (location.hash.startsWith('http')) {
-    value = location.hash
+var value = decodeURI(location.hash.slice(1));
+if (value.includes('#')) {
+    value = value.split('#').pop();
+} else if (value.startsWith('http')) {
+    value = value
         .split('/')
         .find(part => /^\d+$/.test(part)) || '';
 } else {
