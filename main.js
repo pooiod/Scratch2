@@ -1,10 +1,10 @@
-var swf = document.querySelector('#scratch embed') || document.querySelector('#scratch ruffle-embed');
+var swf = document.querySelector('#scratch embed') || document.querySelector('#scratch ruffle-player');
 
 window.gotZipBase64 = function(content) {
     $("#log").text("Waiting for flash hook"+"\n"+$("#log").text());
     var tries = 0;
     var openTimeout = setInterval(()=>{
-        swf = document.querySelector('#scratch embed') || document.querySelector('#scratch ruffle-embed');
+        swf = document.querySelector('#scratch embed') || document.querySelector('#scratch ruffle-player');
         tries += 1;
 
         console.log(tries);
