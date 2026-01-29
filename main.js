@@ -4,7 +4,7 @@ window.gotZipBase64 = function(content) {
     $("#log").text("Waiting for flash hook"+"\n"+$("#log").text());
     var tries = 0;
     var openTimeout = setInterval(()=>{
-        swf = document.querySelector('#scratch embed');
+        swf = document.querySelector('#scratch embed') || document.querySelector('ruffle-player');
         tries += 1;
 
         console.log(tries);
