@@ -7,6 +7,7 @@ window.gotZipBase64 = function(content) {
         swf = document.querySelector('#scratch embed') || document.querySelector('#scratch ruffle-embed');
         tries += 1;
 
+        console.log(tries);
         if (swf && swf.ASopenProjectFromData) {
             $("#log").text("Opening project"+"\n"+$("#log").text());
             clearInterval(openTimeout);
