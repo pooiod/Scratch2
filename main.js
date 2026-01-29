@@ -37,16 +37,14 @@ window.JSdownloadSB2 = function(data, filename) {
     a.click();
 };
 
-$("#log").text("");
-$("#progress").removeClass("error success");
-$("#progress").css("opacity", 1);
-$("#log").text("value"+"\n"+$("#log").text());
-document.getElementById("downloader").style.height = "100px";
-document.getElementById("downloader").style.display = "block";
+// $("#log").text("");
+// $("#progress").removeClass("error success");
+// $("#progress").css("opacity", 1);
+// $("#log").text("value"+"\n"+$("#log").text());
+// document.getElementById("downloader").style.height = "100px";
+// document.getElementById("downloader").style.display = "block";
 
 var value = decodeURI(location.hash.slice(1));
-
-$("#log").text(value+"\n"+$("#log").text());
 
 if (value.includes('#')) {
     value = value.split('#').pop();
@@ -55,10 +53,6 @@ if (value.includes('#')) {
         .split('/')
         .find(part => /^\d+$/.test(part)) || '';
 }
-
-$("#log").text(value+"\n"+$("#log").text());
-
-$("#log").text(JSwillDownload()+"\n"+$("#log").text());
 
 if (JSwillDownload()) {
     document.body.classList.add('download');
