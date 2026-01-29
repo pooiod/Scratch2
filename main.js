@@ -5,14 +5,14 @@ window.gotZipBase64 = function(content) {
     var tries = 0;
     var openTimeout = setInterval(()=>{
         tries += 1;
-        if (swf.ASopenProjectFromData) {
+        if (swf && swf.ASopenProjectFromData) {
             $("#log").text("Opening project"+"\n"+$("#log").text());
             clearInterval(openTimeout);
             swf.ASopenProjectFromData(content);
             setTimeout(() => {
                 $('#downloader').animate({height: 0}, 1000);
             }, 100);
-        } else if (tries >= 30) {
+        } else if (tries >= 20) {
             clearInterval(openTimeout);
             $("#log").text("Hook not found"+"\n"+$("#log").text());
             alert("Unable to access flash apis");
