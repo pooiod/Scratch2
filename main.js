@@ -8,14 +8,18 @@ window.gotZipBase64 = function(content) {
         if (swf.ASopenProjectFromData) {
             clearInterval(openTimeout);
             swf.ASopenProjectFromData(content);
+            setTimeout(() => {
+                $('#downloader').animate({height: 0}, 1000);
+            }, 100);
         } else if (tries >= 100) {
             clearInterval(openTimeout);
+            $("#log").text("Failed to open project"+"\n"+$("#log").text());
             alert("Unable to access flash apis");
+            setTimeout(() => {
+                $('#downloader').animate({height: 0}, 1000);
+            }, 1000);
         }
     }, 1000);
-    setTimeout(() => {
-        $('#downloader').animate({height: 0}, 1000);
-    }, 100);
 };
 
 window.JSdownloadSB2 = function(data, filename) {
