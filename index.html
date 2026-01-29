@@ -59,7 +59,28 @@
     </head>
     <body>
         <script>
-
+            (function(){
+                var hasFlash=false;
+                try{
+                    hasFlash=Boolean(new ActiveXObject("ShockwaveFlash.ShockwaveFlash"));
+                }catch(e){
+                    hasFlash=navigator.mimeTypes&&navigator.mimeTypes["application/x-shockwave-flash"]!==undefined;
+                }
+                if(!hasFlash){
+                    var s=document.createElement("script");
+                    s.src="https://unpkg.com/@ruffle-rs/ruffle";
+                    s.onload=function(){
+                        var ruffle=window.RufflePlayer.newest();
+                        var player=ruffle.createPlayer();
+                        player.style.width="100%";
+                        player.style.height="100%";
+                        document.getElementById("flash").innerHTML="";
+                        document.getElementById("flash").appendChild(player);
+                        player.load("Scratch.swf");
+                    };
+                    document.head.appendChild(s);
+                }
+            })();
         </script>
         <div id="container">
             <div id="downloader">
