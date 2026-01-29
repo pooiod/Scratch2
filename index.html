@@ -59,28 +59,35 @@
     </head>
     <body>
         <script>
-            (function(){
-                var hasFlash=false;
-                try{
-                    hasFlash=Boolean(new ActiveXObject("ShockwaveFlash.ShockwaveFlash"));
-                }catch(e){
-                    hasFlash=navigator.mimeTypes&&navigator.mimeTypes["application/x-shockwave-flash"]!==undefined;
-                }
-                if(!hasFlash){
-                    var s=document.createElement("script");
-                    s.src="https://unpkg.com/@ruffle-rs/ruffle";
-                    s.onload=function(){
-                        var ruffle=window.RufflePlayer.newest();
-                        var player=ruffle.createPlayer();
-                        player.style.width="100%";
-                        player.style.height="100%";
-                        document.getElementById("flash").innerHTML="";
-                        document.getElementById("flash").appendChild(player);
-                        player.load("Scratch.swf");
-                    };
-                    document.head.appendChild(s);
-                }
-            })();
+(function(){
+    var hasFlash=false;
+    try{
+        hasFlash=Boolean(new ActiveXObject("ShockwaveFlash.ShockwaveFlash"));
+    }catch(e){
+        hasFlash=navigator.mimeTypes&&navigator.mimeTypes["application/x-shockwave-flash"]!==undefined;
+    }
+    if(!hasFlash){
+        var s=document.createElement("script");
+        s.src="https://cjrtnc.leaningtech.com/2.0/cx.js";
+        s.onload=function(){
+            cheerpxInit().then(function(){
+                var embed=document.createElement("embed");
+                embed.src="Scratch.swf";
+                embed.type="application/x-shockwave-flash";
+                embed.width="100%";
+                embed.height="100%";
+                embed.setAttribute("allowScriptAccess","always");
+                embed.setAttribute("allowFullScreen","true");
+                embed.setAttribute("wmode","window");
+                
+                var c=document.getElementById("flash");
+                c.innerHTML="";
+                c.appendChild(embed);
+            });
+        };
+        document.head.appendChild(s);
+    }
+})();
         </script>
         <div id="container">
             <div id="downloader">
