@@ -15,7 +15,7 @@ window.gotZipBase64 = function(content) {
             setTimeout(() => {
                 $('#downloader').animate({height: 0}, 1000);
             }, 100);
-        } else if (tries >= 20) {
+        } else if (tries >= 10) {
             clearInterval(openTimeout);
             $("#log").text("Hook not found"+"\n"+$("#log").text());
             if (!hasFlash) {
@@ -37,8 +37,17 @@ window.JSdownloadSB2 = function(data, filename) {
     a.click();
 };
 
+$("#log").text("");
+$("#progress").removeClass("error success");
+$("#progress").css("opacity", 1);
+$("#log").text("value"+"\n"+$("#log").text());
+document.getElementById("downloader").style.height = "100px";
+document.getElementById("downloader").style.display = "block";
+
 var value = decodeURI(location.hash.slice(1));
-alert(value)
+
+$("#log").text(value+"\n"+$("#log").text());
+
 if (value.includes('#')) {
     value = value.split('#').pop();
 } else if (value.startsWith('http')) {
@@ -48,6 +57,10 @@ if (value.includes('#')) {
 } else {
     value = '';
 }
+
+$("#log").text(value+"\n"+$("#log").text());
+
+$("#log").text(JSwillDownload()+"\n"+$("#log").text());
 
 if (JSwillDownload()) {
     document.body.classList.add('download');
