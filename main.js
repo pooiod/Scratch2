@@ -18,7 +18,9 @@ window.gotZipBase64 = function(content) {
         } else if (tries >= 20) {
             clearInterval(openTimeout);
             $("#log").text("Hook not found"+"\n"+$("#log").text());
-            alert("Unable to access flash apis");
+            if () {
+                location.href = `https://ie10.ieonchrome.com/#${location.href}`;
+            }
             setTimeout(() => {
                 $('#downloader').animate({height: 0}, 1000);
             }, 1000);
@@ -35,7 +37,13 @@ window.JSdownloadSB2 = function(data, filename) {
     a.click();
 };
 
+let v = location.hash.includes('#')
+    ? location.hash.split('#').pop()
+    : location.hash.startsWith('http')
+        ? (location.hash.split('/').find(s => /^\d+$/.test(s)) || '')
+        : '';
+
 if (JSwillDownload()) {
     document.body.classList.add('download');
-    startDownload(location.hash.slice(1));
+    startDownload(v);
 }
