@@ -103,6 +103,7 @@ function showProjectPicker() {
         card.onclick = function () {
             window.location.hash = "#" + p.id;
             startDownload(p.id);
+            close.click();
         };
 
         var thumb = document.createElement("div");
