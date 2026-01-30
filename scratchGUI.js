@@ -163,7 +163,7 @@ function showProjectPicker() {
             ? "https://api.scratch.mit.edu/search/projects?q=" + encodeURIComponent(query) + "&limit=" + limit + "&offset=" + (page * limit)
             : "https://api.scratch.mit.edu/explore/projects?limit=" + limit + "&offset=" + (page * limit);
 
-        var proxy = "https://api.allorigins.win/raw?url=" + encodeURIComponent(api);
+        var proxy = "https://proxy.corsfix.com/" + api; //encodeURIComponent(api);
 
         fetch(proxy)
             .then(r => r.json())
