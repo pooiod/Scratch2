@@ -20,7 +20,7 @@
                 flex-direction: column;
             }
             #downloader {
-                height: 200px;
+                height: 50px;
                 position: relative;
             }
             body:not(.download) #downloader { display: none; }
@@ -90,7 +90,7 @@
             <div id="flash">
                 <object width='100%' height='100%' id='scratch'>
                     <param name='allowscriptaccess' value='always'>
-                    <param name='FlashVars' value='extensionDevMode=true'>
+                    <param name='FlashVars' value='extensionDevMode=false'>
                     <embed src='Scratch.swf' allowScriptAccess="always" width='100%' height='100%'>
                 </object>
             </div>
@@ -100,5 +100,6 @@
         <script src="json.js"></script>
         <script src="download.js"></script>
         <script src="main.js"></script>
+        <script src="scratchGUI.js"></script>
     </body>
 </html>

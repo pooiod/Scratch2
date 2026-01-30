@@ -21,8 +21,8 @@ window.gotZipBase64 = function(content) {
             clearInterval(openTimeout);
             $("#log").text("Hook not found"+"\n"+$("#log").text());
             if (!hasFlash) {
-                history.replaceState(null,'',`${location.pathname}?id=${location.hash.slice(1)}`);
-                location.href = `https://ie10.ieonchrome.com/#${location.href}`;
+                // history.replaceState(null,'',`${location.pathname}?id=${location.hash.slice(1)}`);
+                // location.href = `https://ie10.ieonchrome.com/#${location.href}`;
             }
             setTimeout(() => {
                 $('#downloader').animate({height: 0}, 1000);
