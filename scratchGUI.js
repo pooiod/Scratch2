@@ -101,7 +101,7 @@ function showProjectPicker() {
         var card = document.createElement("div");
         card.className = "s2-card";
         card.onclick = function () {
-            window.location.hash = "#" + p.id;
+            window.location.hash = p.id;
             startDownload(p.id);
             close.click();
         };
@@ -144,21 +144,9 @@ function showProjectPicker() {
         }
 
         if (/^\d+$/.test(query)) {
-            fetch("https://api.scratch.mit.edu/projects/" + query)
-                .then(r => r.json())
-                .then(p => {
-                    grid.innerHTML = "";
-                    addCard(p);
-                    spinner.style.display = "none";
-                    loading = false;
-                    done = true;
-                })
-                .catch(() => {
-                    showEmpty();
-                    spinner.style.display = "none";
-                    loading = false;
-                    done = true;
-                });
+            window.location.hash = query;
+            startDownload(query);
+            close.click();
             return;
         }
 
