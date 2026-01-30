@@ -21,8 +21,13 @@ window.gotZipBase64 = function(content) {
             clearInterval(openTimeout);
             $("#log").text("Hook not found"+"\n"+$("#log").text());
             if (!hasFlash) {
+                if (confirm("Download this project?")) {
+                    JSdownloadSB2(content, DownloadedTitle);
+                }
                 // history.replaceState(null,'',`${location.pathname}?id=${location.hash.slice(1)}`);
                 // location.href = `https://ie10.ieonchrome.com/#${location.href}`;
+            } else {
+                title = "Scratch2 - " + DownloadedTitle;
             }
             setTimeout(() => {
                 $('#downloader').animate({height: 0}, 1000);

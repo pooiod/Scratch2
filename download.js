@@ -54,6 +54,7 @@ async function startDownload(projectId) {
         }
         const metaData = await metaResponse.json();
         const token = metaData.project_token;
+        window.DownloadedTitle = metaData.title;
 
         logMessage("Downloading project JSON...");
         const projectResponse = await fetch(`https://projects.scratch.mit.edu/${projectId}?token=${token}`);
