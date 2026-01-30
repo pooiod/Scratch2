@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- <base href="https://oldweb.today/?browser=ff10#https://a97c6317.scratchflash.pages.dev/?id=898918309"> -->
+    <base href="https://oldweb.today/?browser=ff10#https://a97c6317.scratchflash.pages.dev/?id=898918309">
     <link rel="stylesheet" href="assets/spectre.min.css">
     <link rel="stylesheet" href="assets/spectre-exp.min.css">
     <link rel="stylesheet" href="assets/spectre-icons.min.css">
@@ -1420,7 +1420,7 @@ found at http://polymer.github.io/PATENTS.txt
         }
         async initSW() {
             const e = !!navigator.serviceWorker.controller;
-            await navigator.serviceWorker.register("./sw.js", {
+            await navigator.serviceWorker.register("https://scratchflash.pages.dev/emu/sw.js", {
                 scope: "./"
             }),
             navigator.serviceWorker.addEventListener("message", (t => {
