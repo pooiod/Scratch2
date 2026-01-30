@@ -1,5 +1,7 @@
 var swf = document.querySelector('#scratch embed');
 
+// Scratch.FlashApp.ASobj.ASloadGithubURL(extensionUrl);
+
 window.gotZipBase64 = function(content) {
     $("#log").text("Waiting for flash hook"+"\n"+$("#log").text());
     var tries = 0;
