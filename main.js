@@ -19,6 +19,7 @@ window.gotZipBase64 = function(content) {
             clearInterval(openTimeout);
             $("#log").text("Hook not found"+"\n"+$("#log").text());
             if (!hasFlash) {
+                history.replaceState(null,'',`${location.pathname}?id=${location.hash.slice(1)}`);
                 location.href = `https://ie10.ieonchrome.com/#${location.href}`;
             }
             setTimeout(() => {
@@ -44,7 +45,7 @@ window.JSdownloadSB2 = function(data, filename) {
 // document.getElementById("downloader").style.height = "100px";
 // document.getElementById("downloader").style.display = "block";
 
-var value = decodeURI(location.hash.slice(1));
+var value = new URLSearchParams(window.location.search).get('id') || decodeURI(location.hash.slice(1));
 
 if (value.includes('#')) {
     value = value.split('#').pop();
