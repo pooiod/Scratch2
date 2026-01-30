@@ -160,12 +160,10 @@ function showProjectPicker() {
         }
 
         var api = query
-            ? "https://api.scratch.mit.edu/search/projects?q=" + encodeURIComponent(query) + "&limit=" + limit + "&offset=" + (page * limit)
-            : "https://api.scratch.mit.edu/explore/projects?limit=" + limit + "&offset=" + (page * limit);
+            ? "https://scratch.pooiod7.workers.dev/search/projects?q=" + encodeURIComponent(query) + "&limit=" + limit + "&offset=" + (page * limit)
+            : "https://scratch.pooiod7.workers.dev/explore/projects?limit=" + limit + "&offset=" + (page * limit);
 
-        var proxy = "https://proxy.corsfix.com/" + api; //encodeURIComponent(api);
-
-        fetch(proxy)
+        fetch(api)
             .then(r => r.json())
             .then(data => {
                 if (!data || data.length === 0) {
