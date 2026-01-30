@@ -1,28 +1,28 @@
 var swf = document.querySelector('#scratch embed');
 
 window.gotZipBase64 = function(content) {
-    $("#log").text("Waiting for flash hook" + "\n" + $("#log").text());
+    $("#log").text("Waiting for flash hook"+"\n"+$("#log").text());
     var tries = 0;
-    var openTimeout = setInterval(function(){
-        swf = document.getElementById('scratch').getElementsByTagName('embed')[0];
+    var openTimeout = setInterval(()=>{
+        swf = document.querySelector('#scratch embed');
         tries += 1;
 
         console.log(tries);
         if (swf && swf.ASopenProjectFromData) {
-            $("#log").text("Opening project" + "\n" + $("#log").text());
+            $("#log").text("Opening project"+"\n"+$("#log").text());
             clearInterval(openTimeout);
             swf.ASopenProjectFromData(content);
-            setTimeout(function() {
+            setTimeout(() => {
                 $('#downloader').animate({height: 0}, 1000);
             }, 100);
         } else if (tries >= 10) {
             clearInterval(openTimeout);
-            $("#log").text("Hook not found" + "\n" + $("#log").text());
+            $("#log").text("Hook not found"+"\n"+$("#log").text());
             if (!hasFlash) {
-                history.replaceState(null, '', location.pathname + '?id=' + location.hash.slice(1));
-                location.href = 'https://ie10.ieonchrome.com/#' + location.href;
+                history.replaceState(null,'',`${location.pathname}?id=${location.hash.slice(1)}`);
+                location.href = `https://ie10.ieonchrome.com/#${location.href}`;
             }
-            setTimeout(function() {
+            setTimeout(() => {
                 $('#downloader').animate({height: 0}, 1000);
             }, 1000);
         }
@@ -45,29 +45,15 @@ window.JSdownloadSB2 = function(data, filename) {
 // document.getElementById("downloader").style.height = "100px";
 // document.getElementById("downloader").style.display = "block";
 
-var value = (function(){
-    var search = window.location.search;
-    var hash = decodeURI(location.hash.slice(1));
-    var id = '';
-    if (search.indexOf('id=') !== -1) {
-        id = search.split('id=')[1].split('&')[0];
-    } else {
-        id = hash;
-    }
+var value = new URLSearchParams(window.location.search).get('id') || decodeURI(location.hash.slice(1));
 
-    if (id.indexOf('#') !== -1) {
-        id = id.split('#').pop();
-    } else if (id.indexOf('http') === 0) {
-        var parts = id.split('/');
-        for (var i = 0; i < parts.length; i++) {
-            if (/^\d+$/.test(parts[i])) {
-                id = parts[i];
-                break;
-            }
-        }
-    }
-    return id;
-})();
+if (value.includes('#')) {
+    value = value.split('#').pop();
+} else if (value.startsWith('http')) {
+    value = value
+        .split('/')
+        .find(part => /^\d+$/.test(part)) || '';
+}
 
 if (JSwillDownload()) {
     document.body.classList.add('download');
