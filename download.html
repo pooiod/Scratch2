@@ -3,52 +3,53 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Scratch SB2 Downloader</title>
+    <title>Scratch Project Downloader</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
+    <script src="json.js"></script>
+    <script src="download.js"></script>
     <style>
         html,
         body {
             margin: 0;
             padding: 0;
-            height: 100%;
-            background: #0f1220;
+            background: #f7f9fc;
             font-family: Inter, system-ui, sans-serif;
-            color: #fff;
+            color: #1f2937
         }
 
         .container {
-            max-width: 420px;
-            margin: auto;
-            padding-top: 20vh;
-            text-align: center;
-        }
-
-        .card {
-            background: #171a2e;
+            max-width: 520px;
+            margin: 80px auto;
+            background: #ffffff;
             border-radius: 16px;
-            padding: 32px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, .4);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .08);
+            padding: 32px
         }
 
         h1 {
+            margin: 0 0 12px;
             font-size: 24px;
-            margin-bottom: 8px;
+            font-weight: 600
         }
 
         p {
-            opacity: .7;
-            margin-bottom: 24px;
+            margin: 0 0 24px;
+            color: #6b7280
         }
 
         input {
             width: 100%;
-            padding: 14px;
+            padding: 14px 16px;
             border-radius: 10px;
-            border: none;
-            outline: none;
+            border: 1px solid #d1d5db;
             font-size: 16px;
-            background: #0f1220;
-            color: #fff;
+            outline: none
+        }
+
+        input:focus {
+            border-color: #6366f1
         }
 
         button {
@@ -57,79 +58,90 @@
             padding: 14px;
             border: none;
             border-radius: 10px;
-            background: #6c7cff;
-            color: #fff;
+            background: #6366f1;
+            color: #ffffff;
             font-size: 16px;
             font-weight: 600;
-            cursor: pointer;
+            cursor: pointer
         }
 
         button:hover {
-            background: #7d8cff;
+            background: #4f46e5
+        }
+
+        #downloader {
+            margin-top: 24px;
+            overflow: hidden
         }
 
         #log {
-            margin-top: 20px;
             font-size: 13px;
-            opacity: .6;
-            white-space: pre-line;
+            white-space: pre-wrap;
+            color: #374151
+        }
+
+        .footer {
+            margin-top: 24px;
+            font-size: 12px;
+            color: #9ca3af;
+            text-align: center
         }
     </style>
 </head>
 
 <body>
-
     <div class="container">
-        <div class="card">
-            <h1>Scratch SB2 Downloader</h1>
-            <p>Paste a Scratch project ID or URL</p>
-            <input id="projectId" placeholder="e.g. 123456789">
-            <button onclick="go()">Download</button>
+        <h1>Scratch Downloader</h1>
+        <p>Paste a Scratch project link or ID to download it as an SB2 file.</p>
+        <input id="projectId" placeholder="Project ID or URL">
+        <button id="go">Download</button>
+        <div id="downloader">
             <div id="log"></div>
         </div>
+        <div class="footer">Light mode · No Flash · Direct SB2</div>
     </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
-    <script src="json.js"></script>
-    <script src="download.js"></script>
 
     <script>
         window.gotZipBase64 = function (content) {
-            $("#log").text("Downloading SB2...");
-            JSdownloadSB2(content, "project.sb2");
-            $("#log").text("Download complete");
-        };
-
-        window.JSdownloadSB2 = function (data, filename) {
-            var a = document.createElement("a");
-            a.href = "data:application/octet-stream;charset=utf-16le;base64," + data;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        };
-
-        function parseValue(v) {
-            if (v.includes("#")) return v.split("#").pop();
-            if (v.startsWith("http")) return v.split("/").find(p => /^\d+$/.test(p)) || "";
-            return v;
+            $("#log").text("Preparing download\n" + $("#log").text())
+            JSdownloadSB2(content, "project.sb2")
         }
 
-        function go() {
-            var v = parseValue(document.getElementById("projectId").value.trim());
-            if (!v) return;
-            $("#log").text("Fetching project...");
-            startDownload(v);
+        JSdownloadSB2 = function (data, filename) {
+            var a = document.createElement("a")
+            a.href = "data:application/octet-stream;base64," + data
+            a.download = filename
+            document.body.appendChild(a)
+            a.click()
+            document.body.removeChild(a)
         }
 
-        var value = new URLSearchParams(location.search).get("id") || decodeURI(location.hash.slice(1));
+        function extractId(value) {
+            if (!value) return ""
+            if (value.includes("#")) return value.split("#").pop()
+            if (value.startsWith("http")) {
+                var p = value.split("/")
+                for (var i = 0; i < p.length; i++) {
+                    if (/^\d+$/.test(p[i])) return p[i]
+                }
+            }
+            return value
+        }
+
+        $("#go").on("click", function () {
+            var value = extractId($("#projectId").val().trim())
+            if (!value) return
+            $("#log").text("Starting download\n")
+            startDownload(value)
+        })
+
+        var value = new URLSearchParams(window.location.search).get("id") || decodeURI(location.hash.slice(1))
+        value = extractId(value)
         if (value) {
-            value = parseValue(value);
-            document.getElementById("projectId").value = value;
-            startDownload(value);
+            $("#projectId").val(value)
+            $("#log").text("Starting download\n")
+            startDownload(value)
         }
     </script>
-
 </body>
 </html>
