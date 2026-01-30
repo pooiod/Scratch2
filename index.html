@@ -1,155 +1,103 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-    <meta charset="utf-8">
-    <title>Scratch SB2 Downloader</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    <style>
-        body {
-            margin: 0;
-            font-family: Inter, system-ui;
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh
-        }
-
-        #card {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(12px);
-            border-radius: 18px;
-            padding: 32px;
-            width: 420px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4)
-        }
-
-        h1 {
-            margin: 0 0 16px;
-            font-size: 28px;
-            font-weight: 800
-        }
-
-        input {
-            width: 100%;
-            padding: 14px;
-            border-radius: 12px;
-            border: none;
-            outline: none;
-            font-size: 16px;
-            margin-bottom: 16px
-        }
-
-        button {
-            width: 100%;
-            padding: 14px;
-            border-radius: 12px;
-            border: none;
-            font-size: 16px;
-            font-weight: 600;
-            background: #00e5ff;
-            cursor: pointer
-        }
-
-        button:active {
-            transform: scale(0.98)
-        }
-
-        #log {
-            margin-top: 16px;
-            font-size: 13px;
-            white-space: pre-wrap;
-            opacity: 0.8
-        }
-    </style>
-</head>
-
-<body>
-    <div id="card">
-        <h1>Scratch SB2 Downloader</h1>
-        <input id="pid" placeholder="Scratch project ID or URL">
-        <button id="go">Download .sb2</button>
-        <div id="log"></div>
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
-
-    <script>
-        function log(t) {
-            $("#log").text(t + "\n" + $("#log").text())
-        }
-
-        function extractId(v) {
-            if (v.includes("http")) {
-                var p = v.split("/")
-                for (var i = 0; i < p.length; i++) {
-                    if (/^\d+$/.test(p[i])) return p[i]
-                }
+    <head>
+        <title>s2online</title>
+        <style>
+            body, html {
+                width: 100%;
+                height: 100%;
+                padding: 0;
+                margin: 0;
             }
-            return v.replace(/\D/g, "")
-        }
-
-        async function fetchJSON(url) {
-            return fetch(url).then(r => r.json())
-        }
-
-        async function fetchBinary(url) {
-            return fetch(url).then(r => r.arrayBuffer())
-        }
-
-        async function buildSB2(id) {
-            log("Fetching project.json")
-            var project = await fetchJSON("https://projects.scratch.mit.edu/" + id)
-            var zip = new JSZip()
-            zip.file("project.json", JSON.stringify(project))
-            var assets = []
-            project.children.forEach(s => {
-                if (s.costumes) {
-                    s.costumes.forEach(c => {
-                        assets.push({ md5: c.baseLayerMD5, ext: c.baseLayerMD5.split(".").pop() })
-                    })
-                }
-                if (s.sounds) {
-                    s.sounds.forEach(a => {
-                        assets.push({ md5: a.md5, ext: a.md5.split(".").pop() })
-                    })
-                }
-            })
-            for (var i = 0; i < assets.length; i++) {
-                var a = assets[i]
-                log("Fetching " + a.md5)
-                var data = await fetchBinary("https://assets.scratch.mit.edu/internalapi/asset/" + a.md5 + "/get/")
-                zip.file(a.md5, data)
+            body {
+                background-color: #EEE;
+                overflow-y: hidden;
             }
-            log("Building sb2")
-            var blob = await zip.generateAsync({ type: "base64" })
-            JSdownloadSB2(blob, "project-" + id + ".sb2")
-        }
-
-        window.JSdownloadSB2 = function (data, filename) {
-            var a = document.createElement("a")
-            a.href = "data:application/octet-stream;base64," + data
-            a.download = filename
-            document.body.appendChild(a)
-            a.click()
-            a.remove()
-        }
-
-        $("#go").on("click", function () {
-            $("#log").text("")
-            var id = extractId($("#pid").val())
-            if (!id) return
-            buildSB2(id)
-        })
-
-        var q = new URLSearchParams(location.search).get("id")
-        if (q) {
-            $("#pid").val(q)
-            $("#go").click()
-        }
-    </script>
-</body>
+            #container {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+            #downloader {
+                height: 200px;
+                position: relative;
+            }
+            body:not(.download) #downloader { display: none; }
+            #progress {
+                background: rgba(0, 0, 255, 0.5);
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 0;
+                height: 100%;
+                z-index: 0;
+            }
+            #output {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                overflow-y: scroll;
+                margin: 0;
+            }
+            #flash {
+                flex-grow: 1;
+                height: 100%;
+            }
+        </style>
+        <script>
+            window.JSloadID = function(id) {
+                location.hash = id;
+                location.reload();
+            };
+            window.JSwillDownload = function() {
+                return location.hash.length > 1;
+            };
+        </script>
+    </head>
+    <body>
+        <script>
+            (function(){
+                window.hasFlash = false;
+                try {
+                    hasFlash=Boolean(new ActiveXObject("ShockwaveFlash.ShockwaveFlash"));
+                } catch(e) {
+                    hasFlash=navigator.mimeTypes && navigator.mimeTypes["application/x-shockwave-flash"] !== undefined;
+                }
+                if (!hasFlash) {
+                    var s = document.createElement("script");
+                    s.src = "https://unpkg.com/@ruffle-rs/ruffle";
+                    s.onload = function(){
+                        var ruffle=window.RufflePlayer.newest();
+                        var player=ruffle.createPlayer();
+                        player.style.width="100%";
+                        player.style.height="100%";
+                        document.getElementById("flash").innerHTML = "";
+                        document.getElementById("flash").appendChild(player);
+                        player.load("Scratch.swf");
+                    };
+                    document.head.appendChild(s);
+                }
+            })();
+        </script>
+        <div id="container">
+            <div id="downloader">
+                <div id="progress"></div>
+                <pre id="output"><code id="log"></code></pre>
+            </div>
+            <div id="flash">
+                <object width='100%' height='100%' id='scratch'>
+                    <param name='allowscriptaccess' value='always'>
+                    <embed src='Scratch.swf' allowScriptAccess="always" width='100%' height='100%'>
+                </object>
+            </div>
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
+        <script src="json.js"></script>
+        <script src="download.js"></script>
+        <script src="main.js"></script>
+    </body>
 </html>
