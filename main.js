@@ -15,6 +15,7 @@ window.gotZipBase64 = function(content) {
             clearInterval(openTimeout);
             swf.ASopenProjectFromData(content);
             setTimeout(() => {
+                $("#scratchloader").css("opacity", 0);
                 $('#downloader').animate({height: 0}, 1000);
             }, 100);
         } else if (tries >= 10) {
@@ -30,6 +31,7 @@ window.gotZipBase64 = function(content) {
                 title = "Scratch2 - " + DownloadedTitle;
             }
             setTimeout(() => {
+                $("#scratchloader").css("opacity", 0);
                 $('#downloader').animate({height: 0}, 1000);
             }, 1000);
         }
