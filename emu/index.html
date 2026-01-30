@@ -1,0 +1,1982 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- <base href="https://oldweb.today/?browser=ff10#https://a97c6317.scratchflash.pages.dev/?id=898918309"> -->
+    <link rel="stylesheet" href="assets/spectre.min.css">
+    <link rel="stylesheet" href="assets/spectre-exp.min.css">
+    <link rel="stylesheet" href="assets/spectre-icons.min.css">
+    <link rel="stylesheet" href="assets/styles.css">
+    <script src="https://oldweb.today/dist/jsnet-client.js"></script>
+    <link rel="icon" href="assets/favicon.png" type="image/png"/>
+    <script defer data-domain="oldweb.today" src="https://p.webrecorder.net/js/script.js"></script>
+    <script>
+// modified from OldWebToday (https://oldweb.today)
+( () => {
+    "use strict";
+    const e = "undefined" != typeof window && null != window.customElements && void 0 !== window.customElements.polyfillWrapFlushCallback
+      , t = (e, t, s=null) => {
+        for (; t !== s; ) {
+            const s = t.nextSibling;
+            e.removeChild(t),
+            t = s
+        }
+    }
+      , s = `{{lit-${String(Math.random()).slice(2)}}}`
+      , r = `\x3c!--${s}--\x3e`
+      , i = new RegExp(`${s}|${r}`)
+      , n = "$lit$";
+    class o {
+        constructor(e, t) {
+            this.parts = [],
+            this.element = t;
+            const r = []
+              , o = []
+              , l = document.createTreeWalker(t.content, 133, null, !1);
+            let c = 0
+              , u = -1
+              , p = 0;
+            const {strings: m, values: {length: f}} = e;
+            for (; p < f; ) {
+                const e = l.nextNode();
+                if (null !== e) {
+                    if (u++,
+                    1 === e.nodeType) {
+                        if (e.hasAttributes()) {
+                            const t = e.attributes
+                              , {length: s} = t;
+                            let r = 0;
+                            for (let e = 0; e < s; e++)
+                                a(t[e].name, n) && r++;
+                            for (; r-- > 0; ) {
+                                const t = m[p]
+                                  , s = h.exec(t)[2]
+                                  , r = s.toLowerCase() + n
+                                  , o = e.getAttribute(r);
+                                e.removeAttribute(r);
+                                const a = o.split(i);
+                                this.parts.push({
+                                    type: "attribute",
+                                    index: u,
+                                    name: s,
+                                    strings: a
+                                }),
+                                p += a.length - 1
+                            }
+                        }
+                        "TEMPLATE" === e.tagName && (o.push(e),
+                        l.currentNode = e.content)
+                    } else if (3 === e.nodeType) {
+                        const t = e.data;
+                        if (t.indexOf(s) >= 0) {
+                            const s = e.parentNode
+                              , o = t.split(i)
+                              , l = o.length - 1;
+                            for (let t = 0; t < l; t++) {
+                                let r, i = o[t];
+                                if ("" === i)
+                                    r = d();
+                                else {
+                                    const e = h.exec(i);
+                                    null !== e && a(e[2], n) && (i = i.slice(0, e.index) + e[1] + e[2].slice(0, -n.length) + e[3]),
+                                    r = document.createTextNode(i)
+                                }
+                                s.insertBefore(r, e),
+                                this.parts.push({
+                                    type: "node",
+                                    index: ++u
+                                })
+                            }
+                            "" === o[l] ? (s.insertBefore(d(), e),
+                            r.push(e)) : e.data = o[l],
+                            p += l
+                        }
+                    } else if (8 === e.nodeType)
+                        if (e.data === s) {
+                            const t = e.parentNode;
+                            null !== e.previousSibling && u !== c || (u++,
+                            t.insertBefore(d(), e)),
+                            c = u,
+                            this.parts.push({
+                                type: "node",
+                                index: u
+                            }),
+                            null === e.nextSibling ? e.data = "" : (r.push(e),
+                            u--),
+                            p++
+                        } else {
+                            let t = -1;
+                            for (; -1 !== (t = e.data.indexOf(s, t + 1)); )
+                                this.parts.push({
+                                    type: "node",
+                                    index: -1
+                                }),
+                                p++
+                        }
+                } else
+                    l.currentNode = o.pop()
+            }
+            for (const e of r)
+                e.parentNode.removeChild(e)
+        }
+    }
+    const a = (e, t) => {
+        const s = e.length - t.length;
+        return s >= 0 && e.slice(s) === t
+    }
+      , l = e => -1 !== e.index
+      , d = () => document.createComment("")
+      , h = /([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F "'>=/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/
+      , c = 133;
+    function u(e, t) {
+        const {element: {content: s}, parts: r} = e
+          , i = document.createTreeWalker(s, c, null, !1);
+        let n = m(r)
+          , o = r[n]
+          , a = -1
+          , l = 0;
+        const d = [];
+        let h = null;
+        for (; i.nextNode(); ) {
+            a++;
+            const e = i.currentNode;
+            for (e.previousSibling === h && (h = null),
+            t.has(e) && (d.push(e),
+            null === h && (h = e)),
+            null !== h && l++; void 0 !== o && o.index === a; )
+                o.index = null !== h ? -1 : o.index - l,
+                n = m(r, n),
+                o = r[n]
+        }
+        d.forEach((e => e.parentNode.removeChild(e)))
+    }
+    const p = e => {
+        let t = 11 === e.nodeType ? 0 : 1;
+        const s = document.createTreeWalker(e, c, null, !1);
+        for (; s.nextNode(); )
+            t++;
+        return t
+    }
+      , m = (e, t=-1) => {
+        for (let s = t + 1; s < e.length; s++) {
+            const t = e[s];
+            if (l(t))
+                return s
+        }
+        return -1
+    }
+    ;
+    /**
+ * @license
+ * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at
+ * http://polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at
+ * http://polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at
+ * http://polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at
+ * http://polymer.github.io/PATENTS.txt
+ */
+    const f = new WeakMap
+      , g = e => "function" == typeof e && f.has(e)
+      , y = {}
+      , w = {};
+    /**
+ * @license
+ * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at
+ * http://polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at
+ * http://polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at
+ * http://polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at
+ * http://polymer.github.io/PATENTS.txt
+ */
+    class v {
+        constructor(e, t, s) {
+            this.__parts = [],
+            this.template = e,
+            this.processor = t,
+            this.options = s
+        }
+        update(e) {
+            let t = 0;
+            for (const s of this.__parts)
+                void 0 !== s && s.setValue(e[t]),
+                t++;
+            for (const e of this.__parts)
+                void 0 !== e && e.commit()
+        }
+        _clone() {
+            const t = e ? this.template.element.content.cloneNode(!0) : document.importNode(this.template.element.content, !0)
+              , s = []
+              , r = this.template.parts
+              , i = document.createTreeWalker(t, 133, null, !1);
+            let n, o = 0, a = 0, d = i.nextNode();
+            for (; o < r.length; )
+                if (n = r[o],
+                l(n)) {
+                    for (; a < n.index; )
+                        a++,
+                        "TEMPLATE" === d.nodeName && (s.push(d),
+                        i.currentNode = d.content),
+                        null === (d = i.nextNode()) && (i.currentNode = s.pop(),
+                        d = i.nextNode());
+                    if ("node" === n.type) {
+                        const e = this.processor.handleTextExpression(this.options);
+                        e.insertAfterNode(d.previousSibling),
+                        this.__parts.push(e)
+                    } else
+                        this.__parts.push(...this.processor.handleAttributeExpressions(d, n.name, n.strings, this.options));
+                    o++
+                } else
+                    this.__parts.push(void 0),
+                    o++;
+            return e && (document.adoptNode(t),
+            customElements.upgrade(t)),
+            t
+        }
+    }
+    /**
+ * @license
+ * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at
+ * http://polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at
+ * http://polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at
+ * http://polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at
+ * http://polymer.github.io/PATENTS.txt
+ */
+    const b = window.trustedTypes && trustedTypes.createPolicy("lit-html", {
+        createHTML: e => e
+    })
+      , _ = ` ${s} `;
+    class S {
+        constructor(e, t, s, r) {
+            this.strings = e,
+            this.values = t,
+            this.type = s,
+            this.processor = r
+        }
+        getHTML() {
+            const e = this.strings.length - 1;
+            let t = ""
+              , i = !1;
+            for (let o = 0; o < e; o++) {
+                const e = this.strings[o]
+                  , a = e.lastIndexOf("\x3c!--");
+                i = (a > -1 || i) && -1 === e.indexOf("--\x3e", a + 1);
+                const l = h.exec(e);
+                t += null === l ? e + (i ? _ : r) : e.substr(0, l.index) + l[1] + l[2] + n + l[3] + s
+            }
+            return t += this.strings[e],
+            t
+        }
+        getTemplateElement() {
+            const e = document.createElement("template");
+            let t = this.getHTML();
+            return void 0 !== b && (t = b.createHTML(t)),
+            e.innerHTML = t,
+            e
+        }
+    }
+    /**
+ * @license
+ * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at
+ * http://polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at
+ * http://polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at
+ * http://polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at
+ * http://polymer.github.io/PATENTS.txt
+ */
+    const x = e => null === e || !("object" == typeof e || "function" == typeof e)
+      , T = e => Array.isArray(e) || !(!e || !e[Symbol.iterator]);
+    class U {
+        constructor(e, t, s) {
+            this.dirty = !0,
+            this.element = e,
+            this.name = t,
+            this.strings = s,
+            this.parts = [];
+            for (let e = 0; e < s.length - 1; e++)
+                this.parts[e] = this._createPart()
+        }
+        _createPart() {
+            return new A(this)
+        }
+        _getValue() {
+            const e = this.strings
+              , t = e.length - 1
+              , s = this.parts;
+            if (1 === t && "" === e[0] && "" === e[1]) {
+                const e = s[0].value;
+                if ("symbol" == typeof e)
+                    return String(e);
+                if ("string" == typeof e || !T(e))
+                    return e
+            }
+            let r = "";
+            for (let i = 0; i < t; i++) {
+                r += e[i];
+                const t = s[i];
+                if (void 0 !== t) {
+                    const e = t.value;
+                    if (x(e) || !T(e))
+                        r += "string" == typeof e ? e : String(e);
+                    else
+                        for (const t of e)
+                            r += "string" == typeof t ? t : String(t)
+                }
+            }
+            return r += e[t],
+            r
+        }
+        commit() {
+            this.dirty && (this.dirty = !1,
+            this.element.setAttribute(this.name, this._getValue()))
+        }
+    }
+    class A {
+        constructor(e) {
+            this.value = void 0,
+            this.committer = e
+        }
+        setValue(e) {
+            e === y || x(e) && e === this.value || (this.value = e,
+            g(e) || (this.committer.dirty = !0))
+        }
+        commit() {
+            for (; g(this.value); ) {
+                const e = this.value;
+                this.value = y,
+                e(this)
+            }
+            this.value !== y && this.committer.commit()
+        }
+    }
+    class C {
+        constructor(e) {
+            this.value = void 0,
+            this.__pendingValue = void 0,
+            this.options = e
+        }
+        appendInto(e) {
+            this.startNode = e.appendChild(d()),
+            this.endNode = e.appendChild(d())
+        }
+        insertAfterNode(e) {
+            this.startNode = e,
+            this.endNode = e.nextSibling
+        }
+        appendIntoPart(e) {
+            e.__insert(this.startNode = d()),
+            e.__insert(this.endNode = d())
+        }
+        insertAfterPart(e) {
+            e.__insert(this.startNode = d()),
+            this.endNode = e.endNode,
+            e.endNode = this.startNode
+        }
+        setValue(e) {
+            this.__pendingValue = e
+        }
+        commit() {
+            if (null === this.startNode.parentNode)
+                return;
+            for (; g(this.__pendingValue); ) {
+                const e = this.__pendingValue;
+                this.__pendingValue = y,
+                e(this)
+            }
+            const e = this.__pendingValue;
+            e !== y && (x(e) ? e !== this.value && this.__commitText(e) : e instanceof S ? this.__commitTemplateResult(e) : e instanceof Node ? this.__commitNode(e) : T(e) ? this.__commitIterable(e) : e === w ? (this.value = w,
+            this.clear()) : this.__commitText(e))
+        }
+        __insert(e) {
+            this.endNode.parentNode.insertBefore(e, this.endNode)
+        }
+        __commitNode(e) {
+            this.value !== e && (this.clear(),
+            this.__insert(e),
+            this.value = e)
+        }
+        __commitText(e) {
+            const t = this.startNode.nextSibling
+              , s = "string" == typeof (e = null == e ? "" : e) ? e : String(e);
+            t === this.endNode.previousSibling && 3 === t.nodeType ? t.data = s : this.__commitNode(document.createTextNode(s)),
+            this.value = e
+        }
+        __commitTemplateResult(e) {
+            const t = this.options.templateFactory(e);
+            if (this.value instanceof v && this.value.template === t)
+                this.value.update(e.values);
+            else {
+                const s = new v(t,e.processor,this.options)
+                  , r = s._clone();
+                s.update(e.values),
+                this.__commitNode(r),
+                this.value = s
+            }
+        }
+        __commitIterable(e) {
+            Array.isArray(this.value) || (this.value = [],
+            this.clear());
+            const t = this.value;
+            let s, r = 0;
+            for (const i of e)
+                s = t[r],
+                void 0 === s && (s = new C(this.options),
+                t.push(s),
+                0 === r ? s.appendIntoPart(this) : s.insertAfterPart(t[r - 1])),
+                s.setValue(i),
+                s.commit(),
+                r++;
+            r < t.length && (t.length = r,
+            this.clear(s && s.endNode))
+        }
+        clear(e=this.startNode) {
+            t(this.startNode.parentNode, e.nextSibling, this.endNode)
+        }
+    }
+    class P {
+        constructor(e, t, s) {
+            if (this.value = void 0,
+            this.__pendingValue = void 0,
+            2 !== s.length || "" !== s[0] || "" !== s[1])
+                throw new Error("Boolean attributes can only contain a single expression");
+            this.element = e,
+            this.name = t,
+            this.strings = s
+        }
+        setValue(e) {
+            this.__pendingValue = e
+        }
+        commit() {
+            for (; g(this.__pendingValue); ) {
+                const e = this.__pendingValue;
+                this.__pendingValue = y,
+                e(this)
+            }
+            if (this.__pendingValue === y)
+                return;
+            const e = !!this.__pendingValue;
+            this.value !== e && (e ? this.element.setAttribute(this.name, "") : this.element.removeAttribute(this.name),
+            this.value = e),
+            this.__pendingValue = y
+        }
+    }
+    class k extends U {
+        constructor(e, t, s) {
+            super(e, t, s),
+            this.single = 2 === s.length && "" === s[0] && "" === s[1]
+        }
+        _createPart() {
+            return new E(this)
+        }
+        _getValue() {
+            return this.single ? this.parts[0].value : super._getValue()
+        }
+        commit() {
+            this.dirty && (this.dirty = !1,
+            this.element[this.name] = this._getValue())
+        }
+    }
+    class E extends A {
+    }
+    let N = !1;
+    ( () => {
+        try {
+            const e = {
+                get capture() {
+                    return N = !0,
+                    !1
+                }
+            };
+            window.addEventListener("test", e, e),
+            window.removeEventListener("test", e, e)
+        } catch (e) {}
+    }
+    )();
+    class R {
+        constructor(e, t, s) {
+            this.value = void 0,
+            this.__pendingValue = void 0,
+            this.element = e,
+            this.eventName = t,
+            this.eventContext = s,
+            this.__boundHandleEvent = e => this.handleEvent(e)
+        }
+        setValue(e) {
+            this.__pendingValue = e
+        }
+        commit() {
+            for (; g(this.__pendingValue); ) {
+                const e = this.__pendingValue;
+                this.__pendingValue = y,
+                e(this)
+            }
+            if (this.__pendingValue === y)
+                return;
+            const e = this.__pendingValue
+              , t = this.value
+              , s = null == e || null != t && (e.capture !== t.capture || e.once !== t.once || e.passive !== t.passive)
+              , r = null != e && (null == t || s);
+            s && this.element.removeEventListener(this.eventName, this.__boundHandleEvent, this.__options),
+            r && (this.__options = M(e),
+            this.element.addEventListener(this.eventName, this.__boundHandleEvent, this.__options)),
+            this.value = e,
+            this.__pendingValue = y
+        }
+        handleEvent(e) {
+            "function" == typeof this.value ? this.value.call(this.eventContext || this.element, e) : this.value.handleEvent(e)
+        }
+    }
+    const M = e => e && (N ? {
+        capture: e.capture,
+        passive: e.passive,
+        once: e.once
+    } : e.capture);
+    /**
+ * @license
+ * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at
+ * http://polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at
+ * http://polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at
+ * http://polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at
+ * http://polymer.github.io/PATENTS.txt
+ */
+    function $(e) {
+        let t = D.get(e.type);
+        void 0 === t && (t = {
+            stringsArray: new WeakMap,
+            keyString: new Map
+        },
+        D.set(e.type, t));
+        let r = t.stringsArray.get(e.strings);
+        if (void 0 !== r)
+            return r;
+        const i = e.strings.join(s);
+        return r = t.keyString.get(i),
+        void 0 === r && (r = new o(e,e.getTemplateElement()),
+        t.keyString.set(i, r)),
+        t.stringsArray.set(e.strings, r),
+        r
+    }
+    const D = new Map
+      , L = new WeakMap;
+    const B = new /**
+ * @license
+ * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at
+ * http://polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at
+ * http://polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at
+ * http://polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at
+ * http://polymer.github.io/PATENTS.txt
+ */
+    class {
+        handleAttributeExpressions(e, t, s, r) {
+            const i = t[0];
+            if ("." === i) {
+                return new k(e,t.slice(1),s).parts
+            }
+            if ("@" === i)
+                return [new R(e,t.slice(1),r.eventContext)];
+            if ("?" === i)
+                return [new P(e,t.slice(1),s)];
+            return new U(e,t,s).parts
+        }
+        handleTextExpression(e) {
+            return new C(e)
+        }
+    }
+    ;
+    /**
+ * @license
+ * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at
+ * http://polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at
+ * http://polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at
+ * http://polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at
+ * http://polymer.github.io/PATENTS.txt
+ */
+    "undefined" != typeof window && (window.litHtmlVersions || (window.litHtmlVersions = [])).push("1.3.0");
+    const I = (e, ...t) => new S(e,t,"html",B)
+      , O = (e, t) => `${e}--${t}`;
+    let V = !0;
+    void 0 === window.ShadyCSS ? V = !1 : void 0 === window.ShadyCSS.prepareTemplateDom && (console.warn("Incompatible ShadyCSS version detected. Please update to at least @webcomponents/webcomponentsjs@2.0.2 and @webcomponents/shadycss@1.3.1."),
+    V = !1);
+    const j = e => t => {
+        const r = O(t.type, e);
+        let i = D.get(r);
+        void 0 === i && (i = {
+            stringsArray: new WeakMap,
+            keyString: new Map
+        },
+        D.set(r, i));
+        let n = i.stringsArray.get(t.strings);
+        if (void 0 !== n)
+            return n;
+        const a = t.strings.join(s);
+        if (n = i.keyString.get(a),
+        void 0 === n) {
+            const s = t.getTemplateElement();
+            V && window.ShadyCSS.prepareTemplateDom(s, e),
+            n = new o(t,s),
+            i.keyString.set(a, n)
+        }
+        return i.stringsArray.set(t.strings, n),
+        n
+    }
+      , W = ["html", "svg"]
+      , z = new Set
+      , H = (e, t, s) => {
+        z.add(e);
+        const r = s ? s.element : document.createElement("template")
+          , i = t.querySelectorAll("style")
+          , {length: n} = i;
+        if (0 === n)
+            return void window.ShadyCSS.prepareTemplateStyles(r, e);
+        const o = document.createElement("style");
+        for (let e = 0; e < n; e++) {
+            const t = i[e];
+            t.parentNode.removeChild(t),
+            o.textContent += t.textContent
+        }
+        (e => {
+            W.forEach((t => {
+                const s = D.get(O(t, e));
+                void 0 !== s && s.keyString.forEach((e => {
+                    const {element: {content: t}} = e
+                      , s = new Set;
+                    Array.from(t.querySelectorAll("style")).forEach((e => {
+                        s.add(e)
+                    }
+                    )),
+                    u(e, s)
+                }
+                ))
+            }
+            ))
+        }
+        )(e);
+        const a = r.content;
+        s ? function(e, t, s=null) {
+            const {element: {content: r}, parts: i} = e;
+            if (null == s)
+                return void r.appendChild(t);
+            const n = document.createTreeWalker(r, c, null, !1);
+            let o = m(i)
+              , a = 0
+              , l = -1;
+            for (; n.nextNode(); )
+                for (l++,
+                n.currentNode === s && (a = p(t),
+                s.parentNode.insertBefore(t, s)); -1 !== o && i[o].index === l; ) {
+                    if (a > 0) {
+                        for (; -1 !== o; )
+                            i[o].index += a,
+                            o = m(i, o);
+                        return
+                    }
+                    o = m(i, o)
+                }
+        }(s, o, a.firstChild) : a.insertBefore(o, a.firstChild),
+        window.ShadyCSS.prepareTemplateStyles(r, e);
+        const l = a.querySelector("style");
+        if (window.ShadyCSS.nativeShadow && null !== l)
+            t.insertBefore(l.cloneNode(!0), t.firstChild);
+        else if (s) {
+            a.insertBefore(o, a.firstChild);
+            const e = new Set;
+            e.add(o),
+            u(s, e)
+        }
+    }
+    ;
+    window.JSCompiler_renameProperty = (e, t) => e;
+    const F = {
+        toAttribute(e, t) {
+            switch (t) {
+            case Boolean:
+                return e ? "" : null;
+            case Object:
+            case Array:
+                return null == e ? e : JSON.stringify(e)
+            }
+            return e
+        },
+        fromAttribute(e, t) {
+            switch (t) {
+            case Boolean:
+                return null !== e;
+            case Number:
+                return null === e ? null : Number(e);
+            case Object:
+            case Array:
+                return JSON.parse(e)
+            }
+            return e
+        }
+    }
+      , q = (e, t) => t !== e && (t == t || e == e)
+      , Y = {
+        attribute: !0,
+        type: String,
+        converter: F,
+        reflect: !1,
+        hasChanged: q
+    }
+      , J = "finalized";
+    class Q extends HTMLElement {
+        constructor() {
+            super(),
+            this.initialize()
+        }
+        static get observedAttributes() {
+            this.finalize();
+            const e = [];
+            return this._classProperties.forEach(( (t, s) => {
+                const r = this._attributeNameForProperty(s, t);
+                void 0 !== r && (this._attributeToPropertyMap.set(r, s),
+                e.push(r))
+            }
+            )),
+            e
+        }
+        static _ensureClassProperties() {
+            if (!this.hasOwnProperty(JSCompiler_renameProperty("_classProperties", this))) {
+                this._classProperties = new Map;
+                const e = Object.getPrototypeOf(this)._classProperties;
+                void 0 !== e && e.forEach(( (e, t) => this._classProperties.set(t, e)))
+            }
+        }
+        static createProperty(e, t=Y) {
+            if (this._ensureClassProperties(),
+            this._classProperties.set(e, t),
+            t.noAccessor || this.prototype.hasOwnProperty(e))
+                return;
+            const s = "symbol" == typeof e ? Symbol() : `__${e}`
+              , r = this.getPropertyDescriptor(e, s, t);
+            void 0 !== r && Object.defineProperty(this.prototype, e, r)
+        }
+        static getPropertyDescriptor(e, t, s) {
+            return {
+                get() {
+                    return this[t]
+                },
+                set(r) {
+                    const i = this[e];
+                    this[t] = r,
+                    this.requestUpdateInternal(e, i, s)
+                },
+                configurable: !0,
+                enumerable: !0
+            }
+        }
+        static getPropertyOptions(e) {
+            return this._classProperties && this._classProperties.get(e) || Y
+        }
+        static finalize() {
+            const e = Object.getPrototypeOf(this);
+            if (e.hasOwnProperty(J) || e.finalize(),
+            this[J] = !0,
+            this._ensureClassProperties(),
+            this._attributeToPropertyMap = new Map,
+            this.hasOwnProperty(JSCompiler_renameProperty("properties", this))) {
+                const e = this.properties
+                  , t = [...Object.getOwnPropertyNames(e), ..."function" == typeof Object.getOwnPropertySymbols ? Object.getOwnPropertySymbols(e) : []];
+                for (const s of t)
+                    this.createProperty(s, e[s])
+            }
+        }
+        static _attributeNameForProperty(e, t) {
+            const s = t.attribute;
+            return !1 === s ? void 0 : "string" == typeof s ? s : "string" == typeof e ? e.toLowerCase() : void 0
+        }
+        static _valueHasChanged(e, t, s=q) {
+            return s(e, t)
+        }
+        static _propertyValueFromAttribute(e, t) {
+            const s = t.type
+              , r = t.converter || F
+              , i = "function" == typeof r ? r : r.fromAttribute;
+            return i ? i(e, s) : e
+        }
+        static _propertyValueToAttribute(e, t) {
+            if (void 0 === t.reflect)
+                return;
+            const s = t.type
+              , r = t.converter;
+            return (r && r.toAttribute || F.toAttribute)(e, s)
+        }
+        initialize() {
+            this._updateState = 0,
+            this._updatePromise = new Promise((e => this._enableUpdatingResolver = e)),
+            this._changedProperties = new Map,
+            this._saveInstanceProperties(),
+            this.requestUpdateInternal()
+        }
+        _saveInstanceProperties() {
+            this.constructor._classProperties.forEach(( (e, t) => {
+                if (this.hasOwnProperty(t)) {
+                    const e = this[t];
+                    delete this[t],
+                    this._instanceProperties || (this._instanceProperties = new Map),
+                    this._instanceProperties.set(t, e)
+                }
+            }
+            ))
+        }
+        _applyInstanceProperties() {
+            this._instanceProperties.forEach(( (e, t) => this[t] = e)),
+            this._instanceProperties = void 0
+        }
+        connectedCallback() {
+            this.enableUpdating()
+        }
+        enableUpdating() {
+            void 0 !== this._enableUpdatingResolver && (this._enableUpdatingResolver(),
+            this._enableUpdatingResolver = void 0)
+        }
+        disconnectedCallback() {}
+        attributeChangedCallback(e, t, s) {
+            t !== s && this._attributeToProperty(e, s)
+        }
+        _propertyToAttribute(e, t, s=Y) {
+            const r = this.constructor
+              , i = r._attributeNameForProperty(e, s);
+            if (void 0 !== i) {
+                const e = r._propertyValueToAttribute(t, s);
+                if (void 0 === e)
+                    return;
+                this._updateState = 8 | this._updateState,
+                null == e ? this.removeAttribute(i) : this.setAttribute(i, e),
+                this._updateState = -9 & this._updateState
+            }
+        }
+        _attributeToProperty(e, t) {
+            if (8 & this._updateState)
+                return;
+            const s = this.constructor
+              , r = s._attributeToPropertyMap.get(e);
+            if (void 0 !== r) {
+                const e = s.getPropertyOptions(r);
+                this._updateState = 16 | this._updateState,
+                this[r] = s._propertyValueFromAttribute(t, e),
+                this._updateState = -17 & this._updateState
+            }
+        }
+        requestUpdateInternal(e, t, s) {
+            let r = !0;
+            if (void 0 !== e) {
+                const i = this.constructor;
+                s = s || i.getPropertyOptions(e),
+                i._valueHasChanged(this[e], t, s.hasChanged) ? (this._changedProperties.has(e) || this._changedProperties.set(e, t),
+                !0 !== s.reflect || 16 & this._updateState || (void 0 === this._reflectingProperties && (this._reflectingProperties = new Map),
+                this._reflectingProperties.set(e, s))) : r = !1
+            }
+            !this._hasRequestedUpdate && r && (this._updatePromise = this._enqueueUpdate())
+        }
+        requestUpdate(e, t) {
+            return this.requestUpdateInternal(e, t),
+            this.updateComplete
+        }
+        async _enqueueUpdate() {
+            this._updateState = 4 | this._updateState;
+            try {
+                await this._updatePromise
+            } catch (e) {}
+            const e = this.performUpdate();
+            return null != e && await e,
+            !this._hasRequestedUpdate
+        }
+        get _hasRequestedUpdate() {
+            return 4 & this._updateState
+        }
+        get hasUpdated() {
+            return 1 & this._updateState
+        }
+        performUpdate() {
+            if (!this._hasRequestedUpdate)
+                return;
+            this._instanceProperties && this._applyInstanceProperties();
+            let e = !1;
+            const t = this._changedProperties;
+            try {
+                e = this.shouldUpdate(t),
+                e ? this.update(t) : this._markUpdated()
+            } catch (t) {
+                throw e = !1,
+                this._markUpdated(),
+                t
+            }
+            e && (1 & this._updateState || (this._updateState = 1 | this._updateState,
+            this.firstUpdated(t)),
+            this.updated(t))
+        }
+        _markUpdated() {
+            this._changedProperties = new Map,
+            this._updateState = -5 & this._updateState
+        }
+        get updateComplete() {
+            return this._getUpdateComplete()
+        }
+        _getUpdateComplete() {
+            return this._updatePromise
+        }
+        shouldUpdate(e) {
+            return !0
+        }
+        update(e) {
+            void 0 !== this._reflectingProperties && this._reflectingProperties.size > 0 && (this._reflectingProperties.forEach(( (e, t) => this._propertyToAttribute(t, this[t], e))),
+            this._reflectingProperties = void 0),
+            this._markUpdated()
+        }
+        updated(e) {}
+        firstUpdated(e) {}
+    }
+    Q[J] = !0;
+    const K = Element.prototype;
+    K.msMatchesSelector || K.webkitMatchesSelector;
+    /**
+@license
+Copyright (c) 2019 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at
+http://polymer.github.io/LICENSE.txt The complete set of authors may be found at
+http://polymer.github.io/AUTHORS.txt The complete set of contributors may be
+found at http://polymer.github.io/CONTRIBUTORS.txt Code distributed by Google as
+part of the polymer project is also subject to an additional IP rights grant
+found at http://polymer.github.io/PATENTS.txt
+*/
+    const G = window.ShadowRoot && (void 0 === window.ShadyCSS || window.ShadyCSS.nativeShadow) && "adoptedStyleSheets"in Document.prototype && "replace"in CSSStyleSheet.prototype
+      , X = Symbol();
+    class Z {
+        constructor(e, t) {
+            if (t !== X)
+                throw new Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
+            this.cssText = e
+        }
+        get styleSheet() {
+            return void 0 === this._styleSheet && (G ? (this._styleSheet = new CSSStyleSheet,
+            this._styleSheet.replaceSync(this.cssText)) : this._styleSheet = null),
+            this._styleSheet
+        }
+        toString() {
+            return this.cssText
+        }
+    }
+    /**
+ * @license
+ * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at
+ * http://polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at
+ * http://polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at
+ * http://polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at
+ * http://polymer.github.io/PATENTS.txt
+ */
+    (window.litElementVersions || (window.litElementVersions = [])).push("2.4.0");
+    const ee = {};
+    class te extends Q {
+        static getStyles() {
+            return this.styles
+        }
+        static _getUniqueStyles() {
+            if (this.hasOwnProperty(JSCompiler_renameProperty("_styles", this)))
+                return;
+            const e = this.getStyles();
+            if (Array.isArray(e)) {
+                const t = (e, s) => e.reduceRight(( (e, s) => Array.isArray(s) ? t(s, e) : (e.add(s),
+                e)), s)
+                  , s = t(e, new Set)
+                  , r = [];
+                s.forEach((e => r.unshift(e))),
+                this._styles = r
+            } else
+                this._styles = void 0 === e ? [] : [e];
+            this._styles = this._styles.map((e => {
+                if (e instanceof CSSStyleSheet && !G) {
+                    const t = Array.prototype.slice.call(e.cssRules).reduce(( (e, t) => e + t.cssText), "");
+                    return new Z(String(t),X)
+                }
+                return e
+            }
+            ))
+        }
+        initialize() {
+            super.initialize(),
+            this.constructor._getUniqueStyles(),
+            this.renderRoot = this.createRenderRoot(),
+            window.ShadowRoot && this.renderRoot instanceof window.ShadowRoot && this.adoptStyles()
+        }
+        createRenderRoot() {
+            return this.attachShadow({
+                mode: "open"
+            })
+        }
+        adoptStyles() {
+            const e = this.constructor._styles;
+            0 !== e.length && (void 0 === window.ShadyCSS || window.ShadyCSS.nativeShadow ? G ? this.renderRoot.adoptedStyleSheets = e.map((e => e instanceof CSSStyleSheet ? e : e.styleSheet)) : this._needsShimAdoptedStyleSheets = !0 : window.ShadyCSS.ScopingShim.prepareAdoptedCssText(e.map((e => e.cssText)), this.localName))
+        }
+        connectedCallback() {
+            super.connectedCallback(),
+            this.hasUpdated && void 0 !== window.ShadyCSS && window.ShadyCSS.styleElement(this)
+        }
+        update(e) {
+            const t = this.render();
+            super.update(e),
+            t !== ee && this.constructor.render(t, this.renderRoot, {
+                scopeName: this.localName,
+                eventContext: this
+            }),
+            this._needsShimAdoptedStyleSheets && (this._needsShimAdoptedStyleSheets = !1,
+            this.constructor._styles.forEach((e => {
+                const t = document.createElement("style");
+                t.textContent = e.cssText,
+                this.renderRoot.appendChild(t)
+            }
+            )))
+        }
+        render() {
+            return ee
+        }
+    }
+    te.finalized = !0,
+    te.render = (e, s, r) => {
+        if (!r || "object" != typeof r || !r.scopeName)
+            throw new Error("The `scopeName` option is required.");
+        const i = r.scopeName
+          , n = L.has(s)
+          , o = V && 11 === s.nodeType && !!s.host
+          , a = o && !z.has(i)
+          , l = a ? document.createDocumentFragment() : s;
+        if (( (e, s, r) => {
+            let i = L.get(s);
+            void 0 === i && (t(s, s.firstChild),
+            L.set(s, i = new C(Object.assign({
+                templateFactory: $
+            }, r))),
+            i.appendInto(s)),
+            i.setValue(e),
+            i.commit()
+        }
+        )(e, l, Object.assign({
+            templateFactory: j(i)
+        }, r)),
+        a) {
+            const e = L.get(l);
+            L.delete(l);
+            const r = e.value instanceof v ? e.value.template : void 0;
+            H(i, l, r),
+            t(s, s.firstChild),
+            s.appendChild(l),
+            L.set(s, e)
+        }
+        !n && o && window.ShadyCSS.styleElement(s.host)
+    }
+    ;
+    let se = !1;
+    const re = [0, 34, 21, 16, 17, 18];
+    class ie {
+        constructor(e, t, s, r, i) {
+            console.log("URL", t),
+            console.log("TS", s);
+            this.jsnet = new JSNet.JSNetClient({
+                jsnetUrl: "dist/jsnet.js",
+                replayTs: s,
+                replayUrl: t,
+                clientIP: r,
+                clientMAC: i,
+                recvCallback: null
+            }),
+            this.bus = e,
+            this.bus.register("net0-send", (e => this.jsnet.send(e)), this),
+            this.loop = setInterval(( () => this.recvLoop()), 10)
+        }
+        recv(e) {
+            this.bus.send("net0-receive", e)
+        }
+        recvLoop() {
+            this.jsnet.pollRecv((e => this.recv(e)))
+        }
+        destroy() {
+            clearInterval(this.loop)
+        }
+    }
+    function ne(e={}, t) {
+        var s = parseInt(e.width) || 800
+          , r = parseInt(e.height) || 600
+          , i = document.querySelector(e.canvas);
+        i.width = s,
+        i.height = r;
+        var n = {
+            channels: 1,
+            bytesPerSample: 2,
+            samples: 4096,
+            freq: 22050,
+            format: 32784,
+            paused: !1,
+            timer: null,
+            silence: 0,
+            maxBuffersInSharedMemory: 5,
+            nextPlayTime: 0
+        }
+          , o = n.samples * n.channels;
+        n.bytesPerSample = 8 == n.format || 32776 == n.format ? 1 : 2,
+        n.bufferSize = o * n.bytesPerSample,
+        n.bufferDurationSecs = n.bufferSize / n.bytesPerSample / n.channels / n.freq,
+        n.bufferingDelay = .05,
+        n.numSimultaneouslyQueuedBuffers = 5,
+        n.nextChunkIndex = 0;
+        var a = s * r * 4
+          , l = i.getContext("2d")
+          , d = l.createImageData(s, r)
+          , h = new SharedArrayBuffer(a)
+          , c = new Uint8Array(h)
+          , u = new SharedArrayBuffer(40)
+          , p = new Int32Array(u)
+          , m = new SharedArrayBuffer(10)
+          , f = (new Uint8Array(m),
+        n.bufferSize + 2)
+          , g = f * n.maxBuffersInSharedMemory
+          , y = new SharedArrayBuffer(g)
+          , w = new Uint8Array(y)
+          , v = new SharedArrayBuffer(400)
+          , b = new Int32Array(v)
+          , _ = []
+          , S = Atomics.wake || Atomics.notify
+          , x = {
+            globalLockAddr: 0,
+            mouseMoveFlagAddr: 1,
+            mouseMoveXDeltaAddr: 2,
+            mouseMoveYDeltaAddr: 3,
+            mouseButtonStateAddr: 4,
+            keyEventFlagAddr: 5,
+            keyCodeAddr: 6,
+            keyStateAddr: 7
+        }
+          , T = {
+            READY_FOR_UI_THREAD: 0,
+            UI_THREAD_LOCK: 1,
+            READY_FOR_EMUL_THREAD: 2,
+            EMUL_THREAD_LOCK: 3
+        }
+          , U = new AudioContext
+          , A = U.createGain();
+        A.gain.value = 1,
+        A.connect(U.destination);
+        var C, P;
+        function k() {
+            !function(e, t) {
+                Atomics.store(e, t, T.READY_FOR_EMUL_THREAD),
+                S(e, t)
+            }(b, x.globalLockAddr)
+        }
+        function E() {
+            if (function(e, t) {
+                return Atomics.compareExchange(e, t, T.READY_FOR_UI_THREAD, T.UI_THREAD_LOCK) === T.READY_FOR_UI_THREAD
+            }(b, x.globalLockAddr)) {
+                for (var e = !1, t = 0, s = 0, r = -1, i = !1, n = -1, o = -1, a = [], l = 0; l < _.length; l++) {
+                    var d = _[l];
+                    switch (d.type) {
+                    case "mousemove":
+                        if (e)
+                            break;
+                        e = !0,
+                        t += d.dx,
+                        s += d.dy;
+                        break;
+                    case "mousedown":
+                    case "mouseup":
+                        r = "mousedown" === d.type ? 1 : 0;
+                        break;
+                    case "keydown":
+                    case "keyup":
+                        if (i) {
+                            a.push(d);
+                            break
+                        }
+                        i = !0,
+                        o = "keydown" === d.type ? 1 : 0,
+                        n = d.keyCode
+                    }
+                }
+                e && (b[x.mouseMoveFlagAddr] = 1,
+                b[x.mouseMoveXDeltaAddr] = t,
+                b[x.mouseMoveYDeltaAddr] = s),
+                b[x.mouseButtonStateAddr] = r,
+                i && (b[x.keyEventFlagAddr] = 1,
+                b[x.keyCodeAddr] = n,
+                b[x.keyStateAddr] = o),
+                k(),
+                _ = a
+            }
+        }
+        C = p,
+        P = 9,
+        Atomics.store(C, P, T.EMUL_THREAD_LOCK),
+        S(C, P),
+        i.addEventListener("mousemove", (function(e) {
+            _.push({
+                type: "mousemove",
+                dx: e.offsetX,
+                dy: e.offsetY
+            })
+        }
+        )),
+        i.addEventListener("mousedown", (function(e) {
+            _.push({
+                type: "mousedown"
+            })
+        }
+        )),
+        i.addEventListener("mouseup", (function(e) {
+            _.push({
+                type: "mouseup"
+            })
+        }
+        )),
+        window.addEventListener("keydown", (function(e) {
+            _.push({
+                type: "keydown",
+                keyCode: e.keyCode
+            })
+        }
+        )),
+        window.addEventListener("keyup", (function(e) {
+            _.push({
+                type: "keyup",
+                keyCode: e.keyCode
+            })
+        }
+        )),
+        window.location.hash || (window.location.hash = "#1996/geocities.com/");
+        var N = {
+            inputBuffer: v,
+            inputBufferSize: 100,
+            screenBuffer: h,
+            screenBufferSize: a,
+            videoModeBuffer: u,
+            videoModeBufferSize: 10,
+            audioDataBuffer: y,
+            audioDataBufferSize: g,
+            audioBlockBufferSize: n.bufferSize,
+            audioBlockChunkSize: f,
+            screenWidth: s,
+            screenHeight: r,
+            config: e
+        }
+          , R = new Worker("dist/bas-worker.js");
+        R.postMessage(N),
+        R.addEventListener("message", (e => {
+            t && t.dispatchEvent(new CustomEvent("dl-progress",{
+                detail: e.data
+            }))
+        }
+        )),
+        n.pushAudio = function(e, t) {
+            if (!n.paused) {
+                var s = t / n.bytesPerSample / n.channels;
+                if (s != n.samples)
+                    throw "Received mismatching audio buffer size!";
+                var r = U.createBufferSource()
+                  , i = U.createBuffer(n.channels, s, n.freq);
+                r.connect(A),
+                n.fillWebAudioBufferFromChunk(e, s, i),
+                r.buffer = i;
+                var o = U.currentTime;
+                o > n.nextPlayTime && n.nextPlayTime;
+                var a = Math.max(o + n.bufferingDelay, n.nextPlayTime);
+                r.start(a),
+                n.nextPlayTime = a + n.bufferDurationSecs
+            }
+        }
+        ,
+        n.getBlockBuffer = function() {
+            var e = n.nextChunkIndex * f;
+            if (w[e] !== T.UI_THREAD_LOCK)
+                return n.gotFirstBlock,
+                null;
+            n.gotFirstBlock = !0;
+            var t = w.slice(e + 2, e + 2 + n.bufferSize);
+            return n.nextChunkIndex = w[e + 1],
+            w[e] = T.EMUL_THREAD_LOCK,
+            t
+        }
+        ,
+        n.fillWebAudioBufferFromChunk = function(e, t, s) {
+            for (var r = 0; r < n.channels; ++r) {
+                var i = s.getChannelData(r);
+                if (i.length != t)
+                    throw "Web Audio output buffer length mismatch! Destination size: " + i.length + " samples vs expected " + t + " samples!";
+                for (var o = new Int16Array(e.buffer), a = 0; a < t; ++a)
+                    i[a] = o[a] / 32768
+            }
+        }
+        ,
+        n.queueNewAudioData = function() {
+            for (var e = 0; e < n.numSimultaneouslyQueuedBuffers; ++e) {
+                if (n.nextPlayTime - U.currentTime >= n.bufferingDelay + n.bufferDurationSecs * n.numSimultaneouslyQueuedBuffers)
+                    return;
+                var t = n.getBlockBuffer();
+                if (!t)
+                    return;
+                n.pushAudio(t, n.bufferSize)
+            }
+        }
+        ,
+        n.caller = function() {
+            --n.numAudioTimersPending,
+            n.queueNewAudioData();
+            var e = n.nextPlayTime - U.currentTime
+              , t = n.bufferDurationSecs / 2;
+            n.numAudioTimersPending < n.numSimultaneouslyQueuedBuffers && (++n.numAudioTimersPending,
+            n.timer = setTimeout(n.caller, Math.max(0, 1e3 * (e - t))),
+            n.numAudioTimersPending < n.numSimultaneouslyQueuedBuffers && (++n.numAudioTimersPending,
+            setTimeout(n.caller, 1)))
+        }
+        ,
+        n.numAudioTimersPending = 1,
+        n.timer = setTimeout(n.caller, 1),
+        function e() {
+            !function() {
+                const e = d.data
+                  , t = s * r
+                  , i = p[3];
+                if (U.currentTime,
+                i)
+                    for (var n = 0; n < t; n++)
+                        e[4 * n + 0] = c[4 * n + 0],
+                        e[4 * n + 1] = c[4 * n + 1],
+                        e[4 * n + 2] = c[4 * n + 2],
+                        e[4 * n + 3] = 255;
+                else
+                    for (n = 0; n < t; n++)
+                        e[4 * n + 0] = c[4 * n + 1],
+                        e[4 * n + 1] = c[4 * n + 2],
+                        e[4 * n + 2] = c[4 * n + 3],
+                        e[4 * n + 3] = 255;
+                l.putImageData(d, 0, 0)
+            }(),
+            E(),
+            requestAnimationFrame(e)
+        }()
+    }
+    customElements.define("oldweb-today", class extends te {
+        constructor() {
+            super(),
+            this.emuMap = {},
+            this.replayUrl = "http://example.com/",
+            this.replayTs = "",
+            this.inputTs = "",
+            this.launchReplayUrl = "",
+            this.browserID = "",
+            this.launchID = "",
+            this.isLoading = !1,
+            this.showUrlUpdateMessage = !1,
+            this.showTsUpdateMessage = !1,
+            this.emuOptions = [],
+            this.emuMap = {},
+            this.unsupported = !self.BroadcastChannel || !self.SharedArrayBuffer,
+            self.BroadcastChannel && (this.updateChannel = new BroadcastChannel("update-proxy"),
+            this.updateChannel.onmessage = () => this.onClearUpdateNeeded()),
+            this.dlProgress = 0,
+            this.dlProgressTotal = 0,
+            this.inited = !1,
+            this.initSW(),
+            this.loadConfig()
+        }
+        async loadConfig() {
+            const e = await fetch("./assets/config.json");
+            this.emuOptions = await e.json();
+            for (const e of this.emuOptions)
+                this.emuMap[e.id] = e
+        }
+        async initSW() {
+            const e = !!navigator.serviceWorker.controller;
+            await navigator.serviceWorker.register("./sw.js", {
+                scope: "./"
+            }),
+            navigator.serviceWorker.addEventListener("message", (t => {
+                this.inited = !0,
+                this.unsupported && !e && window.location.reload()
+            }
+            ));
+            const t = new URL(window.location);
+            t.hash = "";
+            const s = {
+                msg_type: "addColl",
+                name: "live",
+                type: "live",
+                file: {
+                    sourceUrl: "proxy://live"
+                },
+                skipExisting: !1,
+                extraConfig: {
+                    prefix: "https://wabac-cors-proxy.webrecorder.workers.dev/proxy/",
+                    isLive: !1,
+                    archivePrefix: "https://web.archive.org/web/",
+                    baseUrl: t.href,
+                    baseUrlHashReplay: !0,
+                    coHeaders: !0
+                }
+            };
+            navigator.serviceWorker.controller ? navigator.serviceWorker.controller.postMessage(s) : navigator.serviceWorker.addEventListener("controllerchange", (e => {
+                navigator.serviceWorker.controller.postMessage(s)
+            }
+            ))
+        }
+        static get properties() {
+            return {
+                replayUrl: {
+                    type: String
+                },
+                replayTs: {
+                    type: String
+                },
+                inputTs: {
+                    type: String
+                },
+                isLoading: {
+                    type: Boolean
+                },
+                launchID: {
+                    type: String
+                },
+                browserID: {
+                    type: String
+                },
+                showUrlUpdateMessage: {
+                    type: Boolean
+                },
+                showTsUpdateMessage: {
+                    type: Boolean
+                },
+                emuOptions: {
+                    type: Array
+                },
+                unsupported: {
+                    type: Boolean
+                },
+                dlProgress: {
+                    type: Number
+                },
+                dlProgressTotal: {
+                    type: Number
+                },
+                inited: {
+                    type: Boolean
+                }
+            }
+        }
+        get isRunning() {
+            return !!this.launchID
+        }
+        onClearUpdateNeeded(e) {
+            this.showUrlUpdateMessage = !1,
+            this.showTsUpdateMessage = !1,
+            this.isLoading = !1,
+            e && e.detail && e.detail.url && (this._internalUpdate = !0,
+            this.replayUrl = e.detail.url)
+        }
+        onStartLoading() {
+            this.showUrlUpdateMessage = !1,
+            this.showTsUpdateMessage = !1,
+            this.isLoading = !0
+        }
+        firstUpdated() {
+            window.location.hash || (window.location.hash = "#/19960101/http://geocities.com/"),
+            this.parseOpts(),
+            window.addEventListener("hashchange", ( () => this.parseOpts(!0))),
+            window.addEventListener("popstate", ( () => this.parseOpts())),
+            this.launchID = this.browserID,
+            this.isLoading = this.isRunning,
+            this.launchReplayUrl = this.replayUrl,
+            this.inputTs = this.replayTs || "19960101"
+        }
+        updated(e) {
+            (e.has("replayUrl") || e.has("replayTs")) && this.updateHash(),
+            this.isRunning && !this.isLoading && (e.has("replayTs") && (this.updateChannel.postMessage({
+                replayTs: this.replayTs
+            }),
+            this.showTsUpdateMessage = !0),
+            e.has("replayUrl") && (this._internalUpdate || (this.updateChannel.postMessage({
+                replayUrl: this.replayUrl
+            }),
+            this.showUrlUpdateMessage = !0),
+            this._internalUpdate = !1)),
+            e.has("browserID") && this.updateQuery()
+        }
+        createRenderRoot() {
+            return this
+        }
+        parseOpts(e) {
+            const t = new URL(window.location.href).searchParams;
+            this.browserID = t.get("browser");
+            const s = window.location.hash.slice(1).match(/\/?(?:([\d]+)\/)?(.*)/);
+            s && (this.replayTs = s[1] || "",
+            this.replayUrl = s[2] || "http://example.com/")
+        }
+        updateHash() {
+            let e = "#";
+            this.replayTs && (e += this.replayTs + "/"),
+            e += this.replayUrl,
+            window.location.hash = e
+        }
+        updateQuery() {
+            const e = new URL(window.location.href);
+            this.browserID ? e.searchParams.set("browser", this.browserID) : e.searchParams.delete("browser"),
+            window.location.href !== e.href && (window.location.href = e.href)
+        }
+        renderEmulator() {
+            if (!this.launchID)
+                return I`
+      <div class="err">Please <b>select a browser</b> from the list to start! Many browsers support Flash or Java emulation.</div>`;
+            if (!this.emuOptions.length)
+                return I`<div class="err"><div class="loading loading-lg"></div>Loading Browser Config...</div>`;
+            const e = this.emuMap[this.launchID];
+            return e ? this.inited ? this.unsupported && "native" !== e.emu ? I`<div class="err">Sorry, OldWeb.today can not run in this emulator in your current browser. Please try the latest version of Chrome or Firefox to use this emulator.
+      <br/>The Ruffle emulator may still work.</div>` : "v86" === e.emu ? I`
+      <owt-v86-browser
+      @dl-progress="${this.onDownload}"
+      .opts="${e.opts}" url="${this.replayUrl}" ts="${this.replayTs}">
+      </owt-v86-browser>` : "bas" === e.emu ? I`
+      <owt-bas-browser @dl-progress="${this.onDownload}"
+      .opts="${e.opts}" url="${this.replayUrl}" ts="${this.replayTs}">
+      </owt-bas-browser>` : "halfix" === e.emu ? I`
+      <owt-halfix-browser @dl-progress="${this.onDownload}"
+      .opts="${e.opts}" url="${this.replayUrl}" ts="${this.replayTs}">
+      </owt-halfix-browser>` : "native" === e.emu ? I`
+      <owt-native @dl-progress="${this.onDownload}"
+      @load-started="${this.onStartLoading}"
+      @load-finished="${this.onClearUpdateNeeded}"
+      .opts="${e.opts}" url="${this.replayUrl}" ts="${this.replayTs}">
+      </owt-native>` : I`<div class="err">Unknown emulator type: ${e.emu}</div>` : I`<div class="err">Initializing, please wait...</div>` : I`<div class="err">Not a valid browser. Please select a browser.</div>`
+        }
+        renderEmuLabel(e) {
+            return I`
+    ${"native" !== e.os ? I`
+    <img width="24" height="24" src="./assets/icons/${e.icon}" alt=""/>
+    <img style="margin-left: 1.0em" width="24" height="24" src="./assets/icons/${e.os}.png" alt="${e.os}"/>` : I`
+
+    <span class="icon-fill"></span>
+    <img width="24" height="24" src="./assets/icons/${e.icon}" alt=""/>
+    `}
+
+    <span class="browser-label">${e.name}</span>
+
+    ${e.features ? I`
+    <span class="browser-features">
+    ${e.features.map((e => I`<span>${e}</span>`))}
+    </span>` : ""}
+    `
+        }
+        render() {
+            const e = this.emuMap[this.browserID];
+            return I`
+      <div class="container">
+        <div class="columns">
+          <div class="column controls">
+            <div>
+              <h2 class="owt-title">OldWeb.Today</h2>
+              <i class="full-width" style="text-align: center; display: block">JS Browser Emulation <img src="./assets/new.gif"/ alt="new"></i>
+              <div class="form-group">
+                <label for="browser" class="form-label space-top">Browser / Emulator:</label>
+
+                <div class="dropdown full-width browser">
+                  <a class="btn dropdown-toggle" tabindex="0">
+                    <span class="curr-browser">
+                      ${e ? this.renderEmuLabel(e) : "Select a Browser"}
+                      <i class="icon icon-caret" class="caret"></i>
+                    </span>
+                  </a>
+                  <ul id="browser-menu" class="menu">
+                    ${this.emuOptions.map(( (e, t) => I`
+                      ${e.hidden ? I`` : I`
+                      <li class="menu-item" style="">
+                        <a style="display: flex" @click="${t => this.onSelectBrowser(t, e)}" tabIndex="${t + 1}">
+                          ${this.renderEmuLabel(e)}
+                        </a>
+                      </li>`}
+                    `))}
+                  </ul>
+                </div>
+
+                <form @submit="${this.onUrlUpdate}" class="space-top">
+                  <label class="form-label" for="url">URL:</label>
+                  <input @change="${this.onUrlUpdate}" class="form-input" type="url" id="url" .value="${this.replayUrl}" placeholder="http://example.com/"></input>
+                </form>
+
+                ${this.showUrlUpdateMessage ? I`
+                <div class="msg" style="background-color: aliceblue">
+                  Home Page URL Updated!<br/>Click the <i>Home</i> button in the emulated browser to load the new URL.
+                </div>` : I``}
+
+                <label class="form-radio space-top">
+                  <input @click="${e => this.replayTs = ""}" type="radio" name="islive" ?checked="${!this.replayTs}">
+                  <i class="form-icon"></i>Browse Live Web
+                </label>
+
+                <label class="form-radio" style="padding-right: 0">
+                  <input @click="${e => this.replayTs = this.inputTs}" type="radio" name="islive" ?checked="${!!this.replayTs}">
+                  <i class="form-icon"></i>Browse Archives At:
+                </label>
+
+                <input @change="${this.onChangeTs}" class="form-input" type="text" id="dt" ?disabled="${!this.replayTs}"
+                  .value="${this.tsToDateMin(this.inputTs)}" placeholder="YYYY-MM-DD hh:mm:ss"></input>
+
+                ${this.replayTs ? I`
+                <details>
+                  <summary>Web Archive Sources</summary>
+                  <div>
+                  <label class="form-checkbox">
+                    <input type="checkbox" disabled checked>
+                    <i class="form-icon"></i>Internet Archive
+                    <p style="font-size: 0.75em">More options coming soon...</p>
+                  </label>
+                  </div>
+                </details>` : ""}
+
+                ${this.showTsUpdateMessage ? I`
+                  <div class="msg" style="background-color: aliceblue">
+                    Date Updated!<br/>Click the <i>Refresh</i> button or load a new page in the emulated browser to start browsing at the new date.
+                  </div>` : I``}
+
+                ${this.isRunning ? I`
+                  <div style="margin: 1em 0">
+                    <p>${this.isLoading ? I`
+                    <div class="loading loading-lg"></div>
+                    ${this.dlProgressTotal ? I`
+                    <i>Status: Downloading...</i>
+                    <progress class="progress" value="${this.dlProgress}" max="${this.dlProgressTotal}"></progress>
+                    ` : I`
+                    <i>Status: Loading, please wait...</i>`}
+                    ` : I`
+                    <i>Status: Running</i>`}</p>
+
+                    <button class="btn btn-sm" @click="${this.onCancel}"><i class="icon icon-cross"></i>&nbsp;Stop</button>
+                    <button class="btn btn-sm" @click="${e => window.location.reload()}"><i class="icon icon-refresh"></i>&nbsp;Reload</button>
+                  </div>
+                  ` : ""}
+
+                ${this.isRunning && this.emuMap[this.launchID] && this.emuMap[this.launchID].hidden ? I`
+                <button @click="${this.onDL}">Save State</button>` : ""}
+              </div>
+            </div>
+            <div class="sidebar-centered-text-container" style="margin-top: 1.2rem">
+              <div style="font-size: 1.1em; padding: 0.5rem; border-radius: 4px; background-color: #eee;">
+                  <p style="margin-bottom: 0.35rem"><strong>Want to make your own web archives?</strong></p>
+                  <p style="margin: 0px">
+                  Check out:
+                  <br/>
+                  <a href="https://webrecorder.net/browsertrix" target="_blank"><img class="logo" src="assets/browsertrix-lockup-color.svg" alt="Browsertrix"/></a>
+                  </p>
+              </div>
+              <div style="font-size: 1.1em; padding: 0.5rem; border-radius: 4px; background-color: #eee; margin-top: 0.5rem;">
+                <p style="margin-bottom: 0.35rem;"><strong>❤️  Love OldWeb.today?</strong></p>
+                <p style="margin: 0px;">
+                Support Webrecorder via:
+                <br/><b><a href="https://opencollective.com/webrecorder" target="_blank">OpenCollective</a></b>
+                / <b><a href="https://github.com/sponsors/webrecorder" target="_blank">GitHub</a></b>
+                </p>
+              </div>
+              <p style="margin-top: 1.0rem">
+                <a href="https://github.com/oldweb-today/oldweb-today" target="_blank">View Source on GitHub</a>
+              </p>
+              <span style="margin-bottom: 0.25rem; display: block;">A project by:</span>
+              <a href="https://webrecorder.net/" target="_blank">
+                <img class="logo" src="assets/webrecorder-lockup-color.svg" alt="Webrecorder"/>
+              </a>
+            </div>
+          </div>
+          <div class="column" style="display:flex; justify-content: center;">
+            ${this.renderEmulator()}
+          </div>
+        </div>
+      </div>
+    `
+        }
+        onSelectBrowser(e, t) {
+            this.browserID = t.id
+        }
+        onUrlUpdate(e) {
+            e.preventDefault(),
+            this.replayUrl = this.renderRoot.querySelector("#url").value
+        }
+        onDownload(e) {
+            e.detail ? (this.dlProgressTotal = e.detail.total,
+            this.dlProgress = e.detail.count) : this.dlProgressTotal = 0
+        }
+        onChangeTs(e) {
+            this.inputTs = e.currentTarget.value.replace(/[^\d]/g, ""),
+            this.isRunning && (this.replayTs = this.inputTs)
+        }
+        tsToDateMin(e) {
+            if (!e)
+                return "";
+            e.length < 14 && (e += "00000101000000".substr(e.length));
+            return e.substring(0, 4) + "-" + e.substring(4, 6) + "-" + e.substring(6, 8) + " " + e.substring(8, 10) + ":" + e.substring(10, 12) + ":" + e.substring(12, 14)
+        }
+        onCancel() {
+            this.browserID = ""
+        }
+        onDL() {
+            window.emulator && (window.emulator.stop(),
+            window.emulator.save_state(( (e, t) => {
+                if (e)
+                    return void console.log(e);
+                const s = new Blob([t])
+                  , r = document.createElement("a");
+                r.download = "savestate.bin",
+                r.href = window.URL.createObjectURL(s),
+                r.dataset.downloadurl = ["application/octet-stream", r.download, r.href].join(":"),
+                r.click(),
+                window.URL.revokeObjectURL(r.href),
+                window.emulator.run()
+            }
+            )))
+        }
+    }
+    ),
+    customElements.define("owt-v86-browser", class extends te {
+        constructor() {
+            super(),
+            this.lib86Url = "dist/libv86.js",
+            this.emulator = null
+        }
+        createRenderRoot() {
+            return this
+        }
+        static get properties() {
+            return {
+                url: {
+                    type: String
+                },
+                ts: {
+                    type: String
+                },
+                opts: {
+                    type: Object
+                }
+            }
+        }
+        firstUpdated() {
+            if (window.V86Starter)
+                this.initEmu();
+            else {
+                const e = document.createElement("script");
+                e.src = this.lib86Url,
+                e.onload = () => this.initEmu(),
+                document.head.appendChild(e)
+            }
+        }
+        async initEmu() {
+            const e = this.renderRoot.querySelector("#emu");
+            let t = null;
+            if (se = !this.opts.stateUrl,
+            se) {
+                const e = await fetch(this.opts.imageUrl);
+                t = {
+                    buffer: await e.arrayBuffer()
+                }
+            } else
+                t = {
+                    url: this.opts.imageUrl,
+                    async: !0,
+                    size: this.opts.imageSize
+                };
+            const s = {
+                screen_container: e,
+                memory_size: 536870912,
+                vga_memory_size: 16777216,
+                bios: {
+                    url: this.opts.biosPath + "seabios.bin"
+                },
+                vga_bios: {
+                    url: this.opts.biosPath + "vgabios.bin"
+                },
+                hda: t,
+                preserve_mac_from_state_image: !0,
+                acpi: !!this.opts.acpi,
+                autostart: !0,
+                wasm_path: "dist/v86.wasm",
+                network_adapter: e => new ie(e,this.url,this.ts,this.opts.clientIP,this.opts.clientMAC),
+                mac_address: re
+            };
+            let r = !1;
+            if (this.opts.stateUrl)
+                try {
+                    const e = await this.loadIncremental(this.opts.stateUrl);
+                    r = !0,
+                    s.initial_state = e
+                } catch (e) {
+                    console.warn("Couldn't load state", e)
+                }
+            this.emulator = new V86Starter(s),
+            window.emulator = this.emulator,
+            r || setTimeout(( () => {
+                console.log("Cancel scandisk keycode sent"),
+                this.emulator.keyboard_send_scancodes([45])
+            }
+            ), 3e3)
+        }
+        async loadIncremental(e) {
+            const t = await fetch(this.opts.stateUrl);
+            if (200 !== t.status)
+                throw new Error("Invalid state response");
+            const s = Number(t.headers.get("x-amz-meta-full-content-length"))
+              , r = t.body.getReader()
+              , i = [];
+            let n = 0;
+            for (; ; ) {
+                const {done: e, value: t} = await r.read();
+                if (e)
+                    break;
+                i.push(t),
+                n += t.length,
+                console.log(`${n} of ${s}`);
+                const o = {
+                    count: n,
+                    total: s
+                };
+                this.dispatchEvent(new CustomEvent("dl-progress",{
+                    detail: o
+                }))
+            }
+            this.dispatchEvent(new CustomEvent("dl-progress",{}));
+            const o = new Uint8Array(n);
+            n = 0;
+            for (const e of i)
+                o.set(e, n),
+                n += e.length;
+            return o
+        }
+        render() {
+            return I`
+      <div id="emu">
+        <div id="screen"></div>
+        <canvas @click="${this.captureMouse}" id="vga"></canvas>
+      </div>
+    `
+        }
+        captureMouse() {
+            this.emulator.lock_mouse()
+        }
+    }
+    ),
+    customElements.define("owt-bas-browser", class extends te {
+        constructor() {
+            super()
+        }
+        static get properties() {
+            return {
+                url: {
+                    type: String
+                },
+                ts: {
+                    type: String
+                },
+                opts: {
+                    type: Object
+                }
+            }
+        }
+        createRenderRoot() {
+            return this
+        }
+        firstUpdated() {
+            ne({
+                replayUrl: this.url,
+                replayTs: this.ts,
+                opts: this.opts,
+                canvas: ".bas-canvas",
+                width: 1024,
+                height: 720
+            }, this)
+        }
+        render() {
+            return I`
+      <canvas width="640" height="480" id="canvas" class="bas-canvas" oncontextmenu="event.preventDefault()"></canvas>
+    `
+        }
+    }
+    ),
+    customElements.define("owt-native", class extends te {
+        static get properties() {
+            return {
+                url: {
+                    type: String
+                },
+                ts: {
+                    type: String
+                },
+                opts: {
+                    type: Object
+                },
+                iframeUrl: {
+                    type: String
+                }
+            }
+        }
+        updated(e) {
+            (e.has("url") || e.has("ts")) && this.url && (this.url !== this.actualUrl || e.has("ts")) && (this.dispatchEvent(new CustomEvent("load-started")),
+            this.iframeUrl = `/w/live/${this.ts}mp_/${this.url}`)
+        }
+        createRenderRoot() {
+            return this
+        }
+        render() {
+            return this.iframeUrl ? I`
+      <iframe class="native-frame" src="${this.iframeUrl}"
+      @load="${this.onFrameLoad}" allow="autoplay 'self'; fullscreen" allowfullscreen
+      ></iframe> 
+    ` : I``
+        }
+        onFrameLoad(e) {
+            const t = {};
+            try {
+                t.url = e.currentTarget.contentWindow.WB_wombat_location.href,
+                this.actualUrl = t.url
+            } catch (e) {
+                console.log(e)
+            }
+            this.dispatchEvent(new CustomEvent("load-finished",{
+                detail: t
+            }))
+        }
+    }
+    )
+}
+)();
+    </script>
+  </head>
+  <body>
+    <oldweb-today></oldweb-today>
+  </body>
+</html>
