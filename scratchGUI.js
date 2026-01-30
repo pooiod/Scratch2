@@ -7,14 +7,15 @@ function showProjectPicker() {
     .s2-toolbar { padding: 8px; background: #D0D0D0; border-bottom: 1px solid #B0B0B0; display: flex; gap: 8px; }
     .s2-input { flex: 1; padding: 5px; border: 1px solid #999; border-radius: 4px; }
     .s2-btn { padding: 5px 12px; background: linear-gradient(#4CB7FF, #2E95DC); border: 1px solid #2080C0; border-radius: 4px; color: white; font-weight: bold; cursor: pointer; }
-    .s2-grid { flex: 1; overflow-y: auto; padding: 10px; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; background: #F2F2F2; }
+    .s2-grid { position: relative; flex: 1; overflow-y: auto; padding: 10px; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; background: #F2F2F2; }
     .s2-card { background: #fff; border: 1px solid #C0C0C0; border-radius: 4px; padding: 8px; cursor: pointer; }
     .s2-thumb { width: 100%; aspect-ratio: 4/3; background: #ddd; margin-bottom: 6px; }
     .s2-img { width: 100%; height: 100%; object-fit: cover; }
     .s2-name { font-size: 13px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .s2-meta { font-size: 11px; color: #777; }
-    .s2-msg { grid-column: 1 / -1; text-align: center; padding: 20px; color: #666; }
-    .s2-spinner { grid-column: 1 / -1; text-align: center; padding: 10px; }
+    .s2-msg { grid-column: 1 / -1; text-align: center; padding: 40px; color: #666; font-size: 14px; }
+    .s2-spinner { position: absolute; bottom: 10px; right: 10px; width: 28px; height: 28px; border: 4px solid #bbb; border-top-color: #4CB7FF; border-radius: 50%; animation: s2spin 1s linear infinite; display: none; }
+    @keyframes s2spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     `;
     var style = document.createElement("style");
     style.innerHTML = css;
@@ -57,29 +58,27 @@ function showProjectPicker() {
 
     var spinner = document.createElement("div");
     spinner.className = "s2-spinner";
-    spinner.innerText = "Loading…";
-    spinner.style.display = "none";
+    grid.appendChild(spinner);
 
     popup.appendChild(header);
     popup.appendChild(toolbar);
     popup.appendChild(grid);
-    popup.appendChild(spinner);
     document.body.appendChild(popup);
 
     var dragging = false;
-    var offsetX = 0;
-    var offsetY = 0;
+    var ox = 0;
+    var oy = 0;
 
     header.onmousedown = function (e) {
         dragging = true;
-        offsetX = popup.offsetLeft - e.clientX;
-        offsetY = popup.offsetTop - e.clientY;
+        ox = popup.offsetLeft - e.clientX;
+        oy = popup.offsetTop - e.clientY;
     };
 
     document.onmousemove = function (e) {
         if (dragging) {
-            popup.style.left = e.clientX + offsetX + "px";
-            popup.style.top = e.clientY + offsetY + "px";
+            popup.style.left = e.clientX + ox + "px";
+            popup.style.top = e.clientY + oy + "px";
         }
     };
 
@@ -92,6 +91,11 @@ function showProjectPicker() {
     var loading = false;
     var done = false;
     var limit = 20;
+
+    function showEmpty() {
+        grid.innerHTML = '<div class="s2-msg">No projects found</div>';
+        grid.appendChild(spinner);
+    }
 
     function addCard(p) {
         var card = document.createElement("div");
@@ -133,6 +137,7 @@ function showProjectPicker() {
             page = 0;
             done = false;
             grid.innerHTML = "";
+            grid.appendChild(spinner);
         }
 
         if (/^\d+$/.test(query)) {
@@ -146,7 +151,7 @@ function showProjectPicker() {
                     done = true;
                 })
                 .catch(() => {
-                    grid.innerHTML = '<div class="s2-msg">Not found</div>';
+                    showEmpty();
                     spinner.style.display = "none";
                     loading = false;
                     done = true;
@@ -163,9 +168,13 @@ function showProjectPicker() {
         fetch(proxy)
             .then(r => r.json())
             .then(data => {
-                if (!data || data.length === 0) done = true;
-                else data.forEach(addCard);
-                page++;
+                if (!data || data.length === 0) {
+                    if (page === 0) showEmpty();
+                    done = true;
+                } else {
+                    data.forEach(addCard);
+                    page++;
+                }
                 spinner.style.display = "none";
                 loading = false;
             })

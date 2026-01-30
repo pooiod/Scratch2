@@ -40,7 +40,7 @@ async function startDownload(projectId) {
     $("#log").text("");
     $("#progress").removeClass("error success");
     $("#progress").css("opacity", 1);
-    $("#downloader").css("height", 30);
+    $("#downloader").css("height", 15);
 
     logMessage("Initializing download for ID: " + projectId);
     setProgress(5);
