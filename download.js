@@ -9,11 +9,16 @@ function logMessage(msg){
 function setProgress(perc){
     maxWidth = $("#downloader").width();
     $("#progress").width(perc + '%');
+
+    maxWidth = $("#loadholder").width();
+    $("#loadprogress").width(perc + '%');
 }
 
 function animError() {
     setProgress(100);
     $("#progress").addClass("error");
+    $("#scratchloader").css("opacity", 0);
+    $("#downloader").css("height", 30);
     $("#progress").animate({opacity:0}, 1000, function(){
         $(this).css({"opacity":1, width:0});
     });
@@ -23,6 +28,7 @@ function psuccess(){
     setProgress(100);
     setTimeout(() => {
         $("#progress").addClass("success");
+        $("#scratchloader").css("opacity", 0);
         $("#progress").animate({opacity:0}, 1000, function(){
             $(this).css({"opacity":1, width:0});
         });
@@ -40,7 +46,8 @@ async function startDownload(projectId) {
     $("#log").text("");
     $("#progress").removeClass("error success");
     $("#progress").css("opacity", 1);
-    $("#downloader").css("height", 15);
+    // $("#downloader").css("height", 15);
+    $("#scratchloader").css("opacity", 1);
 
     logMessage("Initializing download for ID: " + projectId);
     setProgress(5);
