@@ -666,8 +666,8 @@ class ProjectConverter {
             return {width: 480, height: 360, viewBox: null};
         }
 
-        const STAGE_W = 480 + 10;
-        const STAGE_H = 360 + 10;
+        const STAGE_W = 480 + 30;
+        const STAGE_H = 360 + 30;
 
         const size = parseSvgSize(svgText);
         const outW = Math.max(1, Math.round(size.width * scale));
@@ -817,47 +817,6 @@ class ProjectConverter {
         }
 
         return bufferArr;
-    }
-
-    bufferToWav(buffer) {
-        let numOfChan = buffer.numberOfChannels,
-            length = buffer.length * numOfChan * 2 + 44,
-            bufferArr = new ArrayBuffer(length),
-            view = new DataView(bufferArr),
-            channels = [], i, sample,
-            offset = 0,
-            pos = 0;
-
-        setUint32(0x46464952);
-        setUint32(length - 8);
-        setUint32(0x45564157);
-        setUint32(0x20746d66);
-        setUint32(16);
-        setUint16(1);
-        setUint16(numOfChan);
-        setUint32(buffer.sampleRate);
-        setUint32(buffer.sampleRate * 2 * numOfChan);
-        setUint16(numOfChan * 2);
-        setUint16(16);
-        setUint32(0x61746164);
-        setUint32(length - pos - 4);
-
-        for(i = 0; i < buffer.numberOfChannels; i++) channels.push(buffer.getChannelData(i));
-
-        while(pos < length) {
-            for(i = 0; i < numOfChan; i++) {
-                sample = Math.max(-1, Math.min(1, channels[i][offset]));
-                sample = (sample < 0 ? sample * 0x8000 : sample * 0x7FFF);
-                view.setInt16(pos, sample, true);
-                pos += 2;
-            }
-            offset++;
-        }
-
-        return bufferArr;
-
-        function setUint16(data) { view.setUint16(pos, data, true); pos += 2; }
-        function setUint32(data) { view.setUint32(pos, data, true); pos += 4; }
     }
 
     async convertTarget(target, zipOut, progressCallback) {
