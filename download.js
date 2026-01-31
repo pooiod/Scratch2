@@ -72,7 +72,7 @@ async function startDownload(projectId) {
         const isSB3 = projectData.targets && Array.isArray(projectData.targets);
 
         jszip = new JSZip();
-        jszip.comment = "Converted/Downloaded with JS Scratch Converter";
+        jszip.comment = "Converted sb3 to sb2 by pooiod7's converter (scratchflash.pages.dev/download)";
 
         if (isSB3) {
             logMessage("Detected Scratch 3.0 project. Starting conversion...");
@@ -593,7 +593,7 @@ class ProjectConverter {
         if (!this.costumeAssets[c.assetId]) {
             let ext = c.dataFormat;
             let url = `${ASSET_HOST}/${c.md5ext}/get/`;
-            
+
             let finalData;
             try {
                 const resp = await fetch(url);
@@ -608,7 +608,7 @@ class ProjectConverter {
                 }
             } catch(e) {
                 console.warn(`Failed to download costume ${c.name}, using placeholder.`);
-                finalData = new TextEncoder().encode("<svg></svg>");
+                finalData = new TextEncoder().encode(`<svg width="800" height="800" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M4 1C2.355 1 1 2.355 1 4v1h1V4c0-1.11.89-2 2-2h1V1zm2 0v1h4V1zm5 0v1h1c1.11 0 2 .89 2 2v1h1V4c0-1.645-1.355-3-3-3zM6 5c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1M1 6v4h1V6zm13 0v4h1V6zM9.5 8l-2 2L6 9l-2 2v.5c0 .5.5.5.5.5h7s.473-.035.5-.5v-1zM1 11v1c0 1.645 1.355 3 3 3h1v-1H4c-1.11 0-2-.89-2-2v-1zm13 0v1c0 1.11-.89 2-2 2h-1v1h1c1.645 0 3-1.355 3-3v-1zm-8 3v1h4v-1zm0 0" fill="#2e3434" fill-opacity=".349"/></svg>`);
             }
 
             let index = Object.keys(this.costumeAssets).length;
@@ -642,19 +642,53 @@ class ProjectConverter {
 
     async _rasterizeSvgToPng(svgText, scale) {
         function parseSvgSize(svg) {
-            const wMatch = svg.match(/\bwidth\s*=\s*"([0-9.]+)(px)?"/i);
-            const hMatch = svg.match(/\bheight\s*=\s*"([0-9.]+)(px)?"/i);
-            if (wMatch && hMatch) return {width: parseFloat(wMatch[1]), height: parseFloat(hMatch[1])};
+            const wMatch = svg.match(/\bwidth\s*=?\s*"([0-9.]+)(px)?"/i);
+            const hMatch = svg.match(/\bheight\s*=?\s*"([0-9.]+)(px)?"/i);
+            if (wMatch && hMatch) return {minX: 0, minY: 0, width: parseFloat(wMatch[1]), height: parseFloat(hMatch[1])};
             const vbMatch = svg.match(/viewBox\s*=\s*"([0-9.\-]+)\s+([0-9.\-]+)\s+([0-9.\-]+)\s+([0-9.\-]+)"/i);
-            if (vbMatch) return {width: parseFloat(vbMatch[3]), height: parseFloat(vbMatch[4])};
-            return {width: 480, height: 360};
+            if (vbMatch) return {minX: parseFloat(vbMatch[1]), minY: parseFloat(vbMatch[2]), width: parseFloat(vbMatch[3]), height: parseFloat(vbMatch[4])};
+            return {minX: 0, minY: 0, width: 480, height: 360};
         }
 
-        const size = parseSvgSize(svgText);
+        const STAGE_WIDTH = 480;
+        const STAGE_HEIGHT = 360;
+
+        let size = parseSvgSize(svgText);
+
+        if (size.width > STAGE_WIDTH || size.height > STAGE_HEIGHT) {
+            throw new Error('SVG too large to rasterize: exceeds stage size');
+        }
+        if (size.minX < 0 || size.minY < 0 || (size.minX + size.width) > STAGE_WIDTH || (size.minY + size.height) > STAGE_HEIGHT) {
+            throw new Error('SVG positioned outside stage bounds; skipping rasterization');
+        }
+
         const outW = Math.max(1, Math.round(size.width * scale));
         const outH = Math.max(1, Math.round(size.height * scale));
 
-        const svgBlob = new Blob([svgText], {type: 'image/svg+xml;charset=utf-8'});
+        // Sans Serif -> Noto Sans
+        // Serif -> Source Serif Pro
+        // Marker -> Knewave
+        // Handwriting -> Handlee
+        // Curly -> Griffy
+        // Pixel -> Grand9K Pixel
+
+        const fontImportCss = "@import url('https://fonts.googleapis.com/css2?family=Noto+Sans&family=Source+Serif+4&family=Knewave&family=Handlee&family=Griffy&display=swap');";
+
+        let enhancedSvg = svgText;
+
+        enhancedSvg = enhancedSvg.replace(/Sans\s*Serif/gi, 'Noto Sans');
+        enhancedSvg = enhancedSvg.replace(/Source\s*Serif\s*Pro/gi, 'Source Serif 4');
+        enhancedSvg = enhancedSvg.replace(/Serif/gi, 'Source Serif 4');
+        enhancedSvg = enhancedSvg.replace(/Marker/gi, 'Knewave');
+        enhancedSvg = enhancedSvg.replace(/Handwriting/gi, 'Handlee');
+        enhancedSvg = enhancedSvg.replace(/Curly/gi, 'Griffy');
+        enhancedSvg = enhancedSvg.replace(/Pixel/gi, 'Grand9K Pixel, "Press Start 2P", monospace');
+
+        enhancedSvg = enhancedSvg.replace(/<svg([^>]*)>/i, (m, attrs) => {
+            return `<svg${attrs}><style type="text/css">${fontImportCss}/* font mappings injected */</style>`;
+        });
+
+        const svgBlob = new Blob([enhancedSvg], {type: 'image/svg+xml;charset=utf-8'});
         const url = URL.createObjectURL(svgBlob);
         const img = new Image();
         img.crossOrigin = 'Anonymous';
