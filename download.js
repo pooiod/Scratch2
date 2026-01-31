@@ -658,13 +658,33 @@ class ProjectConverter {
         const outH = Math.max(1, Math.round(size.height * scale));
 
         if (size.width > STAGE_W || size.height > STAGE_H || outW > STAGE_W || outH > STAGE_H) {
-            throw new Error('SVG exceeds stage size; skip rasterization');
+            throw new Error('SVG is past stage size');
         }
         if (size.viewBox) {
             const vb = size.viewBox;
             if (vb.x < 0 || vb.y < 0 || vb.x + vb.width > STAGE_W || vb.y + vb.height > STAGE_H) {
-                throw new Error('SVG viewBox goes past stage borders; skip rasterization');
+                throw new Error('SVG view goes past stage borders');
             }
+        }
+
+        try {
+            const FONT_IMPORT_URL = 'https://fonts.googleapis.com/css2?family=Noto+Sans&family=Source+Serif+Pro&family=Knewave&family=Handlee&family=Griffy&display=swap';
+            const styleContent = `@import url("${FONT_IMPORT_URL}");
+*[font-family=\"Sans Serif\"], *[font-family='Sans Serif'] { font-family: 'Noto Sans', sans-serif !important; }
+*[font-family=\"Serif\"], *[font-family='Serif'] { font-family: 'Source Serif Pro', serif !important; }
+*[font-family=\"Marker\"], *[font-family='Marker'] { font-family: 'Knewave', cursive !important; }
+*[font-family=\"Handwriting\"], *[font-family='Handwriting'] { font-family: 'Handlee', cursive !important; }
+*[font-family=\"Curly\"], *[font-family='Curly'] { font-family: 'Griffy', cursive !important; }
+*[font-family=\"Pixel\"], *[font-family='Pixel'] { font-family: 'Grand9K Pixel', monospace !important; }`;
+
+            const styleTag = `<style type="text/css">${styleContent}</style>`;
+            if (/\<svg[^>]*\>/i.test(svgText)) {
+                svgText = svgText.replace(/<svg([^>]*)>/i, `<svg$1>${styleTag}`);
+            } else {
+                svgText = styleTag + svgText;
+            }
+        } catch (e) {
+            console.warn('Font injection failed', e);
         }
 
         const svgBlob = new Blob([svgText], {type: 'image/svg+xml;charset=utf-8'});
