@@ -87,6 +87,7 @@ async function startDownload(projectId) {
     }
 }
 
+// Based on https://github.com/RexScratch/sb3tosb2
 async function processSB3(projectData) {
     const converter = new ProjectConverter();
 
