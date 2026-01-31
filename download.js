@@ -665,8 +665,6 @@ class ProjectConverter {
         const outW = Math.max(1, Math.round(size.width * scale));
         const outH = Math.max(1, Math.round(size.height * scale));
 
-        const fontImportCss = "@import url('https://fonts.googleapis.com/css2?family=Noto+Sans&family=Source+Serif+4&family=Knewave&family=Handlee&family=Griffy&display=swap');";
-
         function replaceFontFamilies(svg) {
             const map = {
                 'sans serif': 'Noto Sans',
@@ -683,13 +681,19 @@ class ProjectConverter {
                 'pixel': 'Grand9K Pixel, "Press Start 2P", monospace'
             };
 
+            function mapFamilyToken(token) {
+                const clean = token.replace(/^['"]|['"]$/g, '').toLowerCase();
+                if (map[clean]) return map[clean];
+                for (const k in map) {
+                    if (clean.includes(k)) return map[k];
+                }
+                return token;
+            }
+
             svg = svg.replace(/(<style[^>]*>)([\s\S]*?)(<\/style>)/gi, (m, open, css, close) => {
                 const replaced = css.replace(/font-family\s*:\s*([^;\n}]+)/gi, (m2, fam) => {
                     const families = fam.split(',').map(s => s.trim());
-                    const mapped = families.map(f => {
-                        const clean = f.replace(/^['\"]|['\"]$/g, '').toLowerCase();
-                        return map[clean] || f;
-                    });
+                    const mapped = families.map(f => mapFamilyToken(f));
                     return 'font-family: ' + mapped.join(', ');
                 });
                 return open + replaced + close;
@@ -698,10 +702,7 @@ class ProjectConverter {
             svg = svg.replace(/(<[^>]+?)\sstyle=(['"])(.*?)\2/gi, (m, start, quote, styleContent) => {
                 const newStyle = styleContent.replace(/font-family\s*:\s*([^;]+)(;?)/gi, (m2, fam, term) => {
                     const families = fam.split(',').map(s => s.trim());
-                    const mapped = families.map(f => {
-                        const clean = f.replace(/^['\"]|['\"]$/g, '').toLowerCase();
-                        return map[clean] || f;
-                    });
+                    const mapped = families.map(f => mapFamilyToken(f));
                     return 'font-family: ' + mapped.join(', ') + term;
                 });
                 return start + ' style=' + quote + newStyle + quote;
@@ -709,20 +710,14 @@ class ProjectConverter {
 
             svg = svg.replace(/font-family=(["'])(.*?)\1/gi, (m, q, fam) => {
                 const families = fam.split(',').map(s => s.trim());
-                const mapped = families.map(f => {
-                    const clean = f.replace(/^['\"]|['\"]$/g, '').toLowerCase();
-                    return map[clean] || f;
-                });
+                const mapped = families.map(f => mapFamilyToken(f));
                 return 'font-family="' + mapped.join(', ') + '"';
             });
 
             svg = svg.replace(/font-family=([^\s>]+)/gi, (m, famRaw) => {
-                const fam = famRaw.replace(/^['\"]|['\"]$/g, '');
+                const fam = famRaw.replace(/^['"]|['"]$/g, '');
                 const families = fam.split(',').map(s => s.trim());
-                const mapped = families.map(f => {
-                    const clean = f.replace(/^['\"]|['\"]$/g, '').toLowerCase();
-                    return map[clean] || f;
-                });
+                const mapped = families.map(f => mapFamilyToken(f));
                 return 'font-family="' + mapped.join(', ') + '"';
             });
 
@@ -732,10 +727,6 @@ class ProjectConverter {
         let enhancedSvg = svgText;
         enhancedSvg = replaceFontFamilies(enhancedSvg);
 
-        enhancedSvg = enhancedSvg.replace(/<svg([^>]*)>/i, (m, attrs) => {
-            return `<svg${attrs}><style type="text/css">${fontImportCss}</style>`;
-        });
-
         const svgBlob = new Blob([enhancedSvg], {type: 'image/svg+xml;charset=utf-8'});
         const url = URL.createObjectURL(svgBlob);
         const img = new Image();
@@ -743,7 +734,7 @@ class ProjectConverter {
 
         await new Promise((resolve, reject) => {
             img.onload = () => resolve();
-            // img.onerror = (e) => reject(new Error(e));
+            img.onerror = (e) => reject(new Error(e.message));
             img.src = url;
         });
 
