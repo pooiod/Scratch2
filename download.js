@@ -655,12 +655,12 @@ class ProjectConverter {
 
         let size = parseSvgSize(svgText);
 
-        if (size.width > STAGE_WIDTH || size.height > STAGE_HEIGHT) {
-            throw new Error('SVG too large to rasterize: exceeds stage size');
-        }
-        if (size.minX < 0 || size.minY < 0 || (size.minX + size.width) > STAGE_WIDTH || (size.minY + size.height) > STAGE_HEIGHT) {
-            throw new Error('SVG positioned outside stage bounds; skipping rasterization');
-        }
+        // if (size.width > STAGE_WIDTH || size.height > STAGE_HEIGHT) {
+        //     throw new Error('SVG too large to rasterize: exceeds stage size');
+        // }
+        // if (size.minX < 0 || size.minY < 0 || (size.minX + size.width) > STAGE_WIDTH || (size.minY + size.height) > STAGE_HEIGHT) {
+        //     throw new Error('SVG positioned outside stage bounds; skipping rasterization');
+        // }
 
         const outW = Math.max(1, Math.round(size.width * scale));
         const outH = Math.max(1, Math.round(size.height * scale));
