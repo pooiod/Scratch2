@@ -24,9 +24,13 @@ window.gotZipBase64 = function(content) {
             if (!hasFlash) {
                 if (confirm("Download this project?")) {
                     JSdownloadSB2(content, DownloadedTitle);
+                } else {
+                    alert("Please download this modified scratch 2.0 app, or a browser that supports flash");
+                    location.href = "https://pooiod7.itch.io/scratch2";
                 }
+
                 // history.replaceState(null,'',`${location.pathname}?id=${location.hash.slice(1)}`);
-                // location.href = `https://ie10.ieonchrome.com/#${location.href}`;
+                // location.href = `https://ie10.ieonchrome.com/#${location.href}`; // Does not work because of js things
             } else {
                 title = "Scratch2 - " + DownloadedTitle;
             }
