@@ -620,7 +620,6 @@ class ProjectConverter {
                     this.costumeAssets[c.assetId] = [index, c.name, `${index}.png`];
                 } catch (e) {
                     console.warn(`SVG rasterize failed for ${c.name}, falling back to SVG:`, e);
-                    // Fall back to saving the SVG as the asset reference
                     zipOut.file(`${index}.svg`, svgText);
                     this.costumeAssets[c.assetId] = [index, c.name, `${index}.svg`];
                 }
