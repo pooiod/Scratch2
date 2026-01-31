@@ -747,7 +747,7 @@ class ProjectConverter {
             } catch (e) {
                 console.warn(`Failed to process sound ${s.name}:`, e);
                 data = new Uint8Array(0);
-                rate = rate || 22050;
+                rate = rate || 48000;
                 sampleCount = sampleCount || 0;
             }
 
