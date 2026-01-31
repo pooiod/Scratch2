@@ -44,24 +44,24 @@ class DeviceSelector(QDialog):
 class FlashBrowser(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Scratch 2.0")
-        self.setFixedSize(900, 500)
+        self.setWindowTitle("Scratch Flash")
+        self.resize(900, 500)
         self.center_window()
-
+        
         self.permission_requested = False
-
+        
         self.browser = QWebEngineView()
         self.browser.page().featurePermissionRequested.connect(self.handle_permission)
-
+        
         settings = self.browser.settings()
         settings.setAttribute(QWebEngineSettings.PluginsEnabled, True)
         settings.setAttribute(QWebEngineSettings.AllowRunningInsecureContent, True)
         settings.setAttribute(QWebEngineSettings.PlaybackRequiresUserGesture, False)
-
+        
         self.browser.setZoomFactor(DEFAULT_ZOOM)
         self.setCentralWidget(self.browser)
         self.browser.load(QUrl(TARGET_URL))
-
+        
         self.init_shortcuts()
 
     def center_window(self):
@@ -75,7 +75,7 @@ class FlashBrowser(QMainWindow):
             self.permission_requested = True
             selector = DeviceSelector(self)
             selector.exec_()
-
+        
         self.browser.page().setFeaturePermission(
             url, feature, QWebEnginePage.PermissionGrantedByUser
         )
@@ -99,7 +99,7 @@ if __name__ == "__main__":
     if os.path.exists(FLASH_PATH):
         sys.argv.append(f"--ppapi-flash-path={FLASH_PATH}")
         sys.argv.append(f"--ppapi-flash-version={FLASH_VERSION}")
-
+    
     QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     app = QApplication(sys.argv)
     QWebEngineSettings.globalSettings().setAttribute(QWebEngineSettings.PluginsEnabled, True)
