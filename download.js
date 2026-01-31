@@ -666,8 +666,8 @@ class ProjectConverter {
             return {width: 480, height: 360, viewBox: null};
         }
 
-        const STAGE_W = 480;
-        const STAGE_H = 360;
+        const STAGE_W = 480 + 10;
+        const STAGE_H = 360 + 10;
 
         const size = parseSvgSize(svgText);
         const outW = Math.max(1, Math.round(size.width * scale));
@@ -721,26 +721,44 @@ class ProjectConverter {
         if (!this.soundAssets[s.assetId]) {
             let ext = s.dataFormat;
             let url = `${ASSET_HOST}/${s.md5ext}/get/`;
-            
+
             let data;
+            let rate = s.rate;
+            let sampleCount = s.sampleCount;
+
             try {
                 const resp = await fetch(url);
-                if(!resp.ok) throw new Error("Fetch failed");
+                if (!resp.ok) throw new Error("Fetch failed");
                 data = await resp.arrayBuffer();
-            } catch(e) {
-                console.warn(`Failed to download sound ${s.name}`);
+
+                if (ext === 'mp3' || !rate || !sampleCount) {
+                    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    
+                    const audioBuffer = await audioCtx.decodeAudioData(data.slice(0)); 
+                    
+                    rate = audioBuffer.sampleRate;
+                    sampleCount = audioBuffer.length;
+
+                    if (ext === 'mp3') {
+                        data = this.bufferToWav(audioBuffer);
+                        ext = 'wav';
+                    }
+                }
+            } catch (e) {
+                console.warn(`Failed to process sound ${s.name}:`, e);
                 data = new Uint8Array(0);
+                rate = rate || 22050;
+                sampleCount = sampleCount || 0;
             }
 
             let index = Object.keys(this.soundAssets).length;
-            let outName = `${index}.${ext === 'mp3' ? 'wav' : ext}`; 
+            let outName = `${index}.${ext}`; 
 
             zipOut.file(outName, data);
-            
-            let rate = s.rate || 22050;
-            let sampleCount = s.sampleCount || 0;
+
             this.soundAssets[s.assetId] = [index, s.name, sampleCount, rate, outName];
         }
+
         let assetData = this.soundAssets[s.assetId];
         this.sounds.push({
             soundName: s.name,
@@ -750,6 +768,47 @@ class ProjectConverter {
             rate: assetData[3],
             format: ''
         });
+    }
+
+    bufferToWav(buffer) {
+        let numOfChan = buffer.numberOfChannels,
+            length = buffer.length * numOfChan * 2 + 44,
+            bufferArr = new ArrayBuffer(length),
+            view = new DataView(bufferArr),
+            channels = [], i, sample,
+            offset = 0,
+            pos = 0;
+
+        setUint32(0x46464952);
+        setUint32(length - 8);
+        setUint32(0x45564157);
+        setUint32(0x20746d66);
+        setUint32(16);
+        setUint16(1);
+        setUint16(numOfChan);
+        setUint32(buffer.sampleRate);
+        setUint32(buffer.sampleRate * 2 * numOfChan);
+        setUint16(numOfChan * 2);
+        setUint16(16);
+        setUint32(0x61746164);
+        setUint32(length - pos - 4);
+
+        for(i = 0; i < buffer.numberOfChannels; i++) channels.push(buffer.getChannelData(i));
+
+        while(pos < length) {
+            for(i = 0; i < numOfChan; i++) {
+                sample = Math.max(-1, Math.min(1, channels[i][offset]));
+                sample = (sample < 0 ? sample * 0x8000 : sample * 0x7FFF);
+                view.setInt16(pos, sample, true);
+                pos += 2;
+            }
+            offset++;
+        }
+
+        return bufferArr;
+
+        function setUint16(data) { view.setUint16(pos, data, true); pos += 2; }
+        function setUint32(data) { view.setUint32(pos, data, true); pos += 4; }
     }
 
     async convertTarget(target, zipOut, progressCallback) {
