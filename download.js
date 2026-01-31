@@ -694,7 +694,11 @@ class ProjectConverter {
 
         await new Promise((resolve, reject) => {
             img.onload = () => resolve();
-            img.onerror = (e) => reject(new Error('SVG load failed'));
+            img.onerror = (e) => {
+                console.log(svgText);
+                console.error(e);
+                reject(new Error('SVG load failed'));
+            }
             img.src = url;
         });
 
