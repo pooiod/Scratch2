@@ -1,12 +1,13 @@
 import sys
 import os
 from PyQt5.QtCore import QUrl, QCoreApplication, Qt
-from PyQt5.QtWidgets import (QApplication, QMainWindow, QDesktopWidget, QShortcut, QDialog, QVBoxLayout, QComboBox, QLabel, QPushButton)
-from PyQt5.QtGui import QKeySequence
+from PyQt5.QtWidgets import (QApplication, QMainWindow, QDesktopWidget, QShortcut, QDialog, QVBoxLayout, QComboBox, QLabel, QPushButton, QFileDialog)
+from PyQt5.QtGui import QKeySequence, QIcon
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineSettings, QWebEnginePage
 from PyQt5.QtMultimedia import QAudioDeviceInfo, QCameraInfo, QAudio
 
 FLASH_PATH = os.path.join(os.path.dirname(__file__), "pepflashplayer.dll")
+ICON_PATH = os.path.join(os.path.dirname(__file__), "AppIcon48.ico")
 FLASH_VERSION = "32.0.0.371"
 TARGET_URL = "https://scratchflash.pages.dev/"
 DEFAULT_ZOOM = 0.8
@@ -16,8 +17,10 @@ class DeviceSelector(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Select Input Devices")
         self.setFixedSize(300, 200)
+        if os.path.exists(ICON_PATH):
+            self.setWindowIcon(QIcon(ICON_PATH))
+            
         layout = QVBoxLayout()
-
         layout.addWidget(QLabel("Microphone:"))
         self.mic_box = QComboBox()
         mics = QAudioDeviceInfo.availableDevices(QAudio.AudioInput)
@@ -26,7 +29,7 @@ class DeviceSelector(QDialog):
             self.mic_box.addItem(info.deviceName())
         self.mic_box.setCurrentText(default_mic)
         layout.addWidget(self.mic_box)
-
+        
         layout.addWidget(QLabel("Camera:"))
         self.cam_box = QComboBox()
         cams = QCameraInfo.availableCameras()
@@ -35,7 +38,7 @@ class DeviceSelector(QDialog):
             self.cam_box.addItem(cam.description())
         self.cam_box.setCurrentText(default_cam)
         layout.addWidget(self.cam_box)
-
+        
         self.btn = QPushButton("Use Selected Devices")
         self.btn.clicked.connect(self.accept)
         layout.addWidget(self.btn)
@@ -45,23 +48,28 @@ class FlashBrowser(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Scratch Flash")
+        
+        if os.path.exists(ICON_PATH):
+            self.setWindowIcon(QIcon(ICON_PATH))
+            
         self.resize(900, 500)
         self.center_window()
-        
         self.permission_requested = False
-        
         self.browser = QWebEngineView()
         self.browser.page().featurePermissionRequested.connect(self.handle_permission)
+        
+        profile = self.browser.page().profile()
+        profile.downloadRequested.connect(self.handle_download)
         
         settings = self.browser.settings()
         settings.setAttribute(QWebEngineSettings.PluginsEnabled, True)
         settings.setAttribute(QWebEngineSettings.AllowRunningInsecureContent, True)
         settings.setAttribute(QWebEngineSettings.PlaybackRequiresUserGesture, False)
+        settings.setAttribute(QWebEngineSettings.JavascriptCanAccessClipboard, True)
         
         self.browser.setZoomFactor(DEFAULT_ZOOM)
         self.setCentralWidget(self.browser)
         self.browser.load(QUrl(TARGET_URL))
-        
         self.init_shortcuts()
 
     def center_window(self):
@@ -75,10 +83,19 @@ class FlashBrowser(QMainWindow):
             self.permission_requested = True
             selector = DeviceSelector(self)
             selector.exec_()
-        
         self.browser.page().setFeaturePermission(
             url, feature, QWebEnginePage.PermissionGrantedByUser
         )
+
+    def handle_download(self, download_item):
+        path, _ = QFileDialog.getSaveFileName(
+            self, "Save File", download_item.suggestedFileName()
+        )
+        if path:
+            download_item.setPath(path)
+            download_item.accept()
+        else:
+            download_item.cancel()
 
     def init_shortcuts(self):
         QShortcut(QKeySequence("Ctrl+="), self, self.zoom_in)
@@ -102,8 +119,11 @@ if __name__ == "__main__":
     
     QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     app = QApplication(sys.argv)
-    QWebEngineSettings.globalSettings().setAttribute(QWebEngineSettings.PluginsEnabled, True)
     
+    if os.path.exists(ICON_PATH):
+        app.setWindowIcon(QIcon(ICON_PATH))
+        
+    QWebEngineSettings.globalSettings().setAttribute(QWebEngineSettings.PluginsEnabled, True)
     window = FlashBrowser()
     window.show()
     sys.exit(app.exec_())
