@@ -308,7 +308,14 @@ class BlockArgMapper {
         }
         return ['goBackByLayers:', layers];
     }
-    looks_costumenumbername(b, bs) { return this.c.fieldVal('NUMBER_NAME', b) === 'number' ? ['costumeIndex'] : ['costumeName']; }
+    looks_costumenumbername(b, bs) {
+        const numName = this.c.fieldVal('NUMBER_NAME', b);
+        if (numName === 'number') return ['costumeIndex'];
+        if (this.c.compat && !this.c.targetIsStage) {
+            return ['getLine:ofList:', ['costumeIndex'], this.c.varName('SpriteCostumes')];
+        }
+        return ['costumeName'];
+    }
     looks_backdropnumbername(b, bs) { return this.c.fieldVal('NUMBER_NAME', b) === 'number' ? ['backgroundIndex'] : ['sceneName']; }
     looks_size(b, bs) { return ['scale']; }
     // Sound
@@ -852,6 +859,15 @@ class ProjectConverter {
                 contents: l[1].map(x => this.specialNum(x)),
                 isPersistent: false,
                 x: 0, y: 0, width: 100, height: 200, visible: false 
+            });
+        }
+        if (this.compat) {
+            const spriteCostumeNames = (target.costumes || []).map(c => c.name || '');
+            lists.push({
+                listName: this.varName('SpriteCostumes'),
+                contents: spriteCostumeNames.map(x => this.specialNum(x)),
+                isPersistent: false,
+                x: 0, y: 0, width: 100, height: 200, visible: false
             });
         }
 
