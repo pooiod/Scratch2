@@ -47,6 +47,7 @@ async function startDownload(projectId) {
     $("#progress").css("opacity", 1);
     // $("#downloader").css("height", 15);
     $("#scratchloader").css("opacity", 1);
+    document.getElementById("loadholder").classList.remove("pulse");
 
     logMessage("Initializing download for ID: " + projectId);
     setProgress(5);

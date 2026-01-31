@@ -3,6 +3,8 @@ var swf = document.querySelector('#scratch embed');
 // Scratch.FlashApp.ASobj.ASloadGithubURL(extensionUrl);
 
 window.gotZipBase64 = function(content) {
+    document.getElementById("loadholder").classList.add("pulse");
+
     $("#log").text("Waiting for flash hook"+"\n"+$("#log").text());
     var tries = 0;
     var openTimeout = setInterval(()=>{
@@ -17,7 +19,7 @@ window.gotZipBase64 = function(content) {
             setTimeout(() => {
                 $("#scratchloader").css("opacity", 0);
                 $('#downloader').animate({height: 0}, 1000);
-            }, 100);
+            }, 500);
         } else if (tries >= 10) {
             clearInterval(openTimeout);
             $("#log").text("Hook not found"+"\n"+$("#log").text());
