@@ -642,99 +642,39 @@ class ProjectConverter {
 
     async _rasterizeSvgToPng(svgText, scale) {
         function parseSvgSize(svg) {
-            const wMatch = svg.match(/\bwidth\s*=?\s*"([0-9.]+)(px)?"/i);
-            const hMatch = svg.match(/\bheight\s*=?\s*"([0-9.]+)(px)?"/i);
-            if (wMatch && hMatch) return {minX: 0, minY: 0, width: parseFloat(wMatch[1]), height: parseFloat(hMatch[1])};
+            const wMatch = svg.match(/\bwidth\s*=\s*"([0-9.]+)(px)?"/i);
+            const hMatch = svg.match(/\bheight\s*=\s*"([0-9.]+)(px)?"/i);
             const vbMatch = svg.match(/viewBox\s*=\s*"([0-9.\-]+)\s+([0-9.\-]+)\s+([0-9.\-]+)\s+([0-9.\-]+)"/i);
-            if (vbMatch) return {minX: parseFloat(vbMatch[1]), minY: parseFloat(vbMatch[2]), width: parseFloat(vbMatch[3]), height: parseFloat(vbMatch[4])};
-            return {minX: 0, minY: 0, width: 480, height: 360};
+            if (wMatch && hMatch) return {width: parseFloat(wMatch[1]), height: parseFloat(hMatch[1]), viewBox: vbMatch ? {x: parseFloat(vbMatch[1]), y: parseFloat(vbMatch[2]), width: parseFloat(vbMatch[3]), height: parseFloat(vbMatch[4])} : null};
+            if (vbMatch) return {width: parseFloat(vbMatch[3]), height: parseFloat(vbMatch[4]), viewBox: {x: parseFloat(vbMatch[1]), y: parseFloat(vbMatch[2]), width: parseFloat(vbMatch[3]), height: parseFloat(vbMatch[4])}};
+            return {width: 480, height: 360, viewBox: null};
         }
 
-        const STAGE_WIDTH = 480;
-        const STAGE_HEIGHT = 360;
+        const STAGE_W = 480;
+        const STAGE_H = 360;
 
-        let size = parseSvgSize(svgText);
-
-        if (size.width > STAGE_WIDTH || size.height > STAGE_HEIGHT) {
-            throw new Error('SVG too large to rasterize: exceeds stage size');
-        }
-        if (size.minX < 0 || size.minY < 0 || (size.minX + size.width) > STAGE_WIDTH || (size.minY + size.height) > STAGE_HEIGHT) {
-            throw new Error('SVG positioned outside stage bounds; skipping rasterization');
-        }
-
+        const size = parseSvgSize(svgText);
         const outW = Math.max(1, Math.round(size.width * scale));
         const outH = Math.max(1, Math.round(size.height * scale));
 
-        function replaceFontFamilies(svg) {
-            const map = {
-                'sans serif': 'Noto Sans',
-                'noto sans': 'Noto Sans',
-                'source serif pro': 'Source Serif 4',
-                'source serif': 'Source Serif 4',
-                'serif': 'Source Serif 4',
-                'marker': 'Knewave',
-                'knewave': 'Knewave',
-                'handwriting': 'Handlee',
-                'handlee': 'Handlee',
-                'curly': 'Griffy',
-                'griffy': 'Griffy',
-                'pixel': 'Grand9K Pixel, "Press Start 2P", monospace'
-            };
-
-            function mapFamilyToken(token) {
-                const clean = token.replace(/^['"]|['"]$/g, '').toLowerCase();
-                if (map[clean]) return map[clean];
-                for (const k in map) {
-                    if (clean.includes(k)) return map[k];
-                }
-                return token;
+        if (size.width > STAGE_W || size.height > STAGE_H || outW > STAGE_W || outH > STAGE_H) {
+            throw new Error('SVG exceeds stage size; skip rasterization');
+        }
+        if (size.viewBox) {
+            const vb = size.viewBox;
+            if (vb.x < 0 || vb.y < 0 || vb.x + vb.width > STAGE_W || vb.y + vb.height > STAGE_H) {
+                throw new Error('SVG viewBox goes past stage borders; skip rasterization');
             }
-
-            svg = svg.replace(/(<style[^>]*>)([\s\S]*?)(<\/style>)/gi, (m, open, css, close) => {
-                const replaced = css.replace(/font-family\s*:\s*([^;\n}]+)/gi, (m2, fam) => {
-                    const families = fam.split(',').map(s => s.trim());
-                    const mapped = families.map(f => mapFamilyToken(f));
-                    return 'font-family: ' + mapped.join(', ');
-                });
-                return open + replaced + close;
-            });
-
-            svg = svg.replace(/(<[^>]+?)\sstyle=(['"])(.*?)\2/gi, (m, start, quote, styleContent) => {
-                const newStyle = styleContent.replace(/font-family\s*:\s*([^;]+)(;?)/gi, (m2, fam, term) => {
-                    const families = fam.split(',').map(s => s.trim());
-                    const mapped = families.map(f => mapFamilyToken(f));
-                    return 'font-family: ' + mapped.join(', ') + term;
-                });
-                return start + ' style=' + quote + newStyle + quote;
-            });
-
-            svg = svg.replace(/font-family=(["'])(.*?)\1/gi, (m, q, fam) => {
-                const families = fam.split(',').map(s => s.trim());
-                const mapped = families.map(f => mapFamilyToken(f));
-                return 'font-family="' + mapped.join(', ') + '"';
-            });
-
-            svg = svg.replace(/font-family=([^\s>]+)/gi, (m, famRaw) => {
-                const fam = famRaw.replace(/^['"]|['"]$/g, '');
-                const families = fam.split(',').map(s => s.trim());
-                const mapped = families.map(f => mapFamilyToken(f));
-                return 'font-family="' + mapped.join(', ') + '"';
-            });
-
-            return svg;
         }
 
-        let enhancedSvg = svgText;
-        enhancedSvg = replaceFontFamilies(enhancedSvg);
-
-        const svgBlob = new Blob([enhancedSvg], {type: 'image/svg+xml;charset=utf-8'});
+        const svgBlob = new Blob([svgText], {type: 'image/svg+xml;charset=utf-8'});
         const url = URL.createObjectURL(svgBlob);
         const img = new Image();
         img.crossOrigin = 'Anonymous';
 
         await new Promise((resolve, reject) => {
             img.onload = () => resolve();
-            img.onerror = (e) => reject(new Error(e.message));
+            img.onerror = (e) => reject(new Error('SVG load failed'));
             img.src = url;
         });
 
