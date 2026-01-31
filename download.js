@@ -655,37 +655,85 @@ class ProjectConverter {
 
         let size = parseSvgSize(svgText);
 
-        // if (size.width > STAGE_WIDTH || size.height > STAGE_HEIGHT) {
-        //     throw new Error('SVG too large to rasterize: exceeds stage size');
-        // }
-        // if (size.minX < 0 || size.minY < 0 || (size.minX + size.width) > STAGE_WIDTH || (size.minY + size.height) > STAGE_HEIGHT) {
-        //     throw new Error('SVG positioned outside stage bounds; skipping rasterization');
-        // }
+        if (size.width > STAGE_WIDTH || size.height > STAGE_HEIGHT) {
+            throw new Error('SVG too large to rasterize: exceeds stage size');
+        }
+        if (size.minX < 0 || size.minY < 0 || (size.minX + size.width) > STAGE_WIDTH || (size.minY + size.height) > STAGE_HEIGHT) {
+            throw new Error('SVG positioned outside stage bounds; skipping rasterization');
+        }
 
         const outW = Math.max(1, Math.round(size.width * scale));
         const outH = Math.max(1, Math.round(size.height * scale));
 
-        // Sans Serif -> Noto Sans
-        // Serif -> Source Serif Pro
-        // Marker -> Knewave
-        // Handwriting -> Handlee
-        // Curly -> Griffy
-        // Pixel -> Grand9K Pixel
-
         const fontImportCss = "@import url('https://fonts.googleapis.com/css2?family=Noto+Sans&family=Source+Serif+4&family=Knewave&family=Handlee&family=Griffy&display=swap');";
 
-        let enhancedSvg = svgText;
+        function replaceFontFamilies(svg) {
+            const map = {
+                'sans serif': 'Noto Sans',
+                'noto sans': 'Noto Sans',
+                'source serif pro': 'Source Serif 4',
+                'source serif': 'Source Serif 4',
+                'serif': 'Source Serif 4',
+                'marker': 'Knewave',
+                'knewave': 'Knewave',
+                'handwriting': 'Handlee',
+                'handlee': 'Handlee',
+                'curly': 'Griffy',
+                'griffy': 'Griffy',
+                'pixel': 'Grand9K Pixel, "Press Start 2P", monospace'
+            };
 
-        enhancedSvg = enhancedSvg.replace(/Sans\s*Serif/gi, 'Noto Sans');
-        enhancedSvg = enhancedSvg.replace(/Source\s*Serif\s*Pro/gi, 'Source Serif 4');
-        enhancedSvg = enhancedSvg.replace(/Serif/gi, 'Source Serif 4');
-        enhancedSvg = enhancedSvg.replace(/Marker/gi, 'Knewave');
-        enhancedSvg = enhancedSvg.replace(/Handwriting/gi, 'Handlee');
-        enhancedSvg = enhancedSvg.replace(/Curly/gi, 'Griffy');
-        enhancedSvg = enhancedSvg.replace(/Pixel/gi, 'Grand9K Pixel, "Press Start 2P", monospace');
+            svg = svg.replace(/(<style[^>]*>)([\s\S]*?)(<\/style>)/gi, (m, open, css, close) => {
+                const replaced = css.replace(/font-family\s*:\s*([^;\n}]+)/gi, (m2, fam) => {
+                    const families = fam.split(',').map(s => s.trim());
+                    const mapped = families.map(f => {
+                        const clean = f.replace(/^['\"]|['\"]$/g, '').toLowerCase();
+                        return map[clean] || f;
+                    });
+                    return 'font-family: ' + mapped.join(', ');
+                });
+                return open + replaced + close;
+            });
+
+            svg = svg.replace(/(<[^>]+?)\sstyle=(['"])(.*?)\2/gi, (m, start, quote, styleContent) => {
+                const newStyle = styleContent.replace(/font-family\s*:\s*([^;]+)(;?)/gi, (m2, fam, term) => {
+                    const families = fam.split(',').map(s => s.trim());
+                    const mapped = families.map(f => {
+                        const clean = f.replace(/^['\"]|['\"]$/g, '').toLowerCase();
+                        return map[clean] || f;
+                    });
+                    return 'font-family: ' + mapped.join(', ') + term;
+                });
+                return start + ' style=' + quote + newStyle + quote;
+            });
+
+            svg = svg.replace(/font-family=(["'])(.*?)\1/gi, (m, q, fam) => {
+                const families = fam.split(',').map(s => s.trim());
+                const mapped = families.map(f => {
+                    const clean = f.replace(/^['\"]|['\"]$/g, '').toLowerCase();
+                    return map[clean] || f;
+                });
+                return 'font-family="' + mapped.join(', ') + '"';
+            });
+
+            svg = svg.replace(/font-family=([^\s>]+)/gi, (m, famRaw) => {
+                const fam = famRaw.replace(/^['\"]|['\"]$/g, '');
+                const families = fam.split(',').map(s => s.trim());
+                const mapped = families.map(f => {
+                    const clean = f.replace(/^['\"]|['\"]$/g, '').toLowerCase();
+                    return map[clean] || f;
+                });
+                return 'font-family="' + mapped.join(', ') + '"';
+            });
+
+            return svg;
+        }
+
+        let enhancedSvg = svgText;
+        enhancedSvg = replaceFontFamilies(enhancedSvg);
 
         enhancedSvg = enhancedSvg.replace(/<svg([^>]*)>/i, (m, attrs) => {
-            return `<svg${attrs}><style type="text/css">${fontImportCss}/* font mappings injected */</style>`;
+            return `<svg${attrs}><style type="text/css">${fontImportCss}</style>`;
         });
 
         const svgBlob = new Blob([enhancedSvg], {type: 'image/svg+xml;charset=utf-8'});
