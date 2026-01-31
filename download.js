@@ -611,8 +611,23 @@ class ProjectConverter {
             }
 
             let index = Object.keys(this.costumeAssets).length;
-            zipOut.file(`${index}.${ext}`, finalData);
-            this.costumeAssets[c.assetId] = [index, c.name, `${index}.${ext}`];
+            if (ext === 'svg') {
+                const svgText = new TextDecoder().decode(finalData);
+                zipOut.file(`${index}.svg`, svgText);
+                try {
+                    const pngBuffer = await this._rasterizeSvgToPng(svgText, c.bitmapResolution || 1);
+                    zipOut.file(`${index}.png`, pngBuffer);
+                    this.costumeAssets[c.assetId] = [index, c.name, `${index}.png`];
+                } catch (e) {
+                    console.warn(`SVG rasterize failed for ${c.name}, falling back to SVG:`, e);
+                    // Fall back to saving the SVG as the asset reference
+                    zipOut.file(`${index}.svg`, svgText);
+                    this.costumeAssets[c.assetId] = [index, c.name, `${index}.svg`];
+                }
+            } else {
+                zipOut.file(`${index}.${ext}`, finalData);
+                this.costumeAssets[c.assetId] = [index, c.name, `${index}.${ext}`];
+            }
         }
         let assetData = this.costumeAssets[c.assetId];
         this.costumes.push({
@@ -623,6 +638,50 @@ class ProjectConverter {
             rotationCenterY: c.rotationCenterY,
             bitmapResolution: c.bitmapResolution || 1
         });
+    }
+
+    async _rasterizeSvgToPng(svgText, scale) {
+        function parseSvgSize(svg) {
+            const wMatch = svg.match(/\bwidth\s*=\s*"([0-9.]+)(px)?"/i);
+            const hMatch = svg.match(/\bheight\s*=\s*"([0-9.]+)(px)?"/i);
+            if (wMatch && hMatch) return {width: parseFloat(wMatch[1]), height: parseFloat(hMatch[1])};
+            const vbMatch = svg.match(/viewBox\s*=\s*"([0-9.\-]+)\s+([0-9.\-]+)\s+([0-9.\-]+)\s+([0-9.\-]+)"/i);
+            if (vbMatch) return {width: parseFloat(vbMatch[3]), height: parseFloat(vbMatch[4])};
+            return {width: 480, height: 360};
+        }
+
+        const size = parseSvgSize(svgText);
+        const outW = Math.max(1, Math.round(size.width * scale));
+        const outH = Math.max(1, Math.round(size.height * scale));
+
+        const svgBlob = new Blob([svgText], {type: 'image/svg+xml;charset=utf-8'});
+        const url = URL.createObjectURL(svgBlob);
+        const img = new Image();
+        img.crossOrigin = 'Anonymous';
+
+        await new Promise((resolve, reject) => {
+            img.onload = () => resolve();
+            img.onerror = (e) => reject(new Error('SVG load failed'));
+            img.src = url;
+        });
+
+        const canvas = document.createElement('canvas');
+        canvas.width = outW;
+        canvas.height = outH;
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        try {
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        } catch (e) {
+            URL.revokeObjectURL(url);
+            throw e;
+        }
+        URL.revokeObjectURL(url);
+
+        const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+        if (!blob) throw new Error('Canvas toBlob failed');
+        const ab = await blob.arrayBuffer();
+        return new Uint8Array(ab);
     }
 
     async addSound(s, zipOut) {
