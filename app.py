@@ -19,7 +19,7 @@ class DeviceSelector(QDialog):
         self.setFixedSize(300, 200)
         if os.path.exists(ICON_PATH):
             self.setWindowIcon(QIcon(ICON_PATH))
-            
+
         layout = QVBoxLayout()
         layout.addWidget(QLabel("Microphone:"))
         self.mic_box = QComboBox()
@@ -29,7 +29,7 @@ class DeviceSelector(QDialog):
             self.mic_box.addItem(info.deviceName())
         self.mic_box.setCurrentText(default_mic)
         layout.addWidget(self.mic_box)
-        
+
         layout.addWidget(QLabel("Camera:"))
         self.cam_box = QComboBox()
         cams = QCameraInfo.availableCameras()
@@ -38,7 +38,7 @@ class DeviceSelector(QDialog):
             self.cam_box.addItem(cam.description())
         self.cam_box.setCurrentText(default_cam)
         layout.addWidget(self.cam_box)
-        
+
         self.btn = QPushButton("Use Selected Devices")
         self.btn.clicked.connect(self.accept)
         layout.addWidget(self.btn)
@@ -48,25 +48,27 @@ class FlashBrowser(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Scratch Flash")
-        
         if os.path.exists(ICON_PATH):
             self.setWindowIcon(QIcon(ICON_PATH))
-            
+
         self.resize(900, 500)
         self.center_window()
         self.permission_requested = False
+
+        self.active_downloads = []
+
         self.browser = QWebEngineView()
         self.browser.page().featurePermissionRequested.connect(self.handle_permission)
-        
+
         profile = self.browser.page().profile()
         profile.downloadRequested.connect(self.handle_download)
-        
+
         settings = self.browser.settings()
         settings.setAttribute(QWebEngineSettings.PluginsEnabled, True)
         settings.setAttribute(QWebEngineSettings.AllowRunningInsecureContent, True)
         settings.setAttribute(QWebEngineSettings.PlaybackRequiresUserGesture, False)
         settings.setAttribute(QWebEngineSettings.JavascriptCanAccessClipboard, True)
-        
+
         self.browser.setZoomFactor(DEFAULT_ZOOM)
         self.setCentralWidget(self.browser)
         self.browser.load(QUrl(TARGET_URL))
@@ -88,11 +90,16 @@ class FlashBrowser(QMainWindow):
         )
 
     def handle_download(self, download_item):
-        path, _ = QFileDialog.getSaveFileName(
-            self, "Save File", download_item.suggestedFileName()
-        )
+        old_path = download_item.suggestedFileName()
+        path, _ = QFileDialog.getSaveFileName(self, "Save File", old_path)
+
         if path:
+            self.active_downloads.append(download_item)
+
             download_item.setPath(path)
+            
+            download_item.finished.connect(lambda: self.active_downloads.remove(download_item) if download_item in self.active_downloads else None)
+            
             download_item.accept()
         else:
             download_item.cancel()
@@ -116,13 +123,13 @@ if __name__ == "__main__":
     if os.path.exists(FLASH_PATH):
         sys.argv.append(f"--ppapi-flash-path={FLASH_PATH}")
         sys.argv.append(f"--ppapi-flash-version={FLASH_VERSION}")
-    
+
     QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     app = QApplication(sys.argv)
-    
+
     if os.path.exists(ICON_PATH):
         app.setWindowIcon(QIcon(ICON_PATH))
-        
+
     QWebEngineSettings.globalSettings().setAttribute(QWebEngineSettings.PluginsEnabled, True)
     window = FlashBrowser()
     window.show()
