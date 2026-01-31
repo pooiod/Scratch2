@@ -641,6 +641,22 @@ class ProjectConverter {
     }
 
     async _rasterizeSvgToPng(svgText, scale) {
+        const fontMap = {
+            'Sans Serif': 'Noto Sans',
+            'Serif': 'Source Serif Pro',
+            'Marker': 'Knewave',
+            'Handwriting': 'Handlee',
+            'Curly': 'Griffy',
+            'Pixel': 'Grand9K Pixel'
+        };
+
+        for (const [scratchFont, targetFont] of Object.entries(fontMap)) {
+            const escaped = scratchFont.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+            svgText = svgText.replace(new RegExp(`font-family="${escaped}"`, 'g'), `font-family="${targetFont}"`);
+            svgText = svgText.replace(new RegExp(`font-family='${escaped}'`, 'g'), `font-family='${targetFont}'`);
+            svgText = svgText.replace(new RegExp(`font-family:\\s*${escaped}`, 'g'), `font-family: ${targetFont}`);
+        }
+
         function parseSvgSize(svg) {
             const wMatch = svg.match(/\bwidth\s*=\s*"([0-9.]+)(px)?"/i);
             const hMatch = svg.match(/\bheight\s*=\s*"([0-9.]+)(px)?"/i);
@@ -667,24 +683,8 @@ class ProjectConverter {
             }
         }
 
-        try {
-            const FONT_IMPORT_URL = 'https://fonts.googleapis.com/css2?family=Noto+Sans&family=Source+Serif+Pro&family=Knewave&family=Handlee&family=Griffy&display=swap';
-            const styleContent = `@import url("${FONT_IMPORT_URL}");
-*[font-family=\"Sans Serif\"], *[font-family='Sans Serif'] { font-family: 'Noto Sans', sans-serif !important; }
-*[font-family=\"Serif\"], *[font-family='Serif'] { font-family: 'Source Serif Pro', serif !important; }
-*[font-family=\"Marker\"], *[font-family='Marker'] { font-family: 'Knewave', cursive !important; }
-*[font-family=\"Handwriting\"], *[font-family='Handwriting'] { font-family: 'Handlee', cursive !important; }
-*[font-family=\"Curly\"], *[font-family='Curly'] { font-family: 'Griffy', cursive !important; }
-*[font-family=\"Pixel\"], *[font-family='Pixel'] { font-family: 'Grand9K Pixel', monospace !important; }`;
-
-            const styleTag = `<style type="text/css">${styleContent}</style>`;
-            if (/\<svg[^>]*\>/i.test(svgText)) {
-                svgText = svgText.replace(/<svg([^>]*)>/i, `<svg$1>${styleTag}`);
-            } else {
-                svgText = styleTag + svgText;
-            }
-        } catch (e) {
-            console.warn('Font injection failed', e);
+        if (document.fonts && document.fonts.ready) {
+            await document.fonts.ready;
         }
 
         const svgBlob = new Blob([svgText], {type: 'image/svg+xml;charset=utf-8'});
@@ -694,11 +694,7 @@ class ProjectConverter {
 
         await new Promise((resolve, reject) => {
             img.onload = () => resolve();
-            img.onerror = (e) => {
-                console.log(svgText);
-                console.error(e);
-                reject(new Error('SVG load failed'));
-            }
+            img.onerror = (e) => reject(new Error('SVG load failed'));
             img.src = url;
         });
 
