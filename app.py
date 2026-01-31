@@ -6,7 +6,7 @@ from PyQt5.QtGui import QKeySequence, QIcon
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineSettings, QWebEnginePage
 from PyQt5.QtMultimedia import QAudioDeviceInfo, QCameraInfo, QAudio
 
-FLASH_PATH = os.path.join(os.path.dirname(__file__), "pepflashplayer.dll")
+FLASH_PATH = os.path.join(os.path.dirname(__file__), "pepflashplayer.dll") # https://yyf.mubilop.com/file/3b795dd8/pepflashplayer.dll
 ICON_PATH = os.path.join(os.path.dirname(__file__), "AppIcon48.ico")
 FLASH_VERSION = "32.0.0.371"
 TARGET_URL = "https://scratchflash.pages.dev/"
