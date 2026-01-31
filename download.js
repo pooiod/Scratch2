@@ -91,7 +91,7 @@ async function processSB3(projectData) {
     const converter = new ProjectConverter();
 
     // CONVERTION SETTINGS
-    converter.compat = false;
+    converter.compat = true;
     converter.unlimJoin = false;
     converter.limList = false;
     converter.penFill = false;
