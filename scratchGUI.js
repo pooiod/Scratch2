@@ -164,7 +164,7 @@ function showProjectPicker() {
             .then(data => {
                 console.log(page, data);
                 window.dat = data;
-                if (!data || data.length == 0 || data == {}) {
+                if (!data || data.length == 0 || !data.length || data == {}) {
                     if (page == 0) {
                         if (query) {
                             showEmpty();
