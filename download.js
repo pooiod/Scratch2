@@ -457,15 +457,15 @@ class BlockArgMapper {
     pen_stamp(b, bs) { return ['stampCostume']; }
     pen_penDown(b, bs) { 
         if(this.c.compat) { this.c.penUpDown = true; return ['call', 'pen down']; }
-        return ['putPenDown']; 
+        return ['putPenDown'];
     }
     pen_penUp(b, bs) { 
         if(this.c.compat) { this.c.penUpDown = true; return ['call', 'pen up']; }
-        return ['putPenUp']; 
+        return ['putPenUp'];
     }
     pen_setPenColorToColor(b, bs) {
         let val = this.c.inputVal('COLOR', b, bs);
-        if(this.c.compat) { this.c.penColor = true; return ['call', 'set pen color to %c', val]; }
+        // if(this.c.compat) { this.c.penColor = true; return ['call', 'set pen color to %c', val]; }
         return ['penColor:', val];
     }
     pen_changePenSizeBy(b, bs) { return ['changePenSizeBy:', this.c.inputVal('SIZE', b, bs)]; }
