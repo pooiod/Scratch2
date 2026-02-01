@@ -162,8 +162,8 @@ function showProjectPicker() {
         fetch(api)
             .then(r => r.json())
             .then(data => {
-                console.log(data);
-                if (!data || data.length === 0) {
+                console.log(page, data);
+                if (!data || data.length === 0 || data == {}) {
                     if (page === 0) {
                         if (query) {
                             showEmpty();
