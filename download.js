@@ -137,11 +137,11 @@ async function processSB3(projectData) {
     stage.info.spriteCount = sprites.length;
     stage.info.scriptCount = sprites.reduce((acc, s) => acc + s.scripts.length, 0) + stage.scripts.length;
 
-    if (converter.timerCompat) {
-        const gfResetTimer = [0, 0, [['whenGreenFlag'], ['doIf', ['>', ['-', ['*', 86400, ['-', ['timestamp'], ['readVariable', 'reset time']]], ['timer']], '0.1'], [['setVar:to:', 'reset time', ['-', ['timestamp'], ['/', ['timer'], 86400]]]]]]];
-        stage.scripts.push(gfResetTimer);
-        sprites.forEach(s => s.scripts.push(gfResetTimer));
-    }
+    // if (converter.timerCompat) {
+    //     const gfResetTimer = [0, 0, [['whenGreenFlag'], ['doIf', ['>', ['-', ['*', 86400, ['-', ['timestamp'], ['readVariable', 'reset time']]], ['timer']], '0.1'], [['setVar:to:', 'reset time', ['-', ['timestamp'], ['/', ['timer'], 86400]]]]]]];
+    //     stage.scripts.push(gfResetTimer);
+    //     sprites.forEach(s => s.scripts.push(gfResetTimer));
+    // }
 
     jszip.file("project.json", JSON.stringify(stage));
 
@@ -368,7 +368,7 @@ class BlockArgMapper {
         return ['timer']; 
     }
     sensing_resettimer(b, bs) {
-        if(this.c.compat) { this.c.resetTimer = true; this.c.timerCompat = true; return ['call', 'reset timer']; }
+        // if(this.c.compat) { this.c.resetTimer = true; this.c.timerCompat = true; return ['call', 'reset timer']; }
         return ['timerReset'];
     }
     sensing_of(b, bs) {
