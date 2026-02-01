@@ -364,7 +364,7 @@ class BlockArgMapper {
     sensing_mousey(b, bs) { return ['mouseY']; }
     sensing_loudness(b, bs) { return ['soundLevel']; }
     sensing_timer(b, bs) { 
-        if(this.c.compat) { this.c.timerCompat = true; return ['*', 86400, ['-', ['timestamp'], ['readVariable', 'reset time']]]; }
+        // if(this.c.compat) { this.c.timerCompat = true; return ['*', 86400, ['-', ['timestamp'], ['readVariable', 'reset time']]]; }
         return ['timer']; 
     }
     sensing_resettimer(b, bs) {
