@@ -798,7 +798,7 @@ class ProjectConverter {
         if (tagEnd === -1) return style + svgText;
         return svgText.slice(0, tagEnd + 1) + style + svgText.slice(tagEnd + 1);
     }
-854105670
+
     async addSound(s, zipOut) {
         if (!this.soundAssets[s.assetId]) {
             let ext = s.dataFormat;
