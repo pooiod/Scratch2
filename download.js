@@ -497,6 +497,16 @@ class ProjectConverter {
         this.addList = false;
         this.insertList = false;
         this.targetIsStage = false;
+
+        this._fontFiles = {
+            'Noto Sans': 'https://raw.githubusercontent.com/towerofnix/scratch-render-fonts/refs/heads/master/src/NotoSans-Medium.ttf',
+            'Source Serif Pro': 'https://raw.githubusercontent.com/towerofnix/scratch-render-fonts/refs/heads/master/src/SourceSerifPro-Regular.otf',
+            'Handlee': 'https://raw.githubusercontent.com/towerofnix/scratch-render-fonts/refs/heads/master/src/handlee-regular.ttf',
+            'Knewave': 'https://raw.githubusercontent.com/towerofnix/scratch-render-fonts/refs/heads/master/src/Knewave.ttf',
+            'Griffy': 'https://raw.githubusercontent.com/towerofnix/scratch-render-fonts/refs/heads/master/src/Griffy-Regular.ttf',
+            'Grand9K Pixel': 'https://raw.githubusercontent.com/towerofnix/scratch-render-fonts/refs/heads/master/src/Grand9K-Pixel.ttf'
+        };
+        this._fontCache = {}; // name -> { base64, format }
     }
 
     varName(name) {
@@ -664,6 +674,12 @@ class ProjectConverter {
             svgText = svgText.replace(new RegExp(`font-family:\\s*${escaped}`, 'g'), `font-family: ${targetFont}`);
         }
 
+        try {
+            svgText = await this._embedFontsInSvg(svgText);
+        } catch (e) {
+            console.warn('Embedding fonts into SVG failed', e);
+        }
+
         function parseSvgSize(svg) {
             const wMatch = svg.match(/\bwidth\s*=\s*"([0-9.]+)(px)?"/i);
             const hMatch = svg.match(/\bheight\s*=\s*"([0-9.]+)(px)?"/i);
@@ -726,6 +742,61 @@ class ProjectConverter {
         if (!blob) throw new Error('Canvas toBlob failed');
         const ab = await blob.arrayBuffer();
         return new Uint8Array(ab);
+    }
+
+    async _fetchFontAsBase64(name, url) {
+        if (this._fontCache[name]) return this._fontCache[name];
+        try {
+            const resp = await fetch(url);
+            if (!resp.ok) throw new Error('Font fetch failed');
+            const ab = await resp.arrayBuffer();
+            const extMatch = url.match(/\.([a-zA-Z0-9]+)($|[?#])/);
+            const ext = extMatch ? extMatch[1].toLowerCase() : 'ttf';
+            const mime = ext === 'otf' ? 'font/otf' : (ext === 'ttf' ? 'font/ttf' : 'application/octet-stream');
+            let binary = '';
+            const bytes = new Uint8Array(ab);
+            const chunkSize = 0x8000;
+            for (let i = 0; i < bytes.length; i += chunkSize) {
+                binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+            }
+            const b64 = btoa(binary);
+            const fmt = ext === 'otf' ? 'opentype' : (ext === 'ttf' ? 'truetype' : 'woff');
+            const out = { base64: b64, mime, format: fmt };
+            this._fontCache[name] = out;
+            return out;
+        } catch (e) {
+            console.warn('Font load failed for', name, url, e);
+            this._fontCache[name] = null;
+            return null;
+        }
+    }
+
+    async _embedFontsInSvg(svgText) {
+        const used = new Set();
+        const re = /font-family\s*[:=]\s*['\"]?([^'";,)<>]+)['\"]?/gi;
+        let m;
+        while ((m = re.exec(svgText)) !== null) {
+            const name = m[1].trim();
+            if (this._fontFiles[name]) used.add(name);
+        }
+        if (used.size === 0) return svgText;
+
+        const rules = [];
+        for (const name of used) {
+            const url = this._fontFiles[name];
+            if (!url) continue;
+            const f = await this._fetchFontAsBase64(name, url);
+            if (!f) continue;
+            rules.push(`@font-face { font-family: '${name}'; src: url('data:${f.mime};base64,${f.base64}') format('${f.format}'); font-weight: normal; font-style: normal; }`);
+        }
+        if (rules.length === 0) return svgText;
+
+        const style = `<style type="text/css"><![CDATA[\n${rules.join('\n')}\n]]></style>`;
+        const svgTagStart = svgText.search(/<svg[\s>]/i);
+        if (svgTagStart === -1) return style + svgText;
+        const tagEnd = svgText.indexOf('>', svgTagStart);
+        if (tagEnd === -1) return style + svgText;
+        return svgText.slice(0, tagEnd + 1) + style + svgText.slice(tagEnd + 1);
     }
 854105670
     async addSound(s, zipOut) {
