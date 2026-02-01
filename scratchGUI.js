@@ -163,8 +163,9 @@ function showProjectPicker() {
             .then(r => r.json())
             .then(data => {
                 console.log(page, data);
-                if (!data || data.length === 0 || data == {}) {
-                    if (page === 0) {
+                window.dat = data;
+                if (!data || data.length == 0 || data == {}) {
+                    if (page == 0) {
                         if (query) {
                             showEmpty();
                         } else {
