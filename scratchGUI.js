@@ -90,10 +90,15 @@ function showProjectPicker() {
     var query = "";
     var loading = false;
     var done = false;
-    var limit = 20;
+    var limit = 40;
 
     function showEmpty() {
         grid.innerHTML = '<div class="s2-msg">No projects found</div>';
+        grid.appendChild(spinner);
+    }
+
+    function showError(txt) {
+        grid.innerHTML = `<div class="s2-msg">${txt}</div>`;
         grid.appendChild(spinner);
     }
 
@@ -152,13 +157,19 @@ function showProjectPicker() {
 
         var api = query
             ? "https://scratch.pooiod7.workers.dev/search/projects?q=" + encodeURIComponent(query) + "&limit=" + limit + "&offset=" + (page * limit)
-            : "https://scratch.pooiod7.workers.dev/explore/projects?limit=" + limit + "&offset=" + (page * limit);
+            : "https://scratch.pooiod7.workers.dev/explore/projects?mode=recent&limit=" + limit + "&offset=" + (page * limit);
 
         fetch(api)
             .then(r => r.json())
             .then(data => {
                 if (!data || data.length === 0) {
-                    if (page === 0) showEmpty();
+                    if (page === 0) {
+                        if (query) {
+                            showEmpty();
+                        } else {
+                            showError("Failed to load projects. Please try again later");
+                        }
+                    }
                     done = true;
                 } else {
                     data.forEach(addCard);
@@ -167,9 +178,10 @@ function showProjectPicker() {
                 spinner.style.display = "none";
                 loading = false;
             })
-            .catch(() => {
+            .catch((err) => {
                 spinner.style.display = "none";
                 loading = false;
+                showError(err.message || "Unable to load projects");
             });
     }
 
