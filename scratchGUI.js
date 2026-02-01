@@ -142,8 +142,7 @@ function showProjectPicker() {
             return;
         }
 
-        console.log(loading, done);
-        if (loading || done) return;
+        if (loading) return;
         loading = true;
         spinner.style.display = "block";
 

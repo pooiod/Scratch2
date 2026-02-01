@@ -2,6 +2,7 @@ Added
 - SVGs rasterize to png because the scratch2 svg renderer is whack
 - Attept to convert mp3 to wav
 - Added support for (costume [name v]) block
+- Added support for scratch3 fonts (only in rasterized)
 
 To do
 - Add support for <[text] contains [thing]>
