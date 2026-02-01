@@ -135,6 +135,13 @@ function showProjectPicker() {
     }
 
     function load(reset) {
+        if (/^\d+$/.test(query)) {
+            window.location.hash = query;
+            startDownload(query);
+            close.click();
+            return;
+        }
+
         if (loading || done) return;
         loading = true;
         spinner.style.display = "block";
@@ -148,13 +155,6 @@ function showProjectPicker() {
             grid.appendChild(spinner);
         }
 
-        if (/^\d+$/.test(query)) {
-            window.location.hash = query;
-            startDownload(query);
-            close.click();
-            return;
-        }
-
         var api = query
             ? "https://scratch.pooiod7.workers.dev/search/projects?q=" + encodeURIComponent(query) + "&limit=" + limit + "&offset=" + (page * limit)
             : "https://scratch.pooiod7.workers.dev/explore/projects?mode=recent&limit=" + limit + "&offset=" + (page * limit);
@@ -162,8 +162,6 @@ function showProjectPicker() {
         fetch(api)
             .then(r => r.json())
             .then(data => {
-                console.log(page, data);
-                window.dat = data;
                 if (!data || data.length == 0 || !data.length || data == {}) {
                     if (page == 0) {
                         if (query) {
@@ -183,6 +181,7 @@ function showProjectPicker() {
             .catch((err) => {
                 spinner.style.display = "none";
                 loading = false;
+                done = true;
                 showError(err.message || "Unable to load projects");
             });
     }
