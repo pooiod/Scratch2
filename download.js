@@ -861,14 +861,18 @@ class ProjectConverter {
                 x: 0, y: 0, width: 100, height: 200, visible: false 
             });
         }
-        if (this.compat) {
+        if (this.compat && !target.isStage) {
             const spriteCostumeNames = (target.costumes || []).map(c => c.name || '');
-            lists.push({
-                listName: this.varName('SpriteCostumes'),
-                contents: spriteCostumeNames.map(x => this.specialNum(x)),
-                isPersistent: false,
-                x: 0, y: 0, width: 100, height: 200, visible: false
-            });
+            const spriteListName = this.varName('SpriteCostumes');
+            const alreadyHas = lists.some(l => l.listName === spriteListName);
+            if (!alreadyHas) {
+                lists.push({
+                    listName: spriteListName,
+                    contents: spriteCostumeNames.map(x => this.specialNum(x)),
+                    isPersistent: false,
+                    x: 0, y: 0, width: 100, height: 200, visible: false
+                });
+            }
         }
 
         let scripts = [];
