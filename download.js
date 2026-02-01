@@ -656,57 +656,12 @@ class ProjectConverter {
             'Curly': 'Griffy',
             'Pixel': 'Grand9K Pixel'
         };
-        const fontFiles = {
-            'Noto Sans': 'https://raw.githubusercontent.com/towerofnix/scratch-render-fonts/refs/heads/master/src/NotoSans-Medium.ttf',
-            'Source Serif Pro': 'https://raw.githubusercontent.com/towerofnix/scratch-render-fonts/refs/heads/master/src/SourceSerifPro-Regular.otf',
-            'Knewave': 'https://raw.githubusercontent.com/towerofnix/scratch-render-fonts/refs/heads/master/src/Knewave.ttf',
-            'Handlee': 'https://raw.githubusercontent.com/towerofnix/scratch-render-fonts/refs/heads/master/src/handlee-regular.ttf',
-            'Griffy': 'https://raw.githubusercontent.com/towerofnix/scratch-render-fonts/refs/heads/master/src/Griffy-Regular.ttf',
-            'Grand9K Pixel': 'https://raw.githubusercontent.com/towerofnix/scratch-render-fonts/refs/heads/master/src/Grand9K-Pixel.ttf'
-        };
 
-        const neededFonts = new Set();
         for (const [scratchFont, targetFont] of Object.entries(fontMap)) {
-            const esc = scratchFont.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
-            svgText = svgText.replace(new RegExp(`font-family\\s*=\\s*\\"${esc}\\"`, 'g'), `font-family=\\"${targetFont}\\"`);
-            svgText = svgText.replace(new RegExp(`font-family\\s*=\\s*\\'${esc}\\'`, 'g'), `font-family=\\'${targetFont}\\'`);
-            svgText = svgText.replace(new RegExp(`font-family\\s*:\\s*${esc}`, 'g'), `font-family: ${targetFont}`);
-            if (svgText.indexOf(targetFont) !== -1) neededFonts.add(targetFont);
-        }
-
-        const bufferToBase64 = (buf) => {
-            const bytes = new Uint8Array(buf);
-            let binary = '';
-            const chunkSize = 0x8000;
-            for (let i = 0; i < bytes.length; i += chunkSize) {
-                binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
-            }
-            return btoa(binary);
-        };
-
-        if (neededFonts.size > 0) {
-            let fontCss = '';
-            for (const targetFont of neededFonts) {
-                const url = fontFiles[targetFont];
-                if (!url) continue;
-                try {
-                    const resp = await fetch(url);
-                    if (!resp.ok) continue;
-                    const ab = await resp.arrayBuffer();
-                    const b64 = bufferToBase64(ab);
-                    const ext = url.split('.').pop().toLowerCase();
-                    const format = ext === 'ttf' ? 'truetype' : (ext === 'otf' ? 'opentype' : 'truetype');
-                    fontCss += `@font-face{font-family:'${targetFont}';src: url('data:font/${ext};base64,${b64}') format('${format}');font-weight:normal;font-style:normal;}\n`;
-                } catch (e) {
-                    console.warn('Failed to fetch font', targetFont, e);
-                }
-            }
-            if (fontCss) {
-                const styleTag = `<style type="text/css"><![CDATA[${fontCss}]]></style>`;
-                const svgOpen = svgText.match(/<svg[^>]*>/i);
-                const insertPos = svgOpen ? svgOpen.index + svgOpen[0].length : 0;
-                svgText = svgText.slice(0, insertPos) + styleTag + svgText.slice(insertPos);
-            }
+            const escaped = scratchFont.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+            svgText = svgText.replace(new RegExp(`font-family="${escaped}"`, 'g'), `font-family="${targetFont}"`);
+            svgText = svgText.replace(new RegExp(`font-family='${escaped}'`, 'g'), `font-family='${targetFont}'`);
+            svgText = svgText.replace(new RegExp(`font-family:\\s*${escaped}`, 'g'), `font-family: ${targetFont}`);
         }
 
         function parseSvgSize(svg) {
@@ -746,7 +701,11 @@ class ProjectConverter {
 
         await new Promise((resolve, reject) => {
             img.onload = () => resolve();
-            img.onerror = (e) => reject(new Error('SVG load failed'));
+            img.onerror = (e) => {
+                console.error(e);
+                console.log(svgText);
+                reject(new Error('SVG load failed'));
+            };
             img.src = url;
         });
 
@@ -768,7 +727,7 @@ class ProjectConverter {
         const ab = await blob.arrayBuffer();
         return new Uint8Array(ab);
     }
-
+854105670
     async addSound(s, zipOut) {
         if (!this.soundAssets[s.assetId]) {
             let ext = s.dataFormat;
