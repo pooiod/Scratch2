@@ -63,16 +63,80 @@ async function startDownload(projectId) {
 
             let parsed = false;
             try {
-                const zip = await JSZip.loadAsync(blob);
-                let projEntry = zip.file('project.json');
-                if (!projEntry) {
-                    for (const name in zip.files) {
-                        if (name.toLowerCase().endsWith('project.json')) { projEntry = zip.file(name); break; }
+                const arrayBufferToBinaryString = (ab) => {
+                    const bytes = new Uint8Array(ab);
+                    const CHUNK = 0x8000;
+                    let str = '';
+                    for (let i = 0; i < bytes.length; i += CHUNK) {
+                        str += String.fromCharCode.apply(null, bytes.subarray(i, i + CHUNK));
                     }
+                    return str;
+                };
+
+                const getProjectTextFromZip = async (zipInstance) => {
+                    if (zipInstance && typeof zipInstance.file === 'function') {
+                        let entry = zipInstance.file('project.json');
+                        if (!entry) {
+                            if (zipInstance.files) {
+                                for (const name in zipInstance.files) {
+                                    if (name.toLowerCase().endsWith('project.json')) { entry = zipInstance.file(name); break; }
+                                }
+                            }
+                        }
+                        if (entry) {
+                            if (typeof entry.async === 'function') return await entry.async('string');
+                            if (typeof entry.asText === 'function') return entry.asText();
+                            if (entry._data) {
+                                if (entry._data instanceof Uint8Array) return new TextDecoder().decode(entry._data);
+                                if (typeof entry._data === 'string') return entry._data;
+                            }
+                        }
+                    }
+
+                    if (zipInstance && zipInstance.files) {
+                        for (const name in zipInstance.files) {
+                            if (name.toLowerCase().endsWith('project.json')) {
+                                const f = zipInstance.files[name];
+                                if (!f) continue;
+                                if (typeof f.async === 'function') return await f.async('string');
+                                if (typeof f.asText === 'function') return f.asText();
+                                if (f._data) {
+                                    if (f._data instanceof Uint8Array) return new TextDecoder().decode(f._data);
+                                    if (typeof f._data === 'string') return f._data;
+                                }
+                            }
+                        }
+                    }
+                    return null;
+                };
+
+                let zip = null;
+                try {
+                    if (JSZip && typeof JSZip.loadAsync === 'function') {
+                        zip = await JSZip.loadAsync(blob);
+                    } else {
+                        const z = new JSZip();
+                        const ab = await blob.arrayBuffer();
+                        if (typeof z.loadAsync === 'function') {
+                            zip = await z.loadAsync(ab);
+                        } else if (typeof z.load === 'function') {
+                            const bin = arrayBufferToBinaryString(ab);
+                            z.load(bin);
+                            zip = z;
+                        } else if (typeof JSZip.load === 'function') {
+                            const bin = arrayBufferToBinaryString(ab);
+                            zip = JSZip.load(bin);
+                        } else {
+                            throw new Error('Unsupported JSZip API');
+                        }
+                    }
+                } catch (e) {
+                    throw e;
                 }
-                if (projEntry) {
-                    const txt = await projEntry.async('string');
-                    projectData = JSON.parse(txt);
+
+                const projText = await getProjectTextFromZip(zip);
+                if (projText) {
+                    projectData = JSON.parse(projText);
                     parsed = true;
                 }
             } catch (err) {
