@@ -45,7 +45,7 @@ window.gotZipBase64 = function(content) {
 };
 
 window.JSdownloadSB2 = async function(data, filename) {
-    var isIE = true || /MSIE|Trident/.test(navigator.userAgent);
+    var isIE = /MSIE|Trident/.test(navigator.userAgent);
 
     if (!isIE) {
         var a = document.createElement('a');
@@ -57,45 +57,55 @@ window.JSdownloadSB2 = async function(data, filename) {
         return;
     }
 
-    var byteChars = atob(data);
-    var byteNums = new Array(byteChars.length);
-    for (var i = 0; i < byteChars.length; i++) byteNums[i] = byteChars.charCodeAt(i);
-    var blob = new Blob([new Uint8Array(byteNums)], { type: 'application/octet-stream' });
+    var bytes = atob(data);
+    var arr = new Array(bytes.length);
+    for (var i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+    var blob = new Blob([new Uint8Array(arr)], { type: 'application/octet-stream' });
 
     var fd = new FormData();
     fd.append('reqtype', 'fileupload');
     fd.append('time', '1h');
     fd.append('fileToUpload', blob, filename);
 
-    var res = await fetch('https://litterbox.catbox.moe/resources/internals/api.php', { method: 'POST', body: fd });
-    var url = (await res.text()).trim();
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', 'https://litterbox.catbox.moe/resources/internals/api.php', true);
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState !== 4) return;
+        var url = xhr.responseText.replace(/\s+/g, '');
 
-    var overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:9999999';
+        var overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:9999';
 
-    var box = document.createElement('div');
-    box.style.cssText = 'background:#fff;border-radius:12px;width:360px;padding:20px;font-family:Arial,Helvetica,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.3)';
+        var box = document.createElement('div');
+        box.style.cssText = 'width:380px;background:#fff;border-radius:14px;padding:18px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:Arial';
 
-    var title = document.createElement('div');
-    title.textContent = 'Your file is ready!';
-    title.style.cssText = 'font-size:20px;font-weight:bold;margin-bottom:10px;color:#ff9900';
+        var title = document.createElement('div');
+        title.textContent = 'Download your project';
+        title.style.cssText = 'font-size:20px;font-weight:bold;color:#ff9900;margin-bottom:8px';
 
-    var link = document.createElement('a');
-    link.href = url;
-    link.textContent = url;
-    link.target = '_blank';
-    link.style.cssText = 'display:block;word-break:break-all;background:#f2f2f2;padding:10px;border-radius:8px;color:#0066cc;text-decoration:none;margin-bottom:15px';
+        var text = document.createElement('div');
+        text.textContent = 'Go to this link to download this project:';
+        text.style.cssText = 'font-size:14px;margin-bottom:10px';
 
-    var btn = document.createElement('button');
-    btn.textContent = 'Close';
-    btn.style.cssText = 'background:#ff9900;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:14px;cursor:pointer';
-    btn.onclick = function () { overlay.remove(); };
+        var link = document.createElement('a');
+        link.href = url;
+        link.target = '_blank';
+        link.textContent = url;
+        link.style.cssText = 'display:block;background:#f4f4f4;border-radius:8px;padding:10px;color:#0066cc;text-decoration:none;word-break:break-all;margin-bottom:14px';
 
-    box.appendChild(title);
-    box.appendChild(link);
-    box.appendChild(btn);
-    overlay.appendChild(box);
-    document.body.appendChild(overlay);
+        var btn = document.createElement('button');
+        btn.textContent = 'OK';
+        btn.style.cssText = 'background:#ff9900;color:#fff;border:0;border-radius:8px;padding:8px 18px;cursor:pointer';
+        btn.onclick = function () { document.body.removeChild(overlay); };
+
+        box.appendChild(title);
+        box.appendChild(text);
+        box.appendChild(link);
+        box.appendChild(btn);
+        overlay.appendChild(box);
+        document.body.appendChild(overlay);
+    };
+    xhr.send(fd);
 };
 
 JSdownloadSB2("", "test.sb2");
