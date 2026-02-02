@@ -71,19 +71,3 @@ if (JSwillDownload() && value) {
         startDownload(value2);
     }
 }
-
-loadjs('/download.js', function() {
-    if (typeof JSwillDownload === 'function') {
-        var value = new URLSearchParams(window.location.search).get('value');
-        if (JSwillDownload() && value) {
-            document.body.classList.add('download');
-            startDownload(value);
-        } else {
-            var value2 = new URLSearchParams(window.location.search).get('project_url');
-            if (JSwillDownload() && value2) {
-                document.body.classList.add('download');
-                startDownload(value2);
-            }
-        }
-    }
-});
