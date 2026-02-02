@@ -54,7 +54,9 @@ async function startDownload(projectId) {
     try {
         let projectData = null;
 
-        if (projectId && (typeof projectId === 'string' || projectId instanceof String) && (projectId.startsWith('http') || projectId.startsWith('data:'))) {
+        const isDirectSource = projectId && (typeof projectId === 'string' || projectId instanceof String) && (projectId.startsWith('http') || projectId.startsWith('data:'));
+
+        if (isDirectSource) {
             logMessage('Downloading project...');
             setProgress(10);
 
@@ -153,6 +155,29 @@ async function startDownload(projectId) {
                     parsed = true;
                 } catch (e) {
                     throw new Error('Downloaded file is not a valid project JSON or SB archive.');
+                }
+            }
+
+            if (isDirectSource) {
+                const isSB3 = projectData && projectData.targets && Array.isArray(projectData.targets);
+                if (!isSB3) {
+                    const blobToBase64 = (b) => new Promise((res, rej) => {
+                        const reader = new FileReader();
+                        reader.onerror = () => rej(new Error('Failed to read blob as base64'));
+                        reader.onload = () => {
+                            const dataUrl = reader.result.split(',')[1];
+                            res(dataUrl);
+                        };
+                        reader.readAsDataURL(b);
+                    });
+                    const base64 = await blobToBase64(blob);
+                    if (window.gotZipBase64) {
+                        window.gotZipBase64(base64);
+                        psuccess();
+                        return;
+                    } else {
+                        throw new Error('window.gotZipBase64 not found.');
+                    }
                 }
             }
 
