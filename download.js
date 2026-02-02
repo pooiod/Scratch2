@@ -60,6 +60,8 @@ async function startDownload(projectId) {
             logMessage('Downloading project...');
             setProgress(10);
 
+            window.DownloadedTitle = projectId.split('/').pop().split('.').slice(0, -1).join('.') || 'project';
+
             const resp = await fetch(projectId);
             if (!resp.ok) throw new Error('Failed to download project from URL.');
             var blob = await resp.blob();

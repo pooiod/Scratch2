@@ -44,14 +44,61 @@ window.gotZipBase64 = function(content) {
     }, 1000);
 };
 
-window.JSdownloadSB2 = function(data, filename) {
-    var a = document.createElement('a');
-    a.href = 'data:application/octet-stream;charset=utf-16le;base64,' + data;
-    a.setAttribute('download', filename);
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
+window.JSdownloadSB2 = async function(data, filename) {
+    var isIE = true || /MSIE|Trident/.test(navigator.userAgent);
+
+    if (!isIE) {
+        var a = document.createElement('a');
+        a.href = 'data:application/octet-stream;charset=utf-16le;base64,' + data;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        return;
+    }
+
+    var byteChars = atob(data);
+    var byteNums = new Array(byteChars.length);
+    for (var i = 0; i < byteChars.length; i++) byteNums[i] = byteChars.charCodeAt(i);
+    var blob = new Blob([new Uint8Array(byteNums)], { type: 'application/octet-stream' });
+
+    var fd = new FormData();
+    fd.append('reqtype', 'fileupload');
+    fd.append('time', '1h');
+    fd.append('fileToUpload', blob, filename);
+
+    var res = await fetch('https://litterbox.catbox.moe/resources/internals/api.php', { method: 'POST', body: fd });
+    var url = (await res.text()).trim();
+
+    var overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:9999999';
+
+    var box = document.createElement('div');
+    box.style.cssText = 'background:#fff;border-radius:12px;width:360px;padding:20px;font-family:Arial,Helvetica,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.3)';
+
+    var title = document.createElement('div');
+    title.textContent = 'Your file is ready!';
+    title.style.cssText = 'font-size:20px;font-weight:bold;margin-bottom:10px;color:#ff9900';
+
+    var link = document.createElement('a');
+    link.href = url;
+    link.textContent = url;
+    link.target = '_blank';
+    link.style.cssText = 'display:block;word-break:break-all;background:#f2f2f2;padding:10px;border-radius:8px;color:#0066cc;text-decoration:none;margin-bottom:15px';
+
+    var btn = document.createElement('button');
+    btn.textContent = 'Close';
+    btn.style.cssText = 'background:#ff9900;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:14px;cursor:pointer';
+    btn.onclick = function () { overlay.remove(); };
+
+    box.appendChild(title);
+    box.appendChild(link);
+    box.appendChild(btn);
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
 };
+
+JSdownloadSB2("", "test.sb2");
 
 // $("#log").text("");
 // $("#progress").removeClass("error success");

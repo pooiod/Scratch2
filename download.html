@@ -126,7 +126,7 @@
         window.gotZipBase64 = function (content) {
             clearInterval(progressTimer)
             $("#progressBar").css("width", "100%")
-            JSdownloadSB2(content, DownloadedTitle+".sb2")
+            JSdownloadSB2(content, (DownloadedTitle || "project") + ".sb2")
         }
 
         JSdownloadSB2 = function (data, filename) {
