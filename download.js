@@ -879,7 +879,7 @@ class ProjectConverter {
             img.onload = () => resolve();
             img.onerror = (e) => {
                 console.error(e);
-                console.log(svgText);
+                console.log("SVG:", svgText);
                 reject(new Error('SVG load failed'));
             };
             img.src = url;
