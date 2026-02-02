@@ -70,7 +70,13 @@ if (value.includes('#')) {
         .find(part => /^\d+$/.test(part)) || '';
 }
 
-if (JSwillDownload()) {
+if (JSwillDownload() && value) {
     document.body.classList.add('download');
     startDownload(value);
+} else {
+    var value2 = new URLSearchParams(window.location.search).get('project_url')
+    if (JSwillDownload() && value2) {
+        document.body.classList.add('download');
+        startDownload(value2);
+    }
 }

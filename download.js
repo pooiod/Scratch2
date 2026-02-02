@@ -42,10 +42,8 @@ function perror(err){
 }
 
 async function startDownload(projectId) {
-    $("#log").text("");
     $("#progress").removeClass("error success");
     $("#progress").css("opacity", 1);
-    // $("#downloader").css("height", 15);
     $("#scratchloader").css("opacity", 1);
     document.getElementById("loadholder").classList.remove("pulse");
 
@@ -53,32 +51,71 @@ async function startDownload(projectId) {
     setProgress(5);
 
     try {
-        logMessage("Fetching project token...");
-        const metaResponse = await fetch(`https://trampoline.turbowarp.org/api/projects/${projectId}`);
-        if (!metaResponse.ok) {
-            if (metaResponse.status === 404) throw new Error("Project not found.");
-            throw new Error("Failed to fetch project token.");
-        }
-        const metaData = await metaResponse.json();
-        const token = metaData.project_token;
-        window.DownloadedTitle = metaData.title;
+        let projectData = null;
 
-        logMessage("Downloading project JSON...");
-        const projectResponse = await fetch(`https://projects.scratch.mit.edu/${projectId}?token=${token}`);
-        if (!projectResponse.ok) throw new Error("Failed to download project JSON.");
-        
-        const projectData = await projectResponse.json();
-        
-        const isSB3 = projectData.targets && Array.isArray(projectData.targets);
+        if (projectId && (projectId.startsWith('http') || projectId.startsWith('data:'))) {
+            logMessage('Downloading project...');
+            setProgress(10);
+
+            const resp = await fetch(projectId);
+            if (!resp.ok) throw new Error('Failed to download project from URL.');
+            var blob = await resp.blob();
+
+            let parsed = false;
+            try {
+                const zip = await JSZip.loadAsync(blob);
+                let projEntry = zip.file('project.json');
+                if (!projEntry) {
+                    for (const name in zip.files) {
+                        if (name.toLowerCase().endsWith('project.json')) { projEntry = zip.file(name); break; }
+                    }
+                }
+                if (projEntry) {
+                    const txt = await projEntry.async('string');
+                    projectData = JSON.parse(txt);
+                    parsed = true;
+                }
+            } catch (err) {
+                perror(err);
+            }
+
+            if (!parsed) {
+                const text = await blob.text();
+                try {
+                    projectData = JSON.parse(text);
+                    parsed = true;
+                } catch (e) {
+                    throw new Error('Downloaded file is not a valid project JSON or SB archive.');
+                }
+            }
+
+        } else {
+            logMessage('Fetching project token...');
+            const metaResponse = await fetch(`https://trampoline.turbowarp.org/api/projects/${projectId}`);
+            if (!metaResponse.ok) {
+                if (metaResponse.status === 404) throw new Error('Project not found.');
+                throw new Error('Failed to fetch project token.');
+            }
+            const metaData = await metaResponse.json();
+            const token = metaData.project_token;
+            window.DownloadedTitle = metaData.title;
+
+            logMessage('Downloading project JSON...');
+            const projectResponse = await fetch(`https://projects.scratch.mit.edu/${projectId}?token=${token}`);
+            if (!projectResponse.ok) throw new Error('Failed to download project JSON.');
+            projectData = await projectResponse.json();
+        }
+
+        const isSB3 = projectData && projectData.targets && Array.isArray(projectData.targets);
 
         jszip = new JSZip();
         jszip.comment = "Converted sb3 to sb2 by pooiod7's converter (scratchflash.pages.dev/download)";
 
         if (isSB3) {
-            logMessage("Detected Scratch 3.0 project. Starting conversion...");
+            logMessage('Detected Scratch 3.0 project. Starting conversion...');
             await processSB3(projectData);
         } else {
-            logMessage("Detected Legacy (SB2) project.");
+            logMessage('Detected Legacy (SB2) project.');
             await processLegacy(projectData);
         }
 

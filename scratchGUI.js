@@ -135,8 +135,14 @@ function showProjectPicker() {
     }
 
     function load(reset) {
-        if (/^\d+$/.test(query)) {
-            window.location.hash = query;
+        if (/^\d+$/.test(query) || query.startsWith("http")) {
+            if (query.startsWith("http")) {
+                const newUrl = new URL(window.location.href);
+                newUrl.searchParams.set('project_url', query);
+                window.history.replaceState({}, '', newUrl);
+            } else {
+                window.location.hash = query;
+            }
             startDownload(query);
             close.click();
             return;
