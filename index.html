@@ -134,6 +134,9 @@
             };
 
             window.JSdownloadSB2 = function(data, filename) {
+                var flash = document.getElementById('flash');
+                if (flash) flash.style.display = 'none';
+
                 var isIE = /MSIE|Trident/.test(navigator.userAgent);
 
                 if (!isIE) {
@@ -143,27 +146,31 @@
                     document.body.appendChild(a);
                     a.click();
                     a.remove();
+                    if (flash) flash.style.display = '';
                     return;
                 }
 
                 var overlay = document.createElement('div');
-                overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:999999999999999999999';
+                overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#f9f9f9;z-index:9999';
 
                 var box = document.createElement('div');
-                box.style.cssText = 'width:360px;background:#fff;border-radius:14px;padding:20px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:Arial;text-align:center';
+                box.style.cssText = 'width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:Arial;text-align:center';
+
+                var inner = document.createElement('div');
 
                 var title = document.createElement('div');
                 title.textContent = 'Preparing download…';
-                title.style.cssText = 'font-size:20px;font-weight:bold;color:#ff9900;margin-bottom:12px';
+                title.style.cssText = 'font-size:22px;font-weight:bold;color:#ff9900;margin-bottom:16px';
 
                 var loader = document.createElement('div');
-                loader.style.cssText = 'width:40px;height:40px;border:5px solid #ddd;border-top-color:#ff9900;border-radius:50%;margin:0 auto;animation:spin 1s linear infinite';
+                loader.style.cssText = 'width:48px;height:48px;border:6px solid #ddd;border-top-color:#ff9900;border-radius:50%;margin:0 auto;animation:spin 1s linear infinite';
 
                 var style = document.createElement('style');
                 style.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
 
-                box.appendChild(title);
-                box.appendChild(loader);
+                inner.appendChild(title);
+                inner.appendChild(loader);
+                box.appendChild(inner);
                 overlay.appendChild(box);
                 document.body.appendChild(style);
                 document.body.appendChild(overlay);
@@ -185,31 +192,34 @@
 
                     var url = xhr.responseText.replace(/\s+/g, '');
 
-                    box.innerHTML = '';
+                    inner.innerHTML = '';
 
                     var t2 = document.createElement('div');
                     t2.textContent = 'Download your project';
-                    t2.style.cssText = 'font-size:20px;font-weight:bold;color:#ff9900;margin-bottom:8px';
+                    t2.style.cssText = 'font-size:22px;font-weight:bold;color:#ff9900;margin-bottom:12px';
 
                     var text = document.createElement('div');
                     text.textContent = 'Go to this link to download this project:';
-                    text.style.cssText = 'font-size:14px;margin-bottom:10px';
+                    text.style.cssText = 'font-size:15px;margin-bottom:12px';
 
                     var link = document.createElement('a');
                     link.href = url;
                     link.target = '_blank';
                     link.textContent = url;
-                    link.style.cssText = 'display:block;background:#f4f4f4;border-radius:8px;padding:10px;color:#0066cc;text-decoration:none;word-break:break-all;margin-bottom:14px';
+                    link.style.cssText = 'display:block;background:#eee;border-radius:10px;padding:12px;color:#0066cc;text-decoration:none;word-break:break-all;margin-bottom:18px';
 
                     var btn = document.createElement('button');
-                    btn.textContent = 'OK';
-                    btn.style.cssText = 'background:#ff9900;color:#fff;border:0;border-radius:8px;padding:8px 18px;cursor:pointer';
-                    btn.onclick = function () { document.body.removeChild(overlay); };
+                    btn.textContent = 'Back';
+                    btn.style.cssText = 'background:#ff9900;color:#fff;border:0;border-radius:10px;padding:10px 22px;font-size:15px;cursor:pointer';
+                    btn.onclick = function () {
+                        document.body.removeChild(overlay);
+                        if (flash) flash.style.display = '';
+                    };
 
-                    box.appendChild(t2);
-                    box.appendChild(text);
-                    box.appendChild(link);
-                    box.appendChild(btn);
+                    inner.appendChild(t2);
+                    inner.appendChild(text);
+                    inner.appendChild(link);
+                    inner.appendChild(btn);
                 };
                 xhr.send(fd);
             };
