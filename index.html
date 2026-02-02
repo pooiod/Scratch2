@@ -146,6 +146,28 @@
                     return;
                 }
 
+                var overlay = document.createElement('div');
+                overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:9999';
+
+                var box = document.createElement('div');
+                box.style.cssText = 'width:360px;background:#fff;border-radius:14px;padding:20px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:Arial;text-align:center';
+
+                var title = document.createElement('div');
+                title.textContent = 'Preparing download…';
+                title.style.cssText = 'font-size:20px;font-weight:bold;color:#ff9900;margin-bottom:12px';
+
+                var loader = document.createElement('div');
+                loader.style.cssText = 'width:40px;height:40px;border:5px solid #ddd;border-top-color:#ff9900;border-radius:50%;margin:0 auto;animation:spin 1s linear infinite';
+
+                var style = document.createElement('style');
+                style.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
+
+                box.appendChild(title);
+                box.appendChild(loader);
+                overlay.appendChild(box);
+                document.body.appendChild(style);
+                document.body.appendChild(overlay);
+
                 var bytes = atob(data);
                 var arr = new Array(bytes.length);
                 for (var i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
@@ -160,17 +182,14 @@
                 xhr.open('POST', 'https://litterbox.catbox.moe/resources/internals/api.php', true);
                 xhr.onreadystatechange = function () {
                     if (xhr.readyState !== 4) return;
+
                     var url = xhr.responseText.replace(/\s+/g, '');
 
-                    var overlay = document.createElement('div');
-                    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:9999';
+                    box.innerHTML = '';
 
-                    var box = document.createElement('div');
-                    box.style.cssText = 'width:380px;background:#fff;border-radius:14px;padding:18px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:Arial';
-
-                    var title = document.createElement('div');
-                    title.textContent = 'Download your project';
-                    title.style.cssText = 'font-size:20px;font-weight:bold;color:#ff9900;margin-bottom:8px';
+                    var t2 = document.createElement('div');
+                    t2.textContent = 'Download your project';
+                    t2.style.cssText = 'font-size:20px;font-weight:bold;color:#ff9900;margin-bottom:8px';
 
                     var text = document.createElement('div');
                     text.textContent = 'Go to this link to download this project:';
@@ -187,12 +206,10 @@
                     btn.style.cssText = 'background:#ff9900;color:#fff;border:0;border-radius:8px;padding:8px 18px;cursor:pointer';
                     btn.onclick = function () { document.body.removeChild(overlay); };
 
-                    box.appendChild(title);
+                    box.appendChild(t2);
                     box.appendChild(text);
                     box.appendChild(link);
                     box.appendChild(btn);
-                    overlay.appendChild(box);
-                    document.body.appendChild(overlay);
                 };
                 xhr.send(fd);
             };
