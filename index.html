@@ -158,45 +158,50 @@
 
                 var inner = document.createElement('div');
 
-                var title = document.createElement('div');
-                title.textContent = 'Preparing download…';
-                title.style.cssText = 'font-size:22px;font-weight:bold;color:#ff9900;margin-bottom:16px';
-
-                var loader = document.createElement('div');
-                loader.style.cssText = 'width:48px;height:48px;border:6px solid #ddd;border-top-color:#ff9900;border-radius:50%;margin:0 auto;animation:spin 1s linear infinite';
-
                 var style = document.createElement('style');
                 style.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
 
-                inner.appendChild(title);
-                inner.appendChild(loader);
-                box.appendChild(inner);
-                overlay.appendChild(box);
-                document.body.appendChild(style);
-                document.body.appendChild(overlay);
-
-                var bytes = atob(data);
-                var arr = new Array(bytes.length);
-                for (var i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
-                var blob = new Blob([new Uint8Array(arr)], { type: 'application/octet-stream' });
-
-                var fd = new FormData();
-                fd.append('reqtype', 'fileupload');
-                fd.append('time', '1h');
-                fd.append('fileToUpload', blob, filename);
-
-                var xhr = new XMLHttpRequest();
-                xhr.open('POST', 'https://litterbox.catbox.moe/resources/internals/api.php', true);
-                xhr.onreadystatechange = function () {
-                    if (xhr.readyState !== 4) return;
-
-                    var url = xhr.responseText.replace(/\s+/g, '');
-
+                function showLoader() {
                     inner.innerHTML = '';
+                    var title = document.createElement('div');
+                    title.textContent = 'Preparing download…';
+                    title.style.cssText = 'font-size:22px;font-weight:bold;color:#ff9900;margin-bottom:16px';
 
-                    var t2 = document.createElement('div');
-                    t2.textContent = 'Download your project';
-                    t2.style.cssText = 'font-size:22px;font-weight:bold;color:#ff9900;margin-bottom:12px';
+                    var loader = document.createElement('div');
+                    loader.style.cssText = 'width:48px;height:48px;border:6px solid #ddd;border-top-color:#ff9900;border-radius:50%;margin:0 auto;animation:spin 1s linear infinite';
+
+                    inner.appendChild(title);
+                    inner.appendChild(loader);
+                }
+
+                function showError() {
+                    inner.innerHTML = '';
+                    var title = document.createElement('div');
+                    title.textContent = 'Something went wrong';
+                    title.style.cssText = 'font-size:22px;font-weight:bold;color:#e74c3c;margin-bottom:12px';
+
+                    var text = document.createElement('div');
+                    text.textContent = 'The project could not be uploaded. Please try again.';
+                    text.style.cssText = 'font-size:15px;margin-bottom:18px';
+
+                    var btn = document.createElement('button');
+                    btn.textContent = 'Back';
+                    btn.style.cssText = 'background:#e74c3c;color:#fff;border:0;border-radius:10px;padding:10px 22px;font-size:15px;cursor:pointer';
+                    btn.onclick = function () {
+                        document.body.removeChild(overlay);
+                        if (flash) flash.style.display = '';
+                    };
+
+                    inner.appendChild(title);
+                    inner.appendChild(text);
+                    inner.appendChild(btn);
+                }
+
+                function showResult(url) {
+                    inner.innerHTML = '';
+                    var title = document.createElement('div');
+                    title.textContent = 'Download your project';
+                    title.style.cssText = 'font-size:22px;font-weight:bold;color:#ff9900;margin-bottom:12px';
 
                     var text = document.createElement('div');
                     text.textContent = 'Go to this link to download this project:';
@@ -216,10 +221,39 @@
                         if (flash) flash.style.display = '';
                     };
 
-                    inner.appendChild(t2);
+                    inner.appendChild(title);
                     inner.appendChild(text);
                     inner.appendChild(link);
                     inner.appendChild(btn);
+                }
+
+                showLoader();
+                box.appendChild(inner);
+                overlay.appendChild(box);
+                document.body.appendChild(style);
+                document.body.appendChild(overlay);
+
+                var bytes = atob(data);
+                var arr = new Array(bytes.length);
+                for (var i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+                var blob = new Blob([new Uint8Array(arr)], { type: 'application/octet-stream' });
+
+                var fd = new FormData();
+                fd.append('reqtype', 'fileupload');
+                fd.append('time', '1h');
+                fd.append('fileToUpload', blob, filename);
+
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', 'https://litterbox.catbox.moe/resources/internals/api.php', true);
+                xhr.onerror = showError;
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState !== 4) return;
+                    if (xhr.status !== 200 || !xhr.responseText) {
+                        showError();
+                        return;
+                    }
+                    var url = xhr.responseText.replace(/\s+/g, '');
+                    showResult(url);
                 };
                 xhr.send(fd);
             };
