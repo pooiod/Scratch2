@@ -44,8 +44,6 @@ window.gotZipBase64 = function(content) {
     }, 1000);
 };
 
-JSdownloadSB2("", "test.sb2");
-
 // $("#log").text("");
 // $("#progress").removeClass("error success");
 // $("#progress").css("opacity", 1);
