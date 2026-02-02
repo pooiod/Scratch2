@@ -61,13 +61,46 @@ if (value.includes('#')) {
         .find(part => /^\d+$/.test(part)) || '';
 }
 
-if (JSwillDownload() && value) {
-    document.body.classList.add('download');
-    startDownload(value);
-} else {
-    var value2 = new URLSearchParams(window.location.search).get('project_url')
-    if (JSwillDownload() && value2) {
-        document.body.classList.add('download');
-        startDownload(value2);
+$LAB.script('/download.js').wait(function(){
+    function getParam(name){
+        if(window.URLSearchParams){
+            return new URLSearchParams(window.location.search).get(name);
+        }
+        var query = window.location.search.replace(/^\?/,'').split('&');
+        for(var i=0;i<query.length;i++){
+            var parts = query[i].split('=');
+            if(decodeURIComponent(parts[0]) === name){
+                return parts.slice(1).join('=') ? decodeURIComponent(parts.slice(1).join('=')) : '';
+            }
+        }
+        return null;
     }
-}
+
+    var value = (typeof window.value !== 'undefined') ? window.value : null;
+
+    if(typeof JSwillDownload === 'function' && JSwillDownload() && value){
+        if(document.body){
+            document.body.classList.add('download');
+            startDownload(value);
+        } else {
+            document.addEventListener('DOMContentLoaded', function(){
+                document.body.classList.add('download');
+                startDownload(value);
+            });
+        }
+    } else {
+        var value2 = getParam('project_url');
+        if(typeof JSwillDownload === 'function' && JSwillDownload() && value2){
+            if(document.body){
+                document.body.classList.add('download');
+                startDownload(value2);
+            } else {
+                document.addEventListener('DOMContentLoaded', function(){
+                    document.body.classList.add('download');
+                    startDownload(value2);
+                });
+            }
+        }
+    }
+
+});
