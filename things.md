@@ -1,11 +1,10 @@
-Added
-- SVGs rasterize to png because the scratch2 svg renderer is whack
-- Attept to convert mp3 to wav
-- Added support for (costume [name v]) block
-- Added support for scratch3 fonts (only in rasterized)
+Added:
+SVGs now rasterize because the Scratch2 renderer does not like SVGs from Scratch3
+Added support for Scratch3 fonts (when rasterized)
+Added support for (costume [name v]) block
 
-To do
-- Add support for <[text] contains [thing]>
-- Replace pen dropdowns with blocks
-- Add support for {glide (seconds) secs to [random pos / mouse pos v]}
-- Add support for (# of [thing] in [list v])
+Issues:
+Audio is still broke
+No <[text] contains [thing]> support
+No {glide (seconds) secs to [random pos / mouse pos v]} support
+No (# of [thing] in [list v]) support
