@@ -54,7 +54,7 @@ async function startDownload(projectId) {
     try {
         let projectData = null;
 
-        if (projectId && (projectId.startsWith('http') || projectId.startsWith('data:'))) {
+        if (projectId && (typeof projectId === 'string' || projectId instanceof String) && (projectId.startsWith('http') || projectId.startsWith('data:'))) {
             logMessage('Downloading project...');
             setProgress(10);
 
