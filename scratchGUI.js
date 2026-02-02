@@ -92,12 +92,7 @@ function showProjectPicker() {
     var done = false;
     var limit = 40;
 
-    function showEmpty() {
-        grid.innerHTML = '<div class="s2-msg">No projects found</div>';
-        grid.appendChild(spinner);
-    }
-
-    function showError(txt) {
+    function showText(txt) {
         grid.innerHTML = `<div class="s2-msg">${txt}</div>`;
         grid.appendChild(spinner);
     }
@@ -171,9 +166,9 @@ function showProjectPicker() {
                 if (!data || data.length == 0 || !data.length || data == {}) {
                     if (page == 0) {
                         if (query) {
-                            showEmpty();
+                            showText("No projects found");
                         } else {
-                            showError("Failed to load projects. Please try again later");
+                            showText("Make a search to find projects");
                         }
                     }
                     done = true;
@@ -188,7 +183,7 @@ function showProjectPicker() {
                 spinner.style.display = "none";
                 loading = false;
                 done = true;
-                showError(err.message || "Unable to load projects");
+                showText(err.message || "Unable to load projects");
             });
     }
 
