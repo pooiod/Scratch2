@@ -735,6 +735,51 @@ class ProjectConverter {
         return script;
     }
 
+    async _readZipEntry(entry) {
+        if (!entry) return null;
+        if (typeof entry.async === 'function') {
+            try {
+                let out = await entry.async('uint8array');
+                if (out instanceof Uint8Array) return out;
+                if (out instanceof ArrayBuffer) return new Uint8Array(out);
+                if (typeof out === 'string') return new TextEncoder().encode(out);
+            } catch (e) {
+                try {
+                    let out2 = await entry.async('arraybuffer');
+                    if (out2 instanceof ArrayBuffer) return new Uint8Array(out2);
+                } catch (e2) {}
+                try {
+                    let s = await entry.async('string');
+                    if (typeof s === 'string') return new TextEncoder().encode(s);
+                } catch (e3) {}
+            }
+        }
+        if (typeof entry.asArrayBuffer === 'function') {
+            const ab = await entry.asArrayBuffer();
+            return new Uint8Array(ab);
+        }
+        if (typeof entry.asText === 'function') {
+            const s = await entry.asText();
+            return new TextEncoder().encode(s);
+        }
+        if (entry._data) {
+            if (entry._data instanceof Uint8Array) return entry._data;
+            if (entry._data instanceof ArrayBuffer) return new Uint8Array(entry._data);
+            if (typeof entry._data === 'string') return new TextEncoder().encode(entry._data);
+        }
+        if (entry instanceof Uint8Array) return entry;
+        if (entry instanceof ArrayBuffer) return new Uint8Array(entry);
+        if (typeof Blob !== 'undefined' && entry instanceof Blob) {
+            const ab = await entry.arrayBuffer();
+            return new Uint8Array(ab);
+        }
+        if (entry.data) {
+            if (entry.data instanceof Uint8Array) return entry.data;
+            if (entry.data instanceof ArrayBuffer) return new Uint8Array(entry.data);
+        }
+        return null;
+    }
+
     async addCostume(c, zipOut) {
         if (!this.costumeAssets[c.assetId]) {
             let ext = c.dataFormat;
@@ -754,7 +799,8 @@ class ProjectConverter {
                 }
                 if (entry) {
                     try {
-                        const arr = await entry.async('uint8array');
+                        const arr = await this._readZipEntry(entry);
+                        if (!arr) throw new Error('Zip entry read returned null');
                         finalData = arr;
                         if (ext === 'svg') {
                             let str = new TextDecoder().decode(finalData);
@@ -978,7 +1024,9 @@ class ProjectConverter {
                 }
                 if (entry) {
                     try {
-                        const ab = await entry.async('arraybuffer');
+                        const arr = await this._readZipEntry(entry);
+                        if (!arr) throw new Error('Zip entry read returned null');
+                        const ab = arr instanceof Uint8Array ? arr.buffer : arr;
                         data = ab;
 
                         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
