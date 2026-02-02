@@ -44,7 +44,7 @@ function showProjectPicker() {
 
     var input = document.createElement("input");
     input.className = "s2-input";
-    input.placeholder = "Search projects...";
+    input.placeholder = "Project id, url, or search query";
 
     var btn = document.createElement("button");
     btn.className = "s2-btn";
