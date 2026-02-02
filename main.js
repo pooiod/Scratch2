@@ -25,7 +25,7 @@ window.gotZipBase64 = function(content) {
             $("#log").text("Hook not found"+"\n"+$("#log").text());
             if (!hasFlash) {
                 if (confirm("Download this project?")) {
-                    JSdownloadSB2(content, DownloadedTitle);
+                    JSdownloadSB2(content, window.DownloadedTitle || "project.sb2");
                 } else {
                     alert("Please download this modified scratch 2.0 app, or a browser that supports flash");
                     location.href = "https://pooiod7.itch.io/scratch2";

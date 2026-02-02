@@ -1,6 +1,7 @@
 var maxWidth = 0;
 var jszip = null;
 var id = null;
+var sourceZip = null;
 
 function logMessage(msg){
     $("#log").text(msg+"\n"+$("#log").text());
@@ -133,6 +134,8 @@ async function startDownload(projectId) {
                 } catch (e) {
                     throw e;
                 }
+
+                sourceZip = zip;
 
                 const projText = await getProjectTextFromZip(zip);
                 if (projText) {
@@ -713,20 +716,51 @@ class ProjectConverter {
             let url = `${ASSET_HOST}/${c.md5ext}/get/`;
 
             let finalData;
-            try {
-                const resp = await fetch(url);
-                if(!resp.ok) throw new Error("Fetch failed");
-                const data = await resp.arrayBuffer();
-                finalData = new Uint8Array(data);
-
-                if (ext === 'svg') {
-                    let str = new TextDecoder().decode(finalData);
-                    str = str.replace(/fill="undefined"/g, '');
-                    finalData = new TextEncoder().encode(str);
+            if (sourceZip) {
+                let entry = null;
+                if (typeof sourceZip.file === 'function') {
+                    entry = sourceZip.file(c.md5ext) || sourceZip.file('assets/' + c.md5ext);
                 }
-            } catch(e) {
-                console.warn(`Failed to download costume ${c.name}, using placeholder.`);
-                finalData = new TextEncoder().encode(`<svg width="800" height="800" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M4 1C2.355 1 1 2.355 1 4v1h1V4c0-1.11.89-2 2-2h1V1zm2 0v1h4V1zm5 0v1h1c1.11 0 2 .89 2 2v1h1V4c0-1.645-1.355-3-3-3zM6 5c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1M1 6v4h1V6zm13 0v4h1V6zM9.5 8l-2 2L6 9l-2 2v.5c0 .5.5.5.5.5h7s.473-.035.5-.5v-1zM1 11v1c0 1.645 1.355 3 3 3h1v-1H4c-1.11 0-2-.89-2-2v-1zm13 0v1c0 1.11-.89 2-2 2h-1v1h1c1.645 0 3-1.355 3-3v-1zm-8 3v1h4v-1zm0 0" fill="#2e3434" fill-opacity=".349"/></svg>`);
+                if (!entry && sourceZip.files) {
+                    for (const name in sourceZip.files) {
+                        if (!name) continue;
+                        if (name === c.md5ext || name.endsWith('/' + c.md5ext) || name.endsWith(c.md5ext)) { entry = sourceZip.file(name); break; }
+                    }
+                }
+                if (entry) {
+                    try {
+                        const arr = await entry.async('uint8array');
+                        finalData = arr;
+                        if (ext === 'svg') {
+                            let str = new TextDecoder().decode(finalData);
+                            str = str.replace(/fill="undefined"/g, '');
+                            finalData = new TextEncoder().encode(str);
+                        }
+                    } catch (e) {
+                        console.warn(`Failed to read costume ${c.name} from SB3 zip, using placeholder.`, e);
+                        finalData = new TextEncoder().encode(`<svg width="800" height="800" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M4 1C2.355 1 1 2.355 1 4v1h1V4c0-1.11.89-2 2-2h1V1zm2 0v1h4V1zm5 0v1h1c1.11 0 2 .89 2 2v1h1V4c0-1.645-1.355-3-3-3zM6 5c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1M1 6v4h1V6zm13 0v4h1V6zM9.5 8l-2 2L6 9l-2 2v.5c0 .5.5.5.5.5h7s.473-.035.5-.5v-1zM1 11v1c0 1.645 1.355 3 3 3h1v-1H4c-1.11 0-2-.89-2-2v-1zm13 0v1c0 1.11-.89 2-2 2h-1v1h1c1.645 0 3-1.355 3-3v-1zm-8 3v1h4v-1zm0 0" fill="#2e3434" fill-opacity=".349"/></svg>`);
+                    }
+                } else {
+                    console.warn(`Costume ${c.name} not found in SB3 zip, using placeholder.`);
+                    finalData = new TextEncoder().encode(`<svg width="800" height="800" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M4 1C2.355 1 1 2.355 1 4v1h1V4c0-1.11.89-2 2-2h1V1zm2 0v1h4V1zm5 0v1h1c1.11 0 2 .89 2 2v1h1V4c0-1.645-1.355-3-3-3zM6 5c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1M1 6v4h1V6zm13 0v4h1V6zM9.5 8l-2 2L6 9l-2 2v.5c0 .5.5.5.5.5h7s.473-.035.5-.5v-1zM1 11v1c0 1.645 1.355 3 3 3h1v-1H4c-1.11 0-2-.89-2-2v-1zm13 0v1c0 1.11-.89 2-2 2h-1v1h1c1.645 0 3-1.355 3-3v-1zm-8 3v1h4v-1zm0 0" fill="#2e3434" fill-opacity=".349"/></svg>`);
+                }
+            } else {
+                let finalDataLocal;
+                try {
+                    const resp = await fetch(url);
+                    if(!resp.ok) throw new Error("Fetch failed");
+                    const data = await resp.arrayBuffer();
+                    finalDataLocal = new Uint8Array(data);
+                    if (ext === 'svg') {
+                        let str = new TextDecoder().decode(finalDataLocal);
+                        str = str.replace(/fill="undefined"/g, '');
+                        finalDataLocal = new TextEncoder().encode(str);
+                    }
+                } catch(e) {
+                    console.warn(`Failed to download costume ${c.name}, using placeholder.`);
+                    finalDataLocal = new TextEncoder().encode(`<svg width="800" height="800" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M4 1C2.355 1 1 2.355 1 4v1h1V4c0-1.11.89-2 2-2h1V1zm2 0v1h4V1zm5 0v1h1c1.11 0 2 .89 2 2v1h1V4c0-1.645-1.355-3-3-3zM6 5c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1M1 6v4h1V6zm13 0v4h1V6zM9.5 8l-2 2L6 9l-2 2v.5c0 .5.5.5.5.5h7s.473-.035.5-.5v-1zM1 11v1c0 1.645 1.355 3 3 3h1v-1H4c-1.11 0-2-.89-2-2v-1zm13 0v1c0 1.11-.89 2-2 2h-1v1h1c1.645 0 3-1.355 3-3v-1zm-8 3v1h4v-1zm0 0" fill="#2e3434" fill-opacity=".349"/></svg>`);
+                }
+                finalData = finalDataLocal;
             }
 
             let index = Object.keys(this.costumeAssets).length;
@@ -908,37 +942,85 @@ class ProjectConverter {
             let rate = s.rate;
             let sampleCount = s.sampleCount;
 
-            try {
-                const resp = await fetch(url);
-                if (!resp.ok) throw new Error();
-                data = await resp.arrayBuffer();
+            if (sourceZip) {
+                let entry = null;
+                if (typeof sourceZip.file === 'function') entry = sourceZip.file(s.md5ext) || sourceZip.file('assets/' + s.md5ext);
+                if (!entry && sourceZip.files) {
+                    for (const name in sourceZip.files) {
+                        if (!name) continue;
+                        if (name === s.md5ext || name.endsWith('/' + s.md5ext) || name.endsWith(s.md5ext)) { entry = sourceZip.file(name); break; }
+                    }
+                }
+                if (entry) {
+                    try {
+                        const ab = await entry.async('arraybuffer');
+                        data = ab;
 
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                let audioBuffer = await audioCtx.decodeAudioData(data.slice(0));
+                        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                        let audioBuffer = await audioCtx.decodeAudioData(ab.slice(0));
+                        rate = audioBuffer.sampleRate;
+                        sampleCount = audioBuffer.length;
 
-                rate = audioBuffer.sampleRate;
-                sampleCount = audioBuffer.length;
+                        if (rate > 48000) {
+                            const offlineCtx = new OfflineAudioContext(audioBuffer.numberOfChannels, audioBuffer.duration * 48000, 48000);
+                            const source = offlineCtx.createBufferSource();
+                            source.buffer = audioBuffer;
+                            source.connect(offlineCtx.destination);
+                            source.start();
+                            audioBuffer = await offlineCtx.startRendering();
+                            rate = 48000;
+                            sampleCount = audioBuffer.length;
+                        }
 
-                if (rate > 48000) {
-                    const offlineCtx = new OfflineAudioContext(audioBuffer.numberOfChannels, audioBuffer.duration * 48000, 48000);
-                    const source = offlineCtx.createBufferSource();
-                    source.buffer = audioBuffer;
-                    source.connect(offlineCtx.destination);
-                    source.start();
-                    audioBuffer = await offlineCtx.startRendering();
-                    rate = 48000;
+                        if (ext === 'mp3') {
+                            data = this.bufferToWav(audioBuffer);
+                            ext = 'wav';
+                        }
+                    } catch (e) {
+                        console.warn('Failed to decode sound from SB3 zip', e);
+                        data = new Uint8Array(0);
+                        rate = rate || 22050;
+                        sampleCount = sampleCount || 0;
+                    }
+                } else {
+                    console.warn(`Sound ${s.name} not found in SB3 zip, using empty placeholder.`);
+                    data = new Uint8Array(0);
+                    rate = rate || 22050;
+                    sampleCount = sampleCount || 0;
+                }
+            } else {
+                try {
+                    const resp = await fetch(url);
+                    if (!resp.ok) throw new Error();
+                    data = await resp.arrayBuffer();
+
+                    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    let audioBuffer = await audioCtx.decodeAudioData(data.slice(0));
+
+                    rate = audioBuffer.sampleRate;
                     sampleCount = audioBuffer.length;
-                }
 
-                if (ext === 'mp3') {
-                    data = this.bufferToWav(audioBuffer);
-                    ext = 'wav';
+                    if (rate > 48000) {
+                        const offlineCtx = new OfflineAudioContext(audioBuffer.numberOfChannels, audioBuffer.duration * 48000, 48000);
+                        const source = offlineCtx.createBufferSource();
+                        source.buffer = audioBuffer;
+                        source.connect(offlineCtx.destination);
+                        source.start();
+                        audioBuffer = await offlineCtx.startRendering();
+                        rate = 48000;
+                        sampleCount = audioBuffer.length;
+                    }
+
+                    if (ext === 'mp3') {
+                        data = this.bufferToWav(audioBuffer);
+                        ext = 'wav';
+                    }
+                } catch (e) {
+                    console.warn(e);
+                    data = new Uint8Array(0);
+                    rate = rate || 22050;
+                    sampleCount = sampleCount || 0;
                 }
-            } catch (e) {
-                console.warn(e);
-                data = new Uint8Array(0);
-                rate = rate || 22050;
-                sampleCount = sampleCount || 0;
             }
 
             if (rate > 48000) rate = 48000;
