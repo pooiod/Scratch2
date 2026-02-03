@@ -34,9 +34,10 @@ window.gotZipBase64 = function(content) {
                 } else {
                     alert("Please download this modified scratch 2.0 app, or a browser that supports flash");
                     location.href = "https://pooiod7.itch.io/scratch2";
+                    // https://ie11.ieonchrome.com/#scratchflash.pages.dev
                 }
             }
-            
+
             setTimeout(function() {
                 $("#scratchloader").css("opacity", 0);
                 $('#downloader').animate({ height: 0 }, 1000);
