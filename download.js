@@ -19,7 +19,6 @@ function animError() {
     $("#progress").addClass("error");
     $("#scratchloader").css("opacity", 0);
     $("#downloader").css("height", 30);
-
     $("#progress").animate({ opacity: 0 }, 1000, function () {
         $(this).css({ "opacity": 1, width: 0 });
     });
@@ -378,15 +377,6 @@ BlockArgMapper.prototype = {
 function ProjectConverter() {
     this.argMapper = new BlockArgMapper(this);
     this.soundAssets = {}; this.costumeAssets = {}; this.sounds = []; this.costumes = [];
-    this._fontFiles = {
-        'Noto Sans': 'https://raw.githubusercontent.com/towerofnix/scratch-render-fonts/master/src/NotoSans-Medium.ttf',
-        'Source Serif Pro': 'https://raw.githubusercontent.com/towerofnix/scratch-render-fonts/master/src/SourceSerifPro-Regular.otf',
-        'Handlee': 'https://raw.githubusercontent.com/towerofnix/scratch-render-fonts/master/src/handlee-regular.ttf',
-        'Knewave': 'https://raw.githubusercontent.com/towerofnix/scratch-render-fonts/master/src/Knewave.ttf',
-        'Griffy': 'https://raw.githubusercontent.com/towerofnix/scratch-render-fonts/master/src/Griffy-Regular.ttf',
-        'Grand9K Pixel': 'https://raw.githubusercontent.com/towerofnix/scratch-render-fonts/master/src/Grand9K-Pixel.ttf'
-    };
-    this._fontCache = {};
 }
 ProjectConverter.prototype = {
     varName: function (n) { if (typeof n !== 'string') return n; return (this.compat ? '\u00A0' : '') + n; },
@@ -432,21 +422,16 @@ ProjectConverter.prototype = {
                 var idx = 0; for (var k in self.costumeAssets) idx++;
                 if (ext === 'svg') {
                     var s = ''; for (var i = 0; i < u.length; i++) s += String.fromCharCode(u[i]);
-                    z.file(idx + ".svg", s);
-                    self._rasterize(s, c.bitmapResolution || 1).then(function (p) {
+                    self._rasterize(s, c.bitmapResolution || 1, c.rotationCenterX, c.rotationCenterY).then(function (p) {
                         self.costumeAssets[c.assetId] = [idx, c.name, idx + ".png"]; z.file(idx + ".png", p); d.resolve();
                     }, function () {
-                        self.costumeAssets[c.assetId] = [idx, c.name, idx + ".svg"]; d.resolve();
+                        self.costumeAssets[c.assetId] = [idx, c.name, idx + ".svg"]; z.file(idx + ".svg", s); d.resolve();
                     });
                 } else {
                     z.file(idx + "." + ext, u); self.costumeAssets[c.assetId] = [idx, c.name, idx + "." + ext]; d.resolve();
                 }
             };
-            var e = null;
-            if (sourceZip) {
-                e = sourceZip.file(c.md5ext) || sourceZip.file('assets/' + c.md5ext);
-                if (!e) { for (var n in sourceZip.files) { if (n.indexOf(c.md5ext) !== -1) { e = sourceZip.file(n); break; } } }
-            }
+            var e = sourceZip ? (sourceZip.file(c.md5ext) || sourceZip.file('assets/' + c.md5ext)) : null;
             if (e) { this._readZipEntry(e).then(next); }
             else {
                 var x = new XMLHttpRequest(); x.open('GET', url, true); x.responseType = 'arraybuffer';
@@ -459,26 +444,42 @@ ProjectConverter.prototype = {
             self.costumes.push({ costumeName: c.name, baseLayerID: a[0], baseLayerMD5: a[2], rotationCenterX: c.rotationCenterX, rotationCenterY: c.rotationCenterY, bitmapResolution: c.bitmapResolution || 1 });
         });
     },
-    _rasterize: function (s, sc) {
-        var d = $.Deferred(), m = { 'Sans Serif': 'Noto Sans', 'Serif': 'Source Serif Pro', 'Marker': 'Knewave', 'Handwriting': 'Handlee', 'Curly': 'Griffy', 'Pixel': 'Grand9K Pixel' };
-        for (var f in m) { s = s.split('font-family="' + f + '"').join('font-family="' + m[f] + '"'); }
-        var url = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(s)));
-        var img = new Image();
-        img.onload = function () {
-            var c = document.createElement('canvas'); c.width = Math.max(1, 480 * sc); c.height = Math.max(1, 360 * sc);
-            var ctx = c.getContext('2d');
-            try {
-                ctx.drawImage(img, 0, 0, c.width, c.height);
-                var data = c.toDataURL('image/png').split(',')[1], bin = atob(data), arr = new Uint8Array(bin.length);
-                for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
-                d.resolve(arr);
-            } catch (e) { d.reject(); }
-        };
-        img.onerror = function () { d.reject(); }; img.src = url;
+    _rasterize: function (s, sc, cx, cy) {
+        var d = $.Deferred();
+        var w = 480 * sc, h = 360 * sc;
+        var isIE = !!document.documentMode;
+
+        if (isIE) {
+            $.ajax({
+                url: 'https://sbrasterize.pooiod7.workers.dev/',
+                type: 'POST',
+                data: JSON.stringify({ SVGtext: s, width: w, height: h, centerX: cx, centerY: cy }),
+                contentType: 'application/json',
+                xhrFields: { responseType: 'arraybuffer' },
+                success: function (data) {
+                    d.resolve(new Uint8Array(data));
+                },
+                error: function () { d.reject(); }
+            });
+        } else {
+            var url = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(s)));
+            var img = new Image();
+            img.onload = function () {
+                var c = document.createElement('canvas'); c.width = Math.max(1, w); c.height = Math.max(1, h);
+                var ctx = c.getContext('2d');
+                try {
+                    ctx.drawImage(img, 0, 0, c.width, c.height);
+                    var data = c.toDataURL('image/png').split(',')[1], bin = atob(data), arr = new Uint8Array(bin.length);
+                    for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+                    d.resolve(arr);
+                } catch (e) { d.reject(); }
+            };
+            img.onerror = function () { d.reject(); }; img.src = url;
+        }
         return d.promise();
     },
     addSound: function (s, z) {
-        var self = this, d = $.Deferred(), url = "https://assets.scratch.mit.edu/internalapi/asset/" + s.md5ext + "/get/";
+        var self = this, d = $.Deferred();
         var finish = function (ab) {
             var idx = 0; for (var k in self.soundAssets) idx++;
             z.file(idx + "." + s.dataFormat, ab);
@@ -489,7 +490,7 @@ ProjectConverter.prototype = {
         var e = sourceZip ? (sourceZip.file(s.md5ext) || sourceZip.file('assets/' + s.md5ext)) : null;
         if (e) { e.async('arraybuffer').then(finish); }
         else {
-            var x = new XMLHttpRequest(); x.open('GET', url, true); x.responseType = 'arraybuffer';
+            var x = new XMLHttpRequest(); x.open('GET', "https://assets.scratch.mit.edu/internalapi/asset/" + s.md5ext + "/get/", true); x.responseType = 'arraybuffer';
             x.onload = function () { finish(x.response); }; x.onerror = function () { d.resolve(); }; x.send();
         }
         return d.promise();
