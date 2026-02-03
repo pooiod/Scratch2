@@ -19,6 +19,7 @@ function animError() {
     $("#progress").addClass("error");
     $("#scratchloader").css("opacity", 0);
     $("#downloader").css("height", 30);
+
     $("#progress").animate({ opacity: 0 }, 1000, function () {
         $(this).css({ "opacity": 1, width: 0 });
     });
