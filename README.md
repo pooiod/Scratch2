@@ -1,2 +1,2 @@
 # ScratchaFlash
-It's like Scratch2 never left
+A version of Scratch2 that can load Scratch3 projects directly from the website
