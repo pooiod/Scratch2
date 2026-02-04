@@ -62,16 +62,17 @@ window.startMain = function() {
 
     if (typeof JSwillDownload === "function" && JSwillDownload() && value) {
         $("body").addClass('download');
+        $("#loadholder2").css("opacity", 1);
         startDownload(value);
     } else {
         var value2 = getQueryParam('project_url');
         if (typeof JSwillDownload === "function" && JSwillDownload() && value2) {
             $("body").addClass('download');
+            $("#loadholder2").css("opacity", 1);
             startDownload(value2);
         } else {
             var tries = 0;
             $("#LoaderStatus").text("Loading editor...");
-            $("#loadholder2").css("opacity", 0);
             var waitForScratch = setInterval(function() {
                 tries += 1;
                 if (document.getElementById("scratch")) {
