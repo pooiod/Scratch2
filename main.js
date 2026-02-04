@@ -64,6 +64,8 @@ else if (value.indexOf('http') === 0) {
 }
 
 window.startMain = function() {
+    document.getElementById("scratchloader").classList.add("hiddenblocks")
+
     if (typeof JSwillDownload === "function" && JSwillDownload() && value) {
         $("body").addClass('download');
         startDownload(value);
