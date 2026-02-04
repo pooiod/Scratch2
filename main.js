@@ -71,7 +71,7 @@ window.startMain = function() {
         } else {
             var tries = 0;
             $("#LoaderStatus").text("Loading editor...");
-            $("#loadholder2").css("BigLoader", 0);
+            $("#loadholder2").css("opacity", 0);
             var waitForScratch = setInterval(function() {
                 tries += 1;
                 if (document.getElementById("scratch")) {
