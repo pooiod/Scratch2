@@ -32,9 +32,9 @@ window.gotZipBase64 = function(content) {
             if (typeof hasFlash !== "undefined" && !hasFlash) {
                 var id = (getQueryParam('project_url') || decodeURIComponent(getQueryParam('id') || location.hash.slice(1)))
                 if (id) {
-                    location.href = "/@#" + id;
+                    location.href = "/꧁꧂#" + id;
                 } else {
-                    location.href = "/@" + location.hash;
+                    location.href = "/꧁꧂" + location.hash;
                 }
             }
 
