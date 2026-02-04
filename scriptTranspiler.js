@@ -13,6 +13,7 @@
     }
 
     function get(url, cb) {
+        console.log("Fetching " + url);
         var x = new XMLHttpRequest();
         x.open('GET', url, true);
         x.onreadystatechange = function () {
@@ -41,6 +42,7 @@
 
         files.forEach(function (file) {
             get(file, function (code) {
+                console.log("Transpiling " + file);
                 try {
                     var ieFunc = "async function svgToPng(svgText) { " +
                         "return new Promise(function(resolve, reject) { " +
