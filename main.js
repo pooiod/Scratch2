@@ -21,6 +21,7 @@ window.gotZipBase64 = function(content) {
             swf.ASopenProjectFromData(content);
 
             setTimeout(function() {
+                $("#BigLoader").css("opacity", 0);
                 $("#scratchloader").css("opacity", 0);
                 $('#downloader').animate({ height: 0 }, 1000);
             }, 500);
@@ -33,6 +34,7 @@ window.gotZipBase64 = function(content) {
             }
 
             setTimeout(function() {
+                $("#BigLoader").css("opacity", 0);
                 $("#scratchloader").css("opacity", 0);
                 $('#downloader').animate({ height: 0 }, 1000);
             }, 1000);

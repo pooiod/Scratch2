@@ -38,9 +38,6 @@ function psuccess(){
     setTimeout(() => {
         $("#progress").addClass("success");
 
-        $("#scratchloader").css("opacity", 0);
-        $("#BigLoader").css("opacity", 0);
-
         $("#progress").animate({opacity:0}, 1000, function(){
             $(this).css({"opacity":1, width:0});
         });
