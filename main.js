@@ -19,7 +19,7 @@ window.gotZipBase64 = function(content) {
             $("#log").text("Opening project" + "\n" + $("#log").text());
             clearInterval(openTimeout);
             swf.ASopenProjectFromData(content);
-            
+
             setTimeout(function() {
                 $("#scratchloader").css("opacity", 0);
                 $('#downloader').animate({ height: 0 }, 1000);
@@ -27,15 +27,9 @@ window.gotZipBase64 = function(content) {
         } else if (tries >= 10) {
             clearInterval(openTimeout);
             $("#log").text("Hook not found" + "\n" + $("#log").text());
-            
+
             if (typeof hasFlash !== "undefined" && !hasFlash) {
-                if (confirm("Download this project?")) {
-                    JSdownloadSB2(content, window.DownloadedTitle || "project.sb2");
-                } else {
-                    alert("Please download this modified scratch 2.0 app, or a browser that supports flash");
-                    location.href = "https://pooiod7.itch.io/scratch2";
-                    // https://ie11.ieonchrome.com/#scratchflash.pages.dev
-                }
+                location.href = `/@#${getQueryParam('project_url') || decodeURIComponent(getQueryParam('id') || location.hash.slice(1))}`;
             }
 
             setTimeout(function() {
@@ -46,22 +40,22 @@ window.gotZipBase64 = function(content) {
     }, 1000);
 };
 
-var value = getQueryParam('id') || decodeURIComponent(location.hash.slice(1));
+var value = decodeURIComponent(getQueryParam('id') || location.hash.slice(1));
 
 if (value.indexOf('#') !== -1) {
     value = value.split('#').pop();
 } 
-else if (value.indexOf('http') === 0) {
-    var parts = value.split('/');
-    var foundPart = '';
-    for (var i = 0; i < parts.length; i++) {
-        if (/^\d+$/.test(parts[i])) {
-            foundPart = parts[i];
-            break;
-        }
-    }
-    value = foundPart;
-}
+// else if (value.indexOf('http') === 0) {
+//     var parts = value.split('/');
+//     var foundPart = '';
+//     for (var i = 0; i < parts.length; i++) {
+//         if (/^\d+$/.test(parts[i])) {
+//             foundPart = parts[i];
+//             break;
+//         }
+//     }
+//     value = foundPart;
+// }
 
 window.startMain = function() {
     document.getElementById("scratchloader").classList.add("hiddenblocks")
