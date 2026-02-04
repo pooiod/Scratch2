@@ -62,7 +62,7 @@
                         "}); " +
                         "}";
 
-                    code = code.replace(/function svgToPng\(svgText\) \{[\s\S]*?return new Uint8Array\(ab\);\s*\}/, ieFunc);
+                    code = code.replace(/async function svgToPng\(svgText\) \{[\s\S]*?return new Uint8Array\(ab\);\s*\}/, ieFunc);
                 } catch (e) {
                     if (console && console.error) console.error(e);
                 }
@@ -84,7 +84,7 @@
     }
 
     // I didn't want to reqrite all my code to be IE compatible, so libs are used instead
-    if (/MSIE|Trident/.test(navigator.userAgent)) {
+    if (true || /MSIE|Trident/.test(navigator.userAgent)) {
         console.log("Preparing libs for IE");
         load('https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.26.0/polyfill.min.js', function () {
             load('https://cdn.jsdelivr.net/npm/whatwg-fetch@3.0.0/dist/fetch.umd.min.js', function () {

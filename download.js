@@ -918,7 +918,7 @@ class ProjectConverter {
             await document.fonts.ready;
         }
 
-        function svgToPng(svgText) {
+        async function svgToPng(svgText) {
             const svgBlob = new Blob([svgText], {type: 'image/svg+xml;charset=utf-8'});
             const url = URL.createObjectURL(svgBlob);
             const img = new Image();
