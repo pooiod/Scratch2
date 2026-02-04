@@ -68,6 +68,8 @@ window.startMain = function() {
         if (typeof JSwillDownload === "function" && JSwillDownload() && value2) {
             $("body").addClass('download');
             startDownload(value2);
+        } else {
+            $("#BigLoader").css("opacity", 0);
         }
     }
 };

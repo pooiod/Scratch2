@@ -5,6 +5,8 @@ var sourceZip = null;
 
 function logMessage(msg){
     $("#log").text(msg+"\n"+$("#log").text());
+
+    $("#LoaderStatus").text(msg);
 }
 
 function setProgress(perc){
@@ -13,13 +15,19 @@ function setProgress(perc){
 
     maxWidth = $("#loadholder").width();
     $("#loadprogress").width(perc + '%');
+
+    maxWidth = $("#loadholder2").width();
+    $("#loadprogress2").width(perc + '%');
 }
 
 function animError() {
     setProgress(100);
-    $("#progress").addClass("error");
+
     $("#scratchloader").css("opacity", 0);
-    $("#downloader").css("height", 30);
+    $("#scratchloader").css("BigLoader", 0);
+
+    $("#downloader").css("height", 50);
+    $("#progress").addClass("error");
     $("#progress").animate({opacity:0}, 1000, function(){
         $(this).css({"opacity":1, width:0});
     });
@@ -29,6 +37,10 @@ function psuccess(){
     setProgress(100);
     setTimeout(() => {
         $("#progress").addClass("success");
+
+        $("#scratchloader").css("opacity", 0);
+        $("#scratchloader").css("BigLoader", 0);
+
         $("#progress").animate({opacity:0}, 1000, function(){
             $(this).css({"opacity":1, width:0});
         });
@@ -48,7 +60,7 @@ async function startDownload(projectId) {
     $("#scratchloader").css("opacity", 1);
     document.getElementById("loadholder").classList.remove("pulse");
 
-    logMessage("Initializing download for ID: " + projectId);
+    logMessage("Starting download for " + projectId);
     setProgress(5);
 
     try {
@@ -206,10 +218,10 @@ async function startDownload(projectId) {
         jszip.comment = "Converted sb3 to sb2 by pooiod7's converter (scratchflash.pages.dev/download)";
 
         if (isSB3) {
-            logMessage('Detected Scratch 3.0 project. Starting conversion...');
+            logMessage('Starting conversion...');
             await processSB3(projectData);
         } else {
-            logMessage('Detected Legacy (SB2) project.');
+            logMessage('Downloading project...');
             await processLegacy(projectData);
         }
 
@@ -234,13 +246,15 @@ async function processSB3(projectData) {
         totalAssets += t.costumes.length + t.sounds.length;
     });
 
-    logMessage(`Found ${totalAssets} assets to convert.`);
+    logMessage(`Converting ${totalAssets} assets...`);
 
     const targets = projectData.targets;
     let stage = null;
     let sprites = [];
 
     for (const target of targets) {
+        logMessage(`Processing: ${target.name}`);
+
         const convertedTarget = await converter.convertTarget(target, jszip, () => {
             completedAssets++;
             const progress = 10 + (80 * (completedAssets / totalAssets));
@@ -253,7 +267,6 @@ async function processSB3(projectData) {
             convertedTarget.layerOrder = target.layerOrder;
             sprites.push(convertedTarget);
         }
-        logMessage(`Processed: ${target.name}`);
     }
 
     sprites.sort((a, b) => a.layerOrder - b.layerOrder);
@@ -335,7 +348,7 @@ async function processLegacy(projectData) {
     let completed = 0;
     const total = assetsToDownload.length;
 
-    logMessage(`Found ${total} legacy assets.`);
+    logMessage(`Downloading ${total} assets...`);
 
     const downloadAsset = async (md5, filename) => {
         if (!md5) return;
