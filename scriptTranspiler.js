@@ -37,6 +37,7 @@
         var remaining = files.length;
         for (var i = 0; i < files.length; i++) {
             (function(fileUrl) {
+                console.log("Transpiling " + fileUrl);
                 get(fileUrl, function (code) {
                     try {
                         var ieFunc = "function svgToPng(svgText) { " +
@@ -81,7 +82,7 @@
         }
     }
 
-    if (/MSIE|Trident/.test(navigator.userAgent)) {
+    if (true || /MSIE|Trident/.test(navigator.userAgent)) {
         load('https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.26.0/polyfill.min.js', function () {
             load('https://cdn.jsdelivr.net/npm/whatwg-fetch@3.0.0/dist/fetch.umd.min.js', function () {
                 load('https://cdn.jsdelivr.net/npm/fast-text-encoding@1.0.6/text.min.js', function () {
