@@ -69,7 +69,17 @@ window.startMain = function() {
             $("body").addClass('download');
             startDownload(value2);
         } else {
-            $("#BigLoader").css("opacity", 0);
+            var tries = 0;
+            var waitForScratch = setInterval(function() {
+                tries += 1;
+                if (document.getElementById("scratch")) {
+                    clearInterval(waitForScratch);
+                    $("#BigLoader").css("opacity", 0);
+                } else if (tries >= 20) {
+                    clearInterval(waitForScratch);
+                    $("#BigLoader").css("opacity", 0);
+                }
+            }, 100);
         }
     }
 };
