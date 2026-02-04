@@ -28,7 +28,7 @@
             load('https://cdn.jsdelivr.net/npm/fast-text-encoding@1.0.6/text.min.js', function () {
                 load('https://cdn.jsdelivr.net/npm/canvas-toBlob@1.0.0/canvas-toBlob.min.js', function () {
                     load('https://cdn.jsdelivr.net/npm/rgbcolor@1.0.1/index.js', function () {
-                        load('https://cdnjs.cloudflare.com/ajax/libs/canvg/1.5.3/stackblur.min.js', function () {
+                        load('https://cdn.jsdelivr.net/gh/canvg/canvg@1.5.3/StackBlur.js', function () {
                             load('https://cdnjs.cloudflare.com/ajax/libs/canvg/1.5.3/canvg.min.js', function () {
                                 load('https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js', function () {
                                     get('download.js', function (code) {
