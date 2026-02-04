@@ -108,6 +108,8 @@
             });
         });
     } else {
-        startMain();
+        loadFiles(function() {
+            startMain();
+        });
     }
 })(['/download.js', '/scratchGUI.js']);
