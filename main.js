@@ -30,7 +30,12 @@ window.gotZipBase64 = function(content) {
             $("#log").text("Hook not found" + "\n" + $("#log").text());
 
             if (typeof hasFlash !== "undefined" && !hasFlash) {
-                location.href = "/@#" + getQueryParam('project_url') || decodeURIComponent(getQueryParam('id') || location.hash.slice(1));
+                var id = (getQueryParam('project_url') || decodeURIComponent(getQueryParam('id') || location.hash.slice(1)))
+                if (id) {
+                    location.href = "/@#" + id;
+                } else {
+                    location.href = "/@" + location.hash;
+                }
             }
 
             setTimeout(function() {
