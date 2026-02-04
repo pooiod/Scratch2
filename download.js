@@ -918,38 +918,42 @@ class ProjectConverter {
             await document.fonts.ready;
         }
 
-        const svgBlob = new Blob([svgText], {type: 'image/svg+xml;charset=utf-8'});
-        const url = URL.createObjectURL(svgBlob);
-        const img = new Image();
-        img.crossOrigin = 'Anonymous';
+        function svgToPng(svgText) {
+            const svgBlob = new Blob([svgText], {type: 'image/svg+xml;charset=utf-8'});
+            const url = URL.createObjectURL(svgBlob);
+            const img = new Image();
+            img.crossOrigin = 'Anonymous';
 
-        await new Promise((resolve, reject) => {
-            img.onload = () => resolve();
-            img.onerror = (e) => {
-                console.error(e);
-                console.log("SVG:", svgText);
-                reject(new Error('SVG load failed'));
-            };
-            img.src = url;
-        });
+            await new Promise((resolve, reject) => {
+                img.onload = () => resolve();
+                img.onerror = (e) => {
+                    console.error(e);
+                    console.log("SVG:", svgText);
+                    reject(new Error('SVG load failed'));
+                };
+                img.src = url;
+            });
 
-        const canvas = document.createElement('canvas');
-        canvas.width = outW;
-        canvas.height = outH;
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        try {
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        } catch (e) {
+            const canvas = document.createElement('canvas');
+            canvas.width = outW;
+            canvas.height = outH;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            try {
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            } catch (e) {
+                URL.revokeObjectURL(url);
+                throw e;
+            }
             URL.revokeObjectURL(url);
-            throw e;
-        }
-        URL.revokeObjectURL(url);
 
-        const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
-        if (!blob) throw new Error('Canvas toBlob failed');
-        const ab = await blob.arrayBuffer();
-        return new Uint8Array(ab);
+            const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+            if (!blob) throw new Error('Canvas toBlob failed');
+            const ab = await blob.arrayBuffer();
+            return new Uint8Array(ab);
+        }
+
+        return svgToPng(svgText);
     }
 
     async _fetchFontAsBase64(name, url) {
