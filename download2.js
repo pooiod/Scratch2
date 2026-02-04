@@ -23,57 +23,49 @@
         x.send(null);
     }
 
-    var ie10SvgToPng = [
-        "function svgToPng(svgText) {",
-        "  return new Promise(function(resolve, reject) {",
-        "    try {",
-        "      var encoded = encodeURIComponent(svgText).replace(/%([0-9A-F]{2})/g, function(m, p) { return String.fromCharCode('0x' + p); });",
-        "      var b64 = btoa(encoded);",
-        "      var src = 'data:image/svg+xml;charset=utf-8;base64,' + b64;",
-        "      var img = new Image();",
-        "      img.crossOrigin = 'Anonymous';",
-        "      img.onload = function() {",
-        "        try {",
-        "          var cvs = document.createElement('canvas');",
-        "          cvs.width = outW;",
-        "          cvs.height = outH;",
-        "          var ctx = cvs.getContext('2d');",
-        "          ctx.clearRect(0,0,outW,outH);",
-        "          ctx.drawImage(img, 0, 0, outW, outH);",
-        "          var data = cvs.toDataURL('image/png');",
-        "          var bin = atob(data.split(',')[1]);",
-        "          var arr = new Uint8Array(bin.length);",
-        "          for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);",
-        "          resolve(arr);",
-        "        } catch(e) { reject(e); }",
-        "      };",
-        "      img.onerror = function() { reject(new Error('SVG load failed')); };",
-        "      img.src = src;",
-        "    } catch(e) { reject(e); }",
-        "  });",
-        "}"
-    ].join('\n');
-
     load('https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.26.0/polyfill.min.js', function () {
         load('https://cdn.jsdelivr.net/npm/whatwg-fetch@3.0.0/dist/fetch.umd.min.js', function () {
             load('https://cdn.jsdelivr.net/npm/fast-text-encoding@1.0.6/text.min.js', function () {
-                load('https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js', function () {
-                    get('download.js', function (code) {
-                        try {
-                            var modCode = code.replace('function svgToPng(svgText)', 'function _disabled_svgToPng(svgText)');
+                load('https://cdn.jsdelivr.net/npm/canvas-toBlob@1.0.0/canvas-toBlob.min.js', function () {
+                    load('https://cdnjs.cloudflare.com/ajax/libs/canvg/1.5.3/rgbcolor.min.js', function () {
+                        load('https://cdnjs.cloudflare.com/ajax/libs/canvg/1.5.3/stackblur.min.js', function () {
+                            load('https://cdnjs.cloudflare.com/ajax/libs/canvg/1.5.3/canvg.min.js', function () {
+                                load('https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js', function () {
+                                    get('download.js', function (code) {
+                                        try {
+                                            var ieFunc = "async function svgToPng(svgText) { " +
+                                                "return new Promise(function(resolve, reject) { " +
+                                                "var c = document.createElement('canvas'); " +
+                                                "c.width = outW; c.height = outH; " +
+                                                "canvg(c, svgText, { " +
+                                                "ignoreMouse: true, " +
+                                                "ignoreAnimation: true, " +
+                                                "renderCallback: function() { " +
+                                                "c.toBlob(function(blob) { " +
+                                                "var fr = new FileReader(); " +
+                                                "fr.onload = function() { resolve(new Uint8Array(fr.result)); }; " +
+                                                "fr.onerror = function(e) { reject(e); }; " +
+                                                "fr.readAsArrayBuffer(blob); " +
+                                                "}, 'image/png'); " +
+                                                "} " +
+                                                "}); " +
+                                                "}); " +
+                                                "}";
 
-                            modCode = modCode + '\n\n' + ie10SvgToPng;
+                                            code = code.replace(/function svgToPng\(svgText\) \{[\s\S]*?return new Uint8Array\(ab\);\s*\}/, ieFunc);
 
-                            var out = Babel.transform(modCode, { presets: ['es2015', 'stage-2'] }).code;
-
-                            var s = document.createElement('script');
-                            s.text = out;
-                            document.body.appendChild(s);
-
-                            if (window.startMain) window.startMain();
-                        } catch (e) {
-                            if (console && console.error) console.error(e);
-                        }
+                                            var out = Babel.transform(code, { presets: ['es2015', 'stage-2'] }).code;
+                                            var s = document.createElement('script');
+                                            s.text = out;
+                                            document.body.appendChild(s);
+                                            if (window.startMain) window.startMain();
+                                        } catch (e) {
+                                            if (console && console.error) console.error(e);
+                                        }
+                                    });
+                                });
+                            });
+                        });
                     });
                 });
             });
