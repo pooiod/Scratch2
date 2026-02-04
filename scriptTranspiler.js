@@ -13,7 +13,6 @@
     }
 
     function get(url, cb) {
-        console.log("Fetching " + url);
         var x = new XMLHttpRequest();
         x.open('GET', url, true);
         x.onreadystatechange = function () {
@@ -111,4 +110,4 @@
     } else {
         startMain();
     }
-})(['download.js', 'scratchGUI.js']);
+})(['/download.js', '/scratchGUI.js']);
