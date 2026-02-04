@@ -89,7 +89,7 @@
                     load('https://cdn.jsdelivr.net/npm/canvas-toBlob@1.0.0/canvas-toBlob.min.js', function () {
                         load('https://cdnjs.cloudflare.com/ajax/libs/canvg/1.4/rgbcolor.min.js', function () {
                             load('https://cdnjs.cloudflare.com/ajax/libs/stackblur-canvas/1.4.1/stackblur.min.js', function () {
-                                load('https://cdnjs.cloudflare.com/ajax/libs/canvg/1.5.3/canvg.min.js', function () {
+                                load('https://cdn.jsdelivr.net/npm/canvg@1.5.3/dist/browser/canvg.min.js', function () {
                                     load('https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js', function () {
                                         transpileFiles(function() {
                                             if (window.startMain) window.startMain();
