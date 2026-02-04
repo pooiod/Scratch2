@@ -70,6 +70,8 @@ window.startMain = function() {
             startDownload(value2);
         } else {
             var tries = 0;
+            $("#LoaderStatus").text("Loading editor...");
+            $("#loadholder2").css("BigLoader", 0);
             var waitForScratch = setInterval(function() {
                 tries += 1;
                 if (document.getElementById("scratch")) {

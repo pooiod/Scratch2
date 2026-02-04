@@ -24,7 +24,7 @@ function animError() {
     setProgress(100);
 
     $("#scratchloader").css("opacity", 0);
-    $("#scratchloader").css("BigLoader", 0);
+    $("#BigLoader").css("opacity", 0);
 
     $("#downloader").css("height", 50);
     $("#progress").addClass("error");
@@ -39,7 +39,7 @@ function psuccess(){
         $("#progress").addClass("success");
 
         $("#scratchloader").css("opacity", 0);
-        $("#scratchloader").css("BigLoader", 0);
+        $("#BigLoader").css("opacity", 0);
 
         $("#progress").animate({opacity:0}, 1000, function(){
             $(this).css({"opacity":1, width:0});
