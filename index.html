@@ -407,7 +407,7 @@
                         player.style.height="100%";
                         document.getElementById("flash").innerHTML = "";
                         document.getElementById("flash").appendChild(player);
-                        player.load("Scratch.swf");
+                        player.load({url:"Scratch.swf",autoplay:"on"});
                     };
                     document.head.appendChild(s);
                 }
