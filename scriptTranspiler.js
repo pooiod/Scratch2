@@ -84,6 +84,7 @@
 
     // I didn't want to reqrite all my code to be IE compatible, so libs are used instead
     if (/MSIE|Trident/.test(navigator.userAgent)) {
+        console.log("Preparing libs for IE");
         load('https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.26.0/polyfill.min.js', function () {
             load('https://cdn.jsdelivr.net/npm/whatwg-fetch@3.0.0/dist/fetch.umd.min.js', function () {
                 load('https://cdn.jsdelivr.net/npm/fast-text-encoding@1.0.6/text.min.js', function () {
@@ -92,7 +93,9 @@
                             load('https://cdnjs.cloudflare.com/ajax/libs/stackblur-canvas/1.4.1/stackblur.min.js', function () {
                                 load('https://cdn.jsdelivr.net/npm/canvg@1.5.3/dist/browser/canvg.min.js', function () {
                                     load('https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js', function () {
+                                        console.log("Transpiling scripts for IE");
                                         transpileFiles(function() {
+                                            console.log("Scripts transpiled :D");
                                             startMain();
                                         });
                                     });
