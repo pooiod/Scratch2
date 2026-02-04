@@ -293,7 +293,7 @@ async function processSB3(projectData) {
 }
 
 function finalizeZip() {
-    logMessage("Compressing archive...");
+    logMessage("Preparing sb2...");
     setProgress(95);
     
     if (typeof jszip.generateAsync === "function") {
@@ -307,7 +307,7 @@ function finalizeZip() {
 }
 
 function finish(content) {
-    logMessage("Passing to player...");
+    logMessage("Opening project...");
     setProgress(100);
     if (window.gotZipBase64) {
         window.gotZipBase64(content);
