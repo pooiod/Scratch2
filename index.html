@@ -148,7 +148,7 @@
                 transition: opacity ease-in-out 0.5s;
             }
 
-            .loader-content {
+            #BigLoader .loader-content {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
@@ -165,7 +165,7 @@
                 filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
             }
 
-            .loader-block {
+            #BigLoader .loader-block {
                 display: block;
                 height: 45px;
                 margin-top: -5px;
@@ -174,9 +174,9 @@
                 animation: blockSlideIn 1.8s infinite ease-in-out;
             }
 
-            .block-top { animation-delay: 0s; }
-            .block-mid { animation-delay: 0.2s; }
-            .block-bottom { animation-delay: 0.4s; }
+            #BigLoader .block-top { animation-delay: 0s; }
+            #BigLoader .block-mid { animation-delay: 0.2s; }
+            #BigLoader .block-bottom { animation-delay: 0.4s; }
 
             @keyframes blockSlideIn {
                 0%, 10% { opacity: 0; transform: translateY(20px); }
@@ -198,7 +198,7 @@
                 font-weight: 300;
             }
 
-            .progress-container {
+            #BigLoader .progress-container {
                 width: 250px;
                 height: 10px;
                 background: rgba(255, 255, 255, 0.2);
@@ -208,7 +208,7 @@
                 box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
             }
 
-            .progress-bar {
+            #BigLoader .progress-bar {
                 height: 100%;
                 background-color: var(--scratch-white);
                 border-radius: 20px;
