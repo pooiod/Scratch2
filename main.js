@@ -63,13 +63,15 @@ else if (value.indexOf('http') === 0) {
     value = foundPart;
 }
 
-if (typeof JSwillDownload === "function" && JSwillDownload() && value) {
-    $("body").addClass('download');
-    startDownload(value);
-} else {
-    var value2 = getQueryParam('project_url');
-    if (typeof JSwillDownload === "function" && JSwillDownload() && value2) {
+window.startMain = function() {
+    if (typeof JSwillDownload === "function" && JSwillDownload() && value) {
         $("body").addClass('download');
-        startDownload(value2);
+        startDownload(value);
+    } else {
+        var value2 = getQueryParam('project_url');
+        if (typeof JSwillDownload === "function" && JSwillDownload() && value2) {
+            $("body").addClass('download');
+            startDownload(value2);
+        }
     }
-}
+};
