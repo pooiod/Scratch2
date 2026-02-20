@@ -1,4 +1,4 @@
-var swf = document.querySelector('#scratch embed');
+var swf = document.querySelector('#scratch embed') || document.querySelector('ruffle-playe');
 
 function getQueryParam(name) {
     var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
@@ -12,7 +12,7 @@ window.gotZipBase64 = function(content) {
     var tries = 0;
     
     var openTimeout = setInterval(function() {
-        swf = document.querySelector('#scratch embed');
+        swf = document.querySelector('#scratch embed') || document.querySelector('ruffle-playe');
         tries += 1;
 
         if (swf && swf.ASopenProjectFromData) {
@@ -93,3 +93,4 @@ window.startMain = function() {
         }
     }
 };
+
