@@ -394,6 +394,7 @@
                     hasFlash=navigator.mimeTypes && navigator.mimeTypes["application/x-shockwave-flash"] !== undefined;
                 }
                 if (!hasFlash) {
+                    window.RufflePlayer = window.RufflePlayer || {};
                     window.RufflePlayer.config = {
                         allowScriptAccess: true 
                     };
@@ -437,4 +438,5 @@
         <script src="main.js"></script>
     </body>
 </html>
+
 
