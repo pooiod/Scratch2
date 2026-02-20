@@ -394,6 +394,9 @@
                     hasFlash=navigator.mimeTypes && navigator.mimeTypes["application/x-shockwave-flash"] !== undefined;
                 }
                 if (!hasFlash) {
+                    window.RufflePlayer.config = {
+                        allowScriptAccess: true 
+                    };
                     var s = document.createElement("script");
                     s.src = "https://unpkg.com/@ruffle-rs/ruffle";
                     s.onload = function(){
@@ -434,3 +437,4 @@
         <script src="main.js"></script>
     </body>
 </html>
+
