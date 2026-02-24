@@ -53,7 +53,7 @@ var editorId = "scratch";
 var editor;
 
 function handleEmbedStatus(e) {
-  var loader = document.getElementById('scratch-loader');
+  var loader = document.getElementById('scratch-loader') || document.querySelector('ruffle-player');
   if (loader) loader.style.opacity = 0;
 
   var scratchNode = document.getElementById(editorId);
