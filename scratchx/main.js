@@ -56,7 +56,7 @@ function handleEmbedStatus(e) {
   var loader = document.getElementById('scratch-loader');
   if (loader) loader.style.opacity = 0;
 
-  var scratchNode = document.getElementById(editorId) || document.querySelector('ruffle-player');
+  var scratchNode = document.getElementById(editorId);
   
   if (!e.success) {
     if (scratchNode) {
