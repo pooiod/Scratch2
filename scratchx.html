@@ -222,7 +222,7 @@
             }
         </style>
     </head>
-    <body onload='document.getElementById("scratchloader").classList.add("hiddenblocks"); document.getElementById("BigLoader").style.opacity = "0";'>
+    <body>
         <div class="scratch-loader-overlay" id="BigLoader">
             <div class="loader-content">
                 <div class="block-stack">
@@ -275,8 +275,11 @@
                         document.getElementById("flash").innerHTML = "";
                         document.getElementById("flash").appendChild(player);
                         player.load({url:"ScratchX.swf", autoplay:"on", unmuteOverlay:"hidden", maxExecutionDuration: 99999999999});
+                        document.getElementById("scratchloader").classList.add("hiddenblocks"); document.getElementById("BigLoader").style.opacity = "0";
                     };
                     document.head.appendChild(s);
+                } else {
+                    document.getElementById("scratchloader").classList.add("hiddenblocks"); document.getElementById("BigLoader").style.opacity = "0";
                 }
             })();
         </script>
