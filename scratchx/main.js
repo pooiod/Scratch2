@@ -57,7 +57,7 @@ function handleEmbedStatus(e) {
   if (loader) loader.style.opacity = 0;
 
   var scratchNode = document.getElementById(editorId);
-  
+
   if (!e.success) {
     if (scratchNode) {
       scratchNode.style.marginTop = '10px';
