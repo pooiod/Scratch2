@@ -409,8 +409,16 @@
                         document.getElementById("flash").innerHTML = "";
                         document.getElementById("flash").appendChild(player);
                         player.load({url:"Scratch.swf", autoplay:"on", unmuteOverlay:"hidden", maxExecutionDuration: 99999999999});
+
+                        const script75645 = document.createElement("script");
+                        script75645.src = "main.js";
+                        document.head.appendChild(script75645);
                     };
                     document.head.appendChild(s);
+                } else {
+                    const script75645 = document.createElement("script");
+                    script75645.src = "main.js";
+                    document.head.appendChild(script75645);
                 }
             })();
         </script>
@@ -436,10 +444,5 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/1.7.22/fabric.min.js"></script>
 
         <script src="scriptTranspiler.js"></script>
-        <script src="main.js"></script>
     </body>
 </html>
-
-
-
-
