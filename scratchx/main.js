@@ -289,7 +289,7 @@ function showModal(templateId, data) {
    * page, which when clicked will close the popup.
    */
 
-  var zIndex = 100;
+  var zIndex = 99999;
   var modalId = ("modal-" + templateId).replace(",", "-");
   $modalwrapper = $("<div class='modal-fade-screen'><div class='modal-inner'></div></div>");
   var $modal = getOrCreateFromTemplate(modalId, templateId, "dialog", "body", $modalwrapper, data);
