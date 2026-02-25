@@ -172,15 +172,13 @@ var swfAttributes = {
   height: '100%'
 };
 
-document.addEventListener("DOMContentLoaded", function() {
-  if (typeof swfobject !== 'undefined') {
-    var swf = swfobject.createSWF(swfAttributes, params, editorId);
-    handleEmbedStatus({ success: !!swf, ref: swf });
-  } else {
-    handleEmbedStatus({ success: true });
-  }
-  loadFromURLParameter(window.location.search);
-});
+if (typeof swfobject !== 'undefined') {
+  var swf = swfobject.createSWF(swfAttributes, params, editorId);
+  handleEmbedStatus({ success: !!swf, ref: swf });
+} else {
+  handleEmbedStatus({ success: true });
+}
+loadFromURLParameter(window.location.search);
 
 function sendFileToFlash(file) {
   var fileReader = new FileReader();
