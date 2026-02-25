@@ -553,3 +553,53 @@ function initPage() {
   loadFromURLParameter(window.location.search, true);
 }
 $(initPage);
+
+
+var file;
+var filetype;
+function dragndrop() {
+  const flashObject = document.getElementById("scratch") || document.querySelector('ruffle-player');
+
+  flashObject.addEventListener("dragover", function(e) {
+    e.preventDefault();
+  });
+
+  flashObject.addEventListener("drop", function(e) {
+    e.preventDefault();
+
+    file = e.dataTransfer.files[0];
+    filetype = '.' + file.name.split('.').pop();
+
+    if (file) {
+      if (alertDiv) {
+        closeAlerts();
+      }
+      setTimeout(() => {
+        alert("Loading file: " + file.name + "...");
+        setTimeout(() => {
+            if (filetype !== ".sbx" && filetype !== ".sb2" && filetype !== ".sb") {
+              closeAlerts();
+              setTimeout(() => {
+                if (!file.name.includes('.')) {
+                  alert("ScratchX can't load folders");
+                } else {
+                  alert("Can't load file of type \"" + filetype + '"');
+                }
+              }, 300);
+            } else {
+              sendFileToFlash(file)
+            }
+        }, 1000);
+      }, 300);
+    }
+  });
+}
+
+function fileloadedtoflash() {
+  if (filetype) {
+    filetype = false;
+    setTimeout(() => {
+      closeAlerts();
+    }, 300);
+  }
+}

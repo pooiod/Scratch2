@@ -2,8 +2,19 @@
 
 const functs = ["JSshowExtensionDialog()", "loadext(extension)", "alert(text)", "showLogs()", "getlogs()", "log(text,color)", "scratchVM()", "closeAlerts()", "makestring(obj)", "showloader(color)", "hideloader()", "async promptai(prompt)"];
 
-function showloader(color) {}
-function hideloader() {}
+function showloader(color) {
+  document.getElementById("loading-bar").style.backgroundColor = color || "#3498db";
+  if (document.getElementById("loading-bar").style.opacity === "0") {
+    document.getElementById("loading-bar").style.animation = "none";
+    void document.getElementById("loading-bar").offsetWidth;
+    document.getElementById("loading-bar").style.animation = "loading 1s linear infinite";
+  }
+  document.getElementById("loading-bar").style.opacity = 1;
+  window.scrollTo(0, 0);
+}
+function hideloader() {
+  document.getElementById("loading-bar").style.opacity = 0;
+}
 
 function makestring(item) {
   const input = document.createElement('input');
