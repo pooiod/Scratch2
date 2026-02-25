@@ -139,7 +139,7 @@ function JSeditorReady() {
     Scratch.editorIsReady = true;
     console.log("JSeditorReady(): dispatching editor:ready event");
     document.dispatchEvent(new Event("editor:ready"));
-    editor = document.getElementById(editorId);
+    editor = document.getElementById(editorId) || document.querySelector('ruffle-player');
     console.log("JSeditorReady(): queueing doafterloadthings()");
     setTimeout(doafterloadthings, 1000);
     return true;
@@ -168,13 +168,6 @@ function doafterloadthings() {
       }
     });
     console.log("Extensions loaded");
-  }
-
-  if (typeof dragndrop === "function") {
-    console.log("doafterloadthings(): executing dragndrop()");
-    dragndrop();
-  } else {
-    console.log("doafterloadthings(): dragndrop not found");
   }
 }
 
