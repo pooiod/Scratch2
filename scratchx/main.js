@@ -229,7 +229,7 @@ var swfAttributes = {
   height: '100%'
 };
 
-var swf = document.getElementById(editorId) || document.querySelector('ruffle-player'); // swfobject.createSWF(swfAttributes, params, editorId);
+var swf = swfobject.createSWF(swfAttributes, params, editorId); // document.getElementById(editorId) || document.querySelector('ruffle-player');
 handleEmbedStatus({ success: !!swf, ref: swf });
 
 console.log("Calling loadFromURLParameter with:", window.location.search);

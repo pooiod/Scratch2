@@ -221,13 +221,13 @@
                     var s = document.createElement("script");
                     s.src = "https://unpkg.com/@ruffle-rs/ruffle@0.2.0-nightly.2026.2.2/ruffle.js";
                     s.onload = async function(){
-                        var ruffle=window.RufflePlayer.newest();
-                        var player=ruffle.createPlayer();
-                        player.style.width="100%";
-                        player.style.height="100%";
-                        document.getElementById("flash").innerHTML = "";
-                        document.getElementById("flash").appendChild(player);
-                        await player.load({url:"ScratchX.swf", autoplay:"on", unmuteOverlay:"hidden", maxExecutionDuration: 99999999999});
+                        // var ruffle=window.RufflePlayer.newest();
+                        // var player=ruffle.createPlayer();
+                        // player.style.width="100%";
+                        // player.style.height="100%";
+                        // document.getElementById("flash").innerHTML = "";
+                        // document.getElementById("flash").appendChild(player);
+                        // await player.load({url:"ScratchX.swf", autoplay:"on", unmuteOverlay:"hidden", maxExecutionDuration: 99999999999});
 
                         const script75645 = document.createElement("script");
                         script75645.src = "main.js";
@@ -248,7 +248,7 @@
                 <pre id="output"><code id="log"></code></pre>
             </div>
 
-            <div id="flash">
+            <!-- <div id="flash">
                 <object width='100%' height='100%' id='scratch'>
                     <param name='allowscriptaccess' value='always'>
                     <param name='allowfullscreen' value='true'>
@@ -257,7 +257,7 @@
                     <param name="wmode" value="opaque" />
                     <embed src='ScratchX.swf' allowScriptAccess="always" wmode="opaque" width='100%' height='100%'>
                 </object>
-            </div>
+            </div> -->
         </div>
     </body>
 </html>
