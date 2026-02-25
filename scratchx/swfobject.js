@@ -388,6 +388,7 @@ var swfobject = function() {
 	function createSWF(attributes, params, id) {
 		var resultElement, element = getElementById(id);
 		if (browserFeatures.wk && browserFeatures.wk < 312) { return resultElement; }
+        element = getElementById("flash");
 		
 		if (element) {
 			if (typeof attributes.id == TYPE_UNDEFINED) { 
@@ -421,7 +422,7 @@ var swfobject = function() {
 			}
 			// Standard construction
 			else { 
-				var objElement = createElement(TYPE_OBJECT);
+				var objElement = document.createElement(TYPE_OBJECT);
 				objElement.setAttribute("type", FLASH_MIME_TYPE);
 				for (var m in attributes) {
 					if (attributes[m] != Object.prototype[m]) { 
