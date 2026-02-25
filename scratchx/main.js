@@ -1,34 +1,55 @@
 function hasFlash() {
+  console.debug("hasFlash() called");
   var hasFlash = false;
   if (navigator.plugins && navigator.plugins.length > 0) {
     if (navigator.plugins['Shockwave Flash']) hasFlash = true;
   }
+  console.debug("hasFlash() result:", hasFlash);
   return hasFlash;
 }
+
 function hasruffle() {
-  return document.querySelector('ruffle-player') !== null;
+  console.debug("hasruffle() called");
+  var result = document.querySelector('ruffle-player') !== null;
+  console.debug("hasruffle() result:", result);
+  return result;
 }
+
 function hasadobeflash() {
-  return hasFlash() && !hasruffle();
+  console.debug("hasadobeflash() called");
+  var result = hasFlash() && !hasruffle();
+  console.debug("hasadobeflash() result:", result);
+  return result;
 }
+
 function hasRuffleScript() {
+  console.debug("hasRuffleScript() called");
   var headScripts = document.head.getElementsByTagName('script');
   for (var i = 0; i < headScripts.length; i++) {
-    if (headScripts[i].getAttribute('src') === '/_static/js/ruffle.js') return true;
+    if (headScripts[i].getAttribute('src') === '/_static/js/ruffle.js') {
+      console.debug("hasRuffleScript() found ruffle.js");
+      return true;
+    }
   }
+  console.debug("hasRuffleScript() did not find ruffle.js");
   return false;
 }
 
 document.addEventListener("keydown", function(event) {
   if ((event.ctrlKey || event.metaKey) && event.key === "r") {
+    console.debug("Reload triggered via keyboard shortcut");
     window.location.reload();
   }
 });
 
 var logs = [];
 function createAlert(message, color) {
+  console.debug("createAlert() called - message:", message, "color:", color);
   var alertContainer = document.getElementById('alert-container');
-  if (!alertContainer) return;
+  if (!alertContainer) {
+    console.debug("createAlert(): alert-container not found, aborting");
+    return;
+  }
 
   var alertNode = document.createElement('div');
   alertNode.className = 'alert';
@@ -36,12 +57,22 @@ function createAlert(message, color) {
   alertNode.style.color = color || "white";
 
   logs.push({ text: message, color: color || "white" });
+  console.debug("createAlert(): log added, total logs:", logs.length);
+  
   alertContainer.appendChild(alertNode);
 
-  setTimeout(function() { alertNode.style.opacity = '1'; }, 10);
+  setTimeout(function() { 
+    console.debug("createAlert(): setting opacity to 1 for message:", message);
+    alertNode.style.opacity = '1'; 
+  }, 10);
+  
   setTimeout(function() {
+    console.debug("createAlert(): starting fade out for message:", message);
     alertNode.style.opacity = '0';
-    setTimeout(function() { alertNode.remove(); }, 300);
+    setTimeout(function() { 
+      console.debug("createAlert(): removing alert node for message:", message);
+      alertNode.remove(); 
+    }, 300);
   }, 9000);
 }
 
@@ -51,14 +82,21 @@ Scratch.FlashApp = Scratch.FlashApp || {};
 var inScratchX2 = true;
 var editorId = "scratch";
 var editor;
+console.debug("Global Scratch variables initialized:", Scratch);
 
 function handleEmbedStatus(e) {
+  console.debug("handleEmbedStatus() called with event:", e);
   var loader = document.getElementById('scratch-loader');
-  if (loader) loader.style.opacity = 0;
+  if (loader) {
+    console.debug("handleEmbedStatus(): hiding loader");
+    loader.style.opacity = 0;
+  }
 
   var scratchNode = document.getElementById(editorId) || document.querySelector('ruffle-player');
+  console.debug("handleEmbedStatus(): scratchNode found:", scratchNode);
 
   if (!e.success) {
+    console.debug("handleEmbedStatus(): embed failed");
     if (scratchNode) {
       scratchNode.style.marginTop = '10px';
       var thumb = scratchNode.querySelector('img.proj_thumb');
@@ -69,19 +107,24 @@ function handleEmbedStatus(e) {
       if (loading) loading.style.display = 'none';
     }
   } else {
+    console.debug("handleEmbedStatus(): embed successful, setting ASobj");
     Scratch.FlashApp.ASobj = scratchNode;
   }
 }
 
 function JSthrowError(e) {
+  console.debug("JSthrowError() called with:", e);
   if (window.onerror) {
+    console.debug("JSthrowError(): routing to window.onerror");
     window.onerror(e, 'swf', 0);
   } else {
+    console.debug("JSthrowError(): routing to console.error");
     console.error(e);
   }
 }
 
 window.onerror = function catcherrorandshow(message, source, lineno, colno, error) {
+  console.debug("window.onerror triggered - message:", message, "source:", source, "lineno:", lineno);
   if (message.includes("Failed to load SBX")) {
     createAlert("Load Error: Failed to load project", "orange");
   } else {
@@ -91,13 +134,17 @@ window.onerror = function catcherrorandshow(message, source, lineno, colno, erro
 };
 
 function JSeditorReady() {
+  console.debug("JSeditorReady() called");
   try {
     Scratch.editorIsReady = true;
+    console.debug("JSeditorReady(): dispatching editor:ready event");
     document.dispatchEvent(new Event("editor:ready"));
     editor = document.getElementById(editorId);
+    console.debug("JSeditorReady(): queueing doafterloadthings()");
     setTimeout(doafterloadthings, 1000);
     return true;
   } catch (error) {
+    console.debug("JSeditorReady(): caught error:", error);
     createAlert("Error Loading SWF: " + error.message, "yellow");
     console.error(error.message, "\n", error.stack);
     throw error;
@@ -105,28 +152,41 @@ function JSeditorReady() {
 }
 
 function doafterloadthings() {
+  console.debug("doafterloadthings() called");
   var extensionsParam = new URLSearchParams(window.location.search).get('ext');
+  console.debug("doafterloadthings(): extensionsParam:", extensionsParam);
+  
   if (extensionsParam) {
     var extensionUrls = extensionsParam.split('|');
     extensionUrls.forEach(function(extensionUrl) {
+      console.debug("doafterloadthings(): processing extension:", extensionUrl);
       if (Scratch.FlashApp.ASobj && Scratch.FlashApp.ASobj.ASloadGithubURL) {
+        console.debug("doafterloadthings(): loading extension into ASobj");
         Scratch.FlashApp.ASobj.ASloadGithubURL(extensionUrl);
+      } else {
+        console.debug("doafterloadthings(): ASloadGithubURL not available");
       }
     });
     console.log("Extensions loaded");
   }
 
   if (typeof dragndrop === "function") {
+    console.debug("doafterloadthings(): executing dragndrop()");
     dragndrop();
+  } else {
+    console.debug("doafterloadthings(): dragndrop not found");
   }
 }
 
 function JSshowExtensionDialog() {
+  console.debug("JSshowExtensionDialog() called");
   var url = prompt("Enter Extension URL:");
+  console.debug("JSshowExtensionDialog(): user provided url:", url);
   if (url) sendURLtoFlash(url);
 }
 
 function JSshowWarning(extensionData) {
+  console.debug("JSshowWarning() called with:", extensionData);
   console.warn("Extension Warning:", extensionData);
   alert("Extension Warning! Check console for details.");
 }
@@ -150,6 +210,7 @@ var flashVars = {
   },
   inIE: (navigator.userAgent.indexOf('MSIE') > -1)
 };
+console.debug("flashVars constructed:", flashVars);
 
 var params = {
   allowscriptaccess: 'always',
@@ -165,6 +226,7 @@ params.flashvars = Object.keys(flashVars).map(function(prop) {
   }
   return prop + '=' + val;
 }).join('&');
+console.debug("SWF params mapped:", params);
 
 var swfAttributes = {
   data: 'ScratchX.swf',
@@ -173,27 +235,40 @@ var swfAttributes = {
 };
 
 if (typeof swfobject !== 'undefined') {
+  console.debug("swfobject found, creating SWF element");
   var swf = swfobject.createSWF(swfAttributes, params, editorId);
   handleEmbedStatus({ success: !!swf, ref: swf });
 } else {
+  console.debug("swfobject undefined, passing success as true");
   handleEmbedStatus({ success: true });
 }
+
+console.debug("Calling loadFromURLParameter with:", window.location.search);
 loadFromURLParameter(window.location.search);
 
 function sendFileToFlash(file) {
+  console.debug("sendFileToFlash() called for file:", file);
   var fileReader = new FileReader();
   fileReader.onload = function(e) {
+    console.debug("sendFileToFlash(): fileReader loaded");
     var fileAsB64 = ab_to_b64(fileReader.result);
     
     var triggerLoad = function() {
+      console.debug("sendFileToFlash(): executing ASloadBase64SBX");
       Scratch.FlashApp.ASobj.ASloadBase64SBX(fileAsB64);
-      if (typeof fileloadedtoflash === 'function') fileloadedtoflash();
+      if (typeof fileloadedtoflash === 'function') {
+        console.debug("sendFileToFlash(): triggering fileloadedtoflash callback");
+        fileloadedtoflash();
+      }
     };
 
     if (Scratch.FlashApp.ASobj && Scratch.FlashApp.ASobj.ASloadBase64SBX) {
+      console.debug("sendFileToFlash(): ASobj ready, triggering load");
       triggerLoad();
     } else {
+      console.debug("sendFileToFlash(): ASobj not ready, awaiting editor:ready event");
       document.addEventListener("editor:ready", function handler() {
+        console.debug("sendFileToFlash(): editor:ready fired, triggering load");
         triggerLoad();
         document.removeEventListener("editor:ready", handler);
       });
@@ -204,16 +279,24 @@ function sendFileToFlash(file) {
 
 function sendURLtoFlash() {
   var urls = Array.prototype.slice.call(arguments);
-  if (urls.length <= 0) return;
+  console.debug("sendURLtoFlash() called with arguments:", urls);
+  if (urls.length <= 0) {
+    console.debug("sendURLtoFlash(): no arguments, aborting");
+    return;
+  }
 
   var triggerLoad = function() {
+    console.debug("sendURLtoFlash(): executing ASloadGithubURL");
     Scratch.FlashApp.ASobj.ASloadGithubURL(urls);
   };
 
   if (Scratch.editorIsReady && Scratch.FlashApp.ASobj && Scratch.FlashApp.ASobj.ASloadGithubURL) {
+    console.debug("sendURLtoFlash(): editor ready, triggering load");
     triggerLoad();
   } else {
+    console.debug("sendURLtoFlash(): editor not ready, awaiting editor:ready event");
     document.addEventListener("editor:ready", function handler() {
+      console.debug("sendURLtoFlash(): editor:ready fired, triggering load");
       triggerLoad();
       document.removeEventListener("editor:ready", handler);
     });
@@ -221,14 +304,22 @@ function sendURLtoFlash() {
 }
 
 function loadFromURLParameter(queryString) {
+  console.debug("loadFromURLParameter() called with:", queryString);
   var paramString = queryString.replace(/^\?|\/$/g, '');
   var vars = paramString.split("&");
   var urls = [];
   for (var i = 0; i < vars.length; i++) {
     var pair = vars[i].split("=");
     if (pair.length > 1 && pair[0] == "url") {
-      urls.push(decodeURIComponent(pair[1]));
+      var decodedUrl = decodeURIComponent(pair[1]);
+      console.debug("loadFromURLParameter(): extracted url:", decodedUrl);
+      urls.push(decodedUrl);
     }
   }
-  if (urls.length > 0) sendURLtoFlash.apply(window, urls);
+  if (urls.length > 0) {
+    console.debug("loadFromURLParameter(): delegating to sendURLtoFlash");
+    sendURLtoFlash.apply(window, urls);
+  } else {
+    console.debug("loadFromURLParameter(): no target urls found in parameters");
+  }
 }
