@@ -448,23 +448,42 @@ var swfobject = function() {
         if (existingFlashObject && window.RufflePlayer) {
             var ruffleInstance = window.RufflePlayer.newest();
             var rufflePlayer = ruffleInstance.createPlayer();
+            
             var movieUrl = existingFlashObject.data || existingFlashObject.src || existingFlashObject.querySelector("param[name='movie']")?.value;
 
-            rufflePlayer.style.width = "100%";
-            rufflePlayer.style.height = "100%";
+            for (var i = 0; i < existingFlashObject.attributes.length; i++) {
+                var attr = existingFlashObject.attributes[i];
+                if (attr.specified && attr.name !== "data" && attr.name !== "src") {
+                    rufflePlayer.setAttribute(attr.name, attr.value);
+                }
+            }
 
-            existingFlashObject.parentNode.replaceChild(rufflePlayer, existingFlashObject);
-
-            rufflePlayer.load({
+            var config = {
                 url: movieUrl,
                 autoplay: "on",
                 unmuteOverlay: "hidden",
+                maxExecutionDuration: 99999999999,
                 allowscriptaccess: 'always',
                 allowfullscreen: 'true',
-                wmode: 'direct',
                 menu: 'false',
-                maxExecutionDuration: 99999999999
+                wmode: 'direct'
+            };
+
+            var params = existingFlashObject.querySelectorAll("param");
+            params.forEach(function(param) {
+                var name = param.name.toLowerCase();
+                var value = param.value;
+
+                if (name === "flashvars") {
+                    config.parameters = value;
+                } else if (name !== "movie") {
+                    config[name] = value;
+                }
             });
+
+            existingFlashObject.parentNode.replaceChild(rufflePlayer, existingFlashObject);
+
+            rufflePlayer.load(config);
 
             resultElement = document.querySelector('ruffle-player');
         }
