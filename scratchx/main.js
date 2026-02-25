@@ -227,14 +227,8 @@ var swfAttributes = {
   height: '100%'
 };
 
-if (typeof swfobject !== 'undefined') {
-  console.log("swfobject found, creating SWF element");
-  var swf = document.getElementById(editorId) || document.querySelector('ruffle-player'); // swfobject.createSWF(swfAttributes, params, editorId);
-  handleEmbedStatus({ success: !!swf, ref: swf });
-} else {
-  console.log("swfobject undefined, passing success as true");
-  handleEmbedStatus({ success: true });
-}
+var swf = document.getElementById(editorId) || document.querySelector('ruffle-player'); // swfobject.createSWF(swfAttributes, params, editorId);
+handleEmbedStatus({ success: !!swf, ref: swf });
 
 console.log("Calling loadFromURLParameter with:", window.location.search);
 loadFromURLParameter(window.location.search);
