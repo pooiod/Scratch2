@@ -229,7 +229,7 @@ var swfAttributes = {
 
 if (typeof swfobject !== 'undefined') {
   console.log("swfobject found, creating SWF element");
-  var swf = swfobject.createSWF(swfAttributes, params, editorId);
+  var swf = document.getElementById(editorId) || document.querySelector('ruffle-player'); // swfobject.createSWF(swfAttributes, params, editorId);
   handleEmbedStatus({ success: !!swf, ref: swf });
 } else {
   console.log("swfobject undefined, passing success as true");
