@@ -467,7 +467,7 @@ var swfobject = function() {
         if (flashObject && window.RufflePlayer) {
             var ruffleInstance = window.RufflePlayer.newest();
             var rufflePlayer = ruffleInstance.createPlayer();
-            var movieUrl =  || flashObject.src || flashObject.querySelector("param[name='movie']")?.value;
+            var movieUrl = flashObject.data || flashObject.src || flashObject.querySelector("param[name='movie']")?.value;
 
             rufflePlayer.style.width = "100%";
             rufflePlayer.style.height = "100%";
