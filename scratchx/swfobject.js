@@ -463,30 +463,30 @@ var swfobject = function() {
 			}
 		}
 
-        var flashObject = document.querySelector("object");
-        if (flashObject && window.RufflePlayer) {
-            var ruffleInstance = window.RufflePlayer.newest();
-            var rufflePlayer = ruffleInstance.createPlayer();
-            var movieUrl = flashObject.data || flashObject.src || flashObject.querySelector("param[name='movie']")?.value;
+        // var flashObject = document.querySelector("object");
+        // if (flashObject && window.RufflePlayer) {
+        //     var ruffleInstance = window.RufflePlayer.newest();
+        //     var rufflePlayer = ruffleInstance.createPlayer();
+        //     var movieUrl = flashObject.data || flashObject.src || flashObject.querySelector("param[name='movie']")?.value;
 
-            rufflePlayer.style.width = "100%";
-            rufflePlayer.style.height = "100%";
+        //     rufflePlayer.style.width = "100%";
+        //     rufflePlayer.style.height = "100%";
 
-            flashObject.parentNode.replaceChild(rufflePlayer, flashObject);
+        //     flashObject.parentNode.replaceChild(rufflePlayer, flashObject);
 
-            rufflePlayer.load({
-                url: movieUrl,
-                autoplay: "on",
-                unmuteOverlay: "hidden",
-                allowscriptaccess: 'always',
-                allowfullscreen: 'true',
-                wmode: 'direct',
-                menu: 'false',
-                maxExecutionDuration: 99999999999
-            });
+        //     rufflePlayer.load({
+        //         url: movieUrl,
+        //         autoplay: "on",
+        //         unmuteOverlay: "hidden",
+        //         allowscriptaccess: 'always',
+        //         allowfullscreen: 'true',
+        //         wmode: 'direct',
+        //         menu: 'false',
+        //         maxExecutionDuration: 99999999999
+        //     });
 
-            r = document.querySelector('ruffle-player');
-        }
+        //     r = document.querySelector('ruffle-player');
+        // }
 
 		return r;
 	}
