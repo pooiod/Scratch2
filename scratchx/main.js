@@ -1,53 +1,53 @@
 function hasFlash() {
-  console.debug("hasFlash() called");
+  console.log("hasFlash() called");
   var hasFlash = false;
   if (navigator.plugins && navigator.plugins.length > 0) {
     if (navigator.plugins['Shockwave Flash']) hasFlash = true;
   }
-  console.debug("hasFlash() result:", hasFlash);
+  console.log("hasFlash() result:", hasFlash);
   return hasFlash;
 }
 
 function hasruffle() {
-  console.debug("hasruffle() called");
+  console.log("hasruffle() called");
   var result = document.querySelector('ruffle-player') !== null;
-  console.debug("hasruffle() result:", result);
+  console.log("hasruffle() result:", result);
   return result;
 }
 
 function hasadobeflash() {
-  console.debug("hasadobeflash() called");
+  console.log("hasadobeflash() called");
   var result = hasFlash() && !hasruffle();
-  console.debug("hasadobeflash() result:", result);
+  console.log("hasadobeflash() result:", result);
   return result;
 }
 
 function hasRuffleScript() {
-  console.debug("hasRuffleScript() called");
+  console.log("hasRuffleScript() called");
   var headScripts = document.head.getElementsByTagName('script');
   for (var i = 0; i < headScripts.length; i++) {
     if (headScripts[i].getAttribute('src') === '/_static/js/ruffle.js') {
-      console.debug("hasRuffleScript() found ruffle.js");
+      console.log("hasRuffleScript() found ruffle.js");
       return true;
     }
   }
-  console.debug("hasRuffleScript() did not find ruffle.js");
+  console.log("hasRuffleScript() did not find ruffle.js");
   return false;
 }
 
 document.addEventListener("keydown", function(event) {
   if ((event.ctrlKey || event.metaKey) && event.key === "r") {
-    console.debug("Reload triggered via keyboard shortcut");
+    console.log("Reload triggered via keyboard shortcut");
     window.location.reload();
   }
 });
 
 var logs = [];
 function createAlert(message, color) {
-  console.debug("createAlert() called - message:", message, "color:", color);
+  console.log("createAlert() called - message:", message, "color:", color);
   var alertContainer = document.getElementById('alert-container');
   if (!alertContainer) {
-    console.debug("createAlert(): alert-container not found, aborting");
+    console.log("createAlert(): alert-container not found, aborting");
     return;
   }
 
@@ -57,20 +57,20 @@ function createAlert(message, color) {
   alertNode.style.color = color || "white";
 
   logs.push({ text: message, color: color || "white" });
-  console.debug("createAlert(): log added, total logs:", logs.length);
+  console.log("createAlert(): log added, total logs:", logs.length);
   
   alertContainer.appendChild(alertNode);
 
   setTimeout(function() { 
-    console.debug("createAlert(): setting opacity to 1 for message:", message);
+    console.log("createAlert(): setting opacity to 1 for message:", message);
     alertNode.style.opacity = '1'; 
   }, 10);
   
   setTimeout(function() {
-    console.debug("createAlert(): starting fade out for message:", message);
+    console.log("createAlert(): starting fade out for message:", message);
     alertNode.style.opacity = '0';
     setTimeout(function() { 
-      console.debug("createAlert(): removing alert node for message:", message);
+      console.log("createAlert(): removing alert node for message:", message);
       alertNode.remove(); 
     }, 300);
   }, 9000);
@@ -82,21 +82,21 @@ Scratch.FlashApp = Scratch.FlashApp || {};
 var inScratchX2 = true;
 var editorId = "scratch";
 var editor;
-console.debug("Global Scratch variables initialized:", Scratch);
+console.log("Global Scratch variables initialized:", Scratch);
 
 function handleEmbedStatus(e) {
-  console.debug("handleEmbedStatus() called with event:", e);
+  console.log("handleEmbedStatus() called with event:", e);
   var loader = document.getElementById('scratch-loader');
   if (loader) {
-    console.debug("handleEmbedStatus(): hiding loader");
+    console.log("handleEmbedStatus(): hiding loader");
     loader.style.opacity = 0;
   }
 
   var scratchNode = document.getElementById(editorId) || document.querySelector('ruffle-player');
-  console.debug("handleEmbedStatus(): scratchNode found:", scratchNode);
+  console.log("handleEmbedStatus(): scratchNode found:", scratchNode);
 
   if (!e.success) {
-    console.debug("handleEmbedStatus(): embed failed");
+    console.log("handleEmbedStatus(): embed failed");
     if (scratchNode) {
       scratchNode.style.marginTop = '10px';
       var thumb = scratchNode.querySelector('img.proj_thumb');
@@ -107,24 +107,24 @@ function handleEmbedStatus(e) {
       if (loading) loading.style.display = 'none';
     }
   } else {
-    console.debug("handleEmbedStatus(): embed successful, setting ASobj");
+    console.log("handleEmbedStatus(): embed successful, setting ASobj");
     Scratch.FlashApp.ASobj = scratchNode;
   }
 }
 
 function JSthrowError(e) {
-  console.debug("JSthrowError() called with:", e);
+  console.log("JSthrowError() called with:", e);
   if (window.onerror) {
-    console.debug("JSthrowError(): routing to window.onerror");
+    console.log("JSthrowError(): routing to window.onerror");
     window.onerror(e, 'swf', 0);
   } else {
-    console.debug("JSthrowError(): routing to console.error");
+    console.log("JSthrowError(): routing to console.error");
     console.error(e);
   }
 }
 
 window.onerror = function catcherrorandshow(message, source, lineno, colno, error) {
-  console.debug("window.onerror triggered - message:", message, "source:", source, "lineno:", lineno);
+  console.log("window.onerror triggered - message:", message, "source:", source, "lineno:", lineno);
   if (message.includes("Failed to load SBX")) {
     createAlert("Load Error: Failed to load project", "orange");
   } else {
@@ -134,17 +134,17 @@ window.onerror = function catcherrorandshow(message, source, lineno, colno, erro
 };
 
 function JSeditorReady() {
-  console.debug("JSeditorReady() called");
+  console.log("JSeditorReady() called");
   try {
     Scratch.editorIsReady = true;
-    console.debug("JSeditorReady(): dispatching editor:ready event");
+    console.log("JSeditorReady(): dispatching editor:ready event");
     document.dispatchEvent(new Event("editor:ready"));
     editor = document.getElementById(editorId);
-    console.debug("JSeditorReady(): queueing doafterloadthings()");
+    console.log("JSeditorReady(): queueing doafterloadthings()");
     setTimeout(doafterloadthings, 1000);
     return true;
   } catch (error) {
-    console.debug("JSeditorReady(): caught error:", error);
+    console.log("JSeditorReady(): caught error:", error);
     createAlert("Error Loading SWF: " + error.message, "yellow");
     console.error(error.message, "\n", error.stack);
     throw error;
@@ -152,41 +152,41 @@ function JSeditorReady() {
 }
 
 function doafterloadthings() {
-  console.debug("doafterloadthings() called");
+  console.log("doafterloadthings() called");
   var extensionsParam = new URLSearchParams(window.location.search).get('ext');
-  console.debug("doafterloadthings(): extensionsParam:", extensionsParam);
+  console.log("doafterloadthings(): extensionsParam:", extensionsParam);
   
   if (extensionsParam) {
     var extensionUrls = extensionsParam.split('|');
     extensionUrls.forEach(function(extensionUrl) {
-      console.debug("doafterloadthings(): processing extension:", extensionUrl);
+      console.log("doafterloadthings(): processing extension:", extensionUrl);
       if (Scratch.FlashApp.ASobj && Scratch.FlashApp.ASobj.ASloadGithubURL) {
-        console.debug("doafterloadthings(): loading extension into ASobj");
+        console.log("doafterloadthings(): loading extension into ASobj");
         Scratch.FlashApp.ASobj.ASloadGithubURL(extensionUrl);
       } else {
-        console.debug("doafterloadthings(): ASloadGithubURL not available");
+        console.log("doafterloadthings(): ASloadGithubURL not available");
       }
     });
     console.log("Extensions loaded");
   }
 
   if (typeof dragndrop === "function") {
-    console.debug("doafterloadthings(): executing dragndrop()");
+    console.log("doafterloadthings(): executing dragndrop()");
     dragndrop();
   } else {
-    console.debug("doafterloadthings(): dragndrop not found");
+    console.log("doafterloadthings(): dragndrop not found");
   }
 }
 
 function JSshowExtensionDialog() {
-  console.debug("JSshowExtensionDialog() called");
+  console.log("JSshowExtensionDialog() called");
   var url = prompt("Enter Extension URL:");
-  console.debug("JSshowExtensionDialog(): user provided url:", url);
+  console.log("JSshowExtensionDialog(): user provided url:", url);
   if (url) sendURLtoFlash(url);
 }
 
 function JSshowWarning(extensionData) {
-  console.debug("JSshowWarning() called with:", extensionData);
+  console.log("JSshowWarning() called with:", extensionData);
   console.warn("Extension Warning:", extensionData);
   alert("Extension Warning! Check console for details.");
 }
@@ -210,7 +210,7 @@ var flashVars = {
   },
   inIE: (navigator.userAgent.indexOf('MSIE') > -1)
 };
-console.debug("flashVars constructed:", flashVars);
+console.log("flashVars constructed:", flashVars);
 
 var params = {
   allowscriptaccess: 'always',
@@ -226,7 +226,7 @@ params.flashvars = Object.keys(flashVars).map(function(prop) {
   }
   return prop + '=' + val;
 }).join('&');
-console.debug("SWF params mapped:", params);
+console.log("SWF params mapped:", params);
 
 var swfAttributes = {
   data: 'ScratchX.swf',
@@ -235,40 +235,40 @@ var swfAttributes = {
 };
 
 if (typeof swfobject !== 'undefined') {
-  console.debug("swfobject found, creating SWF element");
+  console.log("swfobject found, creating SWF element");
   var swf = swfobject.createSWF(swfAttributes, params, editorId);
   handleEmbedStatus({ success: !!swf, ref: swf });
 } else {
-  console.debug("swfobject undefined, passing success as true");
+  console.log("swfobject undefined, passing success as true");
   handleEmbedStatus({ success: true });
 }
 
-console.debug("Calling loadFromURLParameter with:", window.location.search);
+console.log("Calling loadFromURLParameter with:", window.location.search);
 loadFromURLParameter(window.location.search);
 
 function sendFileToFlash(file) {
-  console.debug("sendFileToFlash() called for file:", file);
+  console.log("sendFileToFlash() called for file:", file);
   var fileReader = new FileReader();
   fileReader.onload = function(e) {
-    console.debug("sendFileToFlash(): fileReader loaded");
+    console.log("sendFileToFlash(): fileReader loaded");
     var fileAsB64 = ab_to_b64(fileReader.result);
     
     var triggerLoad = function() {
-      console.debug("sendFileToFlash(): executing ASloadBase64SBX");
+      console.log("sendFileToFlash(): executing ASloadBase64SBX");
       Scratch.FlashApp.ASobj.ASloadBase64SBX(fileAsB64);
       if (typeof fileloadedtoflash === 'function') {
-        console.debug("sendFileToFlash(): triggering fileloadedtoflash callback");
+        console.log("sendFileToFlash(): triggering fileloadedtoflash callback");
         fileloadedtoflash();
       }
     };
 
     if (Scratch.FlashApp.ASobj && Scratch.FlashApp.ASobj.ASloadBase64SBX) {
-      console.debug("sendFileToFlash(): ASobj ready, triggering load");
+      console.log("sendFileToFlash(): ASobj ready, triggering load");
       triggerLoad();
     } else {
-      console.debug("sendFileToFlash(): ASobj not ready, awaiting editor:ready event");
+      console.log("sendFileToFlash(): ASobj not ready, awaiting editor:ready event");
       document.addEventListener("editor:ready", function handler() {
-        console.debug("sendFileToFlash(): editor:ready fired, triggering load");
+        console.log("sendFileToFlash(): editor:ready fired, triggering load");
         triggerLoad();
         document.removeEventListener("editor:ready", handler);
       });
@@ -279,24 +279,24 @@ function sendFileToFlash(file) {
 
 function sendURLtoFlash() {
   var urls = Array.prototype.slice.call(arguments);
-  console.debug("sendURLtoFlash() called with arguments:", urls);
+  console.log("sendURLtoFlash() called with arguments:", urls);
   if (urls.length <= 0) {
-    console.debug("sendURLtoFlash(): no arguments, aborting");
+    console.log("sendURLtoFlash(): no arguments, aborting");
     return;
   }
 
   var triggerLoad = function() {
-    console.debug("sendURLtoFlash(): executing ASloadGithubURL");
+    console.log("sendURLtoFlash(): executing ASloadGithubURL");
     Scratch.FlashApp.ASobj.ASloadGithubURL(urls);
   };
 
   if (Scratch.editorIsReady && Scratch.FlashApp.ASobj && Scratch.FlashApp.ASobj.ASloadGithubURL) {
-    console.debug("sendURLtoFlash(): editor ready, triggering load");
+    console.log("sendURLtoFlash(): editor ready, triggering load");
     triggerLoad();
   } else {
-    console.debug("sendURLtoFlash(): editor not ready, awaiting editor:ready event");
+    console.log("sendURLtoFlash(): editor not ready, awaiting editor:ready event");
     document.addEventListener("editor:ready", function handler() {
-      console.debug("sendURLtoFlash(): editor:ready fired, triggering load");
+      console.log("sendURLtoFlash(): editor:ready fired, triggering load");
       triggerLoad();
       document.removeEventListener("editor:ready", handler);
     });
@@ -304,7 +304,7 @@ function sendURLtoFlash() {
 }
 
 function loadFromURLParameter(queryString) {
-  console.debug("loadFromURLParameter() called with:", queryString);
+  console.log("loadFromURLParameter() called with:", queryString);
   var paramString = queryString.replace(/^\?|\/$/g, '');
   var vars = paramString.split("&");
   var urls = [];
@@ -312,14 +312,14 @@ function loadFromURLParameter(queryString) {
     var pair = vars[i].split("=");
     if (pair.length > 1 && pair[0] == "url") {
       var decodedUrl = decodeURIComponent(pair[1]);
-      console.debug("loadFromURLParameter(): extracted url:", decodedUrl);
+      console.log("loadFromURLParameter(): extracted url:", decodedUrl);
       urls.push(decodedUrl);
     }
   }
   if (urls.length > 0) {
-    console.debug("loadFromURLParameter(): delegating to sendURLtoFlash");
+    console.log("loadFromURLParameter(): delegating to sendURLtoFlash");
     sendURLtoFlash.apply(window, urls);
   } else {
-    console.debug("loadFromURLParameter(): no target urls found in parameters");
+    console.log("loadFromURLParameter(): no target urls found in parameters");
   }
 }
