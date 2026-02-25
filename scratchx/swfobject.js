@@ -481,7 +481,7 @@ var swfobject = function() {
                 allowscriptaccess: 'always',
                 allowfullscreen: 'true',
                 wmode: 'direct',
-                menu: 'false'
+                menu: 'false',
                 maxExecutionDuration: 99999999999
             });
 
