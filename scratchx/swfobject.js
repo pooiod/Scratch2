@@ -388,7 +388,7 @@ var swfobject = function() {
 	function createSWF(attributes, params, id) {
 		var resultElement, element = getElementById(id);
 		if (browserFeatures.wk && browserFeatures.wk < 312) { return resultElement; }
-        element = getElementById("flash");
+        // element = getElementById("flash");
 		
 		if (element) {
 			if (typeof attributes.id == TYPE_UNDEFINED) { 
