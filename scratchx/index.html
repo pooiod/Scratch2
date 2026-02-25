@@ -168,11 +168,13 @@
             </div>
         </div>
 
-
         <section id="scratch">
             <div class="scratch_unsupported"></div>
             <div class="scratch_loading"></div>
+            <div id="flash"></div>
         </section>
+
+
         <script type="text/template" id="template-warning">
             <dialog class="extension-warning with-icon">
                 <section>
@@ -270,21 +272,10 @@
             })();
         </script>
 
-        <div id="container">
+        <div id="container" style="display:none;">
             <div id="downloader">
                 <div id="progress"></div>
                 <pre id="output"><code id="log"></code></pre>
-            </div>
-
-            <div id="flash">
-                <!-- <object width='100%' height='100%' id='scratch'>
-                    <param name='allowscriptaccess' value='always'>
-                    <param name='allowfullscreen' value='true'>
-                    <param name='menu' value='false'>
-                    <param name='FlashVars' value='allowscriptaccess=always&allowfullscreen=true&wmode=direct&menu=false&autostart=false&extensionDevMode=true&server=scratchflash.pages.dev&cloudToken=4af4863d-a921-4004-b2cb-e0ad00ee1927&cdnToken=34f16bc63e8ada7dfd7ec12c715d0c94&urlOverrides=%7B%22sitePrefix%22%3A%22https%3A%2F%2Fscratch.mit.edu%2F%22%2C%22siteCdnPrefix%22%3A%22https%3A%2F%2Fcdn.scratch.mit.edu%2F%22%2C%22assetPrefix%22%3A%22https%3A%2F%2Fassets.scratch.mit.edu%2F%22%2C%22assetCdnPrefix%22%3A%22https%3A%2F%2Fcdn.assets.scratch.mit.edu%2F%22%2C%22projectPrefix%22%3A%22https%3A%2F%2Fprojects.scratch.mit.edu%2F%22%2C%22projectCdnPrefix%22%3A%22https%3A%2F%2Fcdn.projects.scratch.mit.edu%2F%22%2C%22internalAPI%22%3A%22internalapi%2F%22%2C%22siteAPI%22%3A%22site-api%2F%22%2C%22staticFiles%22%3A%22scratchr2%2Fstatic%2F%22%7D&inIE=false'>
-                    <param name="wmode" value="opaque" />
-                    <embed src='ScratchX.swf' allowScriptAccess="always" wmode="opaque" width='100%' height='100%'>
-                </object> -->
             </div>
         </div>
     </body>
