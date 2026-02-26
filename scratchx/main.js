@@ -1,6 +1,8 @@
 
-console.log = function(message) {
-  createAlert(message)
+var originalog = console.log;
+console.log = function(message, m2, m3, m4) {
+  originalog(message, .m2, m3, m4);
+  createAlert(message);
 }
 
 // Simple alerts for errors (so you don't need to use the console)
@@ -262,27 +264,48 @@ function loadFromURLParameter(queryString) {
 /* Modals */
 
 function getOrCreateFromTemplate(elementId, templateId, elementType, appendTo, wrapper, data) {
+  console.log("getOrCreateFromTemplate started for elementId: " + elementId);
+
   elementType = elementType || "div";
   appendTo = appendTo || "body";
   data = data || {};
 
   var $element = $(document.getElementById(elementId));
+  
   if (!$element.length) {
+    console.log("Element not found. Creating new element from template: " + templateId);
+    
     var templateContent = "";
     if (typeof (templateId) != "string") {
+      console.log("templateId is a collection, gathering HTML from multiple IDs");
       for (var id in templateId) {
+        console.log("Appending content from template ID: " + templateId[id]);
         templateContent += $(document.getElementById(templateId[id])).html();
       }
     } else {
-      templateContent += $(document.getElementById(templateId)).html()
+      console.log("Fetching content from single template ID: " + templateId);
+      templateContent += $(document.getElementById(templateId)).html();
     }
+
+    console.log("Compiling Underscore template with data");
     $template = _.template(templateContent);
+    
     $element = $("<" + elementType + "></" + elementType + ">")
       .attr("id", elementId)
       .html($template(data));
-    if (wrapper) $element.wrapInner(wrapper);
-    $element.appendTo(appendTo)
+
+    if (wrapper) {
+      console.log("Applying wrapper to element content");
+      $element.wrapInner(wrapper);
+    }
+
+    console.log("Appending element to: " + appendTo);
+    $element.appendTo(appendTo);
+  } else {
+    console.log("Existing element found in DOM for id: " + elementId);
   }
+
+  console.log("Returning element for elementId: " + elementId);
   return $element;
 }
 
