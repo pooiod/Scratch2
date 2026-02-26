@@ -292,75 +292,61 @@ function showModal(templateId, data) {
    * with id="modal-[template value]" and creates an overlay on the
    * page, which when clicked will close the popup.
    */
-  
-  console.group("showModal called");
-  console.log("Template ID:", templateId);
-  console.log("Data provided:", data);
+
+  console.log("showModal started for templateId: " + templateId);
 
   if (Array.isArray(templateId)) {
-    console.log("Multiple template IDs detected, recursing...");
-    templateId.forEach(id => {
-      console.log("Processing sub-template:", id);
-      showModal(id, data);
-    });
-    console.groupEnd();
-    return;
+    console.log("templateId is an array, iterating through IDs");
+    templateId.forEach(id => showModal(id, data));
   }
 
   var zIndex = 99999;
   var modalId = ("modal-" + templateId).replace(",", "-");
-  console.log("Generated Modal ID:", modalId);
+  console.log("Constructed modalId: " + modalId);
 
   $modalwrapper = $("<div class='modal-fade-screen'><div class='modal-inner'></div></div>");
   
-  console.log("Fetching/Creating modal from template...");
+  console.log("Calling getOrCreateFromTemplate");
   var $modal = getOrCreateFromTemplate(modalId, templateId, "dialog", "body", $modalwrapper, data);
 
   $modal.addClass("modal");
-  console.log("Modal element created/found:", $modal);
+  console.log("Modal element initialized and class added");
 
-  // Overlay click listener
   $(".modal-fade-screen", $modal)
     .addClass("visible")
     .click(function(e) { 
       if ($(e.target).is($(this))) {
-        console.log("Overlay clicked - triggering modal:exit");
+        console.log("Modal overlay background clicked");
         $(this).trigger("modal:exit");
       }
     });
 
-  // Close button click listener
   $(".modal-close", $modal).click(function(e) {
     e.preventDefault();
-    console.log("Close button clicked - triggering modal:exit");
-    $(document).trigger("modal:exit");
+    console.log("Modal close button clicked");
+    $(document).trigger("modal:exit")
   });
 
   $("body").addClass("modal-open");
-  console.log("Body class 'modal-open' added");
+  console.log("Added modal-open class to body");
 
-  // Cleanup/Exit listener
   $(document).one("modal:exit page:show editor:extensionLoaded", function(e) {
-    console.group("Modal Exit Triggered");
-    console.log("Event type:", e.type);
+    console.log("Exit event triggered: " + e.type);
     
     $("body").removeClass("modal-open");
-    console.log("Body class 'modal-open' removed");
+    console.log("Removed modal-open class from body");
 
     try {
-      console.log("Attempting to disable Flash modal overlay...");
+      console.log("Attempting to disable Flash modal overlay");
       Scratch.FlashApp.ASobj.ASsetModalOverlay(false);
-      console.log("Flash overlay disabled successfully.");
-    } catch (err) {
-      console.warn("Flash overlay update failed (likely SWF not loaded):", err.message);
+    } catch (e) {
+      console.log("Flash overlay disable failed - SWF likely not loaded");
     }
-
+    
     $modal.remove();
     console.log("Modal element removed from DOM");
-    console.groupEnd();
   });
 
-  console.groupEnd();
   return $modal;
 }
 
