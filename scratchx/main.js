@@ -1,4 +1,8 @@
 
+console.log = function(message) {
+  createAlert(message)
+}
+
 // Simple alerts for errors (so you don't need to use the console)
 var logs = [];
 function createAlert(message, color) {
@@ -288,39 +292,75 @@ function showModal(templateId, data) {
    * with id="modal-[template value]" and creates an overlay on the
    * page, which when clicked will close the popup.
    */
+  
+  console.group("showModal called");
+  console.log("Template ID:", templateId);
+  console.log("Data provided:", data);
 
   if (Array.isArray(templateId)) {
-    templateId.forEach(id => showModal(id, data));
+    console.log("Multiple template IDs detected, recursing...");
+    templateId.forEach(id => {
+      console.log("Processing sub-template:", id);
+      showModal(id, data);
+    });
+    console.groupEnd();
+    return;
   }
 
   var zIndex = 99999;
   var modalId = ("modal-" + templateId).replace(",", "-");
+  console.log("Generated Modal ID:", modalId);
+
   $modalwrapper = $("<div class='modal-fade-screen'><div class='modal-inner'></div></div>");
+  
+  console.log("Fetching/Creating modal from template...");
   var $modal = getOrCreateFromTemplate(modalId, templateId, "dialog", "body", $modalwrapper, data);
 
   $modal.addClass("modal");
+  console.log("Modal element created/found:", $modal);
 
+  // Overlay click listener
   $(".modal-fade-screen", $modal)
     .addClass("visible")
-    .click(function(e) { if ($(e.target).is($(this))) $(this).trigger("modal:exit") });
+    .click(function(e) { 
+      if ($(e.target).is($(this))) {
+        console.log("Overlay clicked - triggering modal:exit");
+        $(this).trigger("modal:exit");
+      }
+    });
 
+  // Close button click listener
   $(".modal-close", $modal).click(function(e) {
     e.preventDefault();
-    $(document).trigger("modal:exit")
+    console.log("Close button clicked - triggering modal:exit");
+    $(document).trigger("modal:exit");
   });
 
   $("body").addClass("modal-open");
+  console.log("Body class 'modal-open' added");
 
+  // Cleanup/Exit listener
   $(document).one("modal:exit page:show editor:extensionLoaded", function(e) {
+    console.group("Modal Exit Triggered");
+    console.log("Event type:", e.type);
+    
     $("body").removeClass("modal-open");
+    console.log("Body class 'modal-open' removed");
+
     try {
+      console.log("Attempting to disable Flash modal overlay...");
       Scratch.FlashApp.ASobj.ASsetModalOverlay(false);
-    } catch (e) {
-      // SWF not yet loaded
+      console.log("Flash overlay disabled successfully.");
+    } catch (err) {
+      console.warn("Flash overlay update failed (likely SWF not loaded):", err.message);
     }
+
     $modal.remove();
+    console.log("Modal element removed from DOM");
+    console.groupEnd();
   });
 
+  console.groupEnd();
   return $modal;
 }
 
