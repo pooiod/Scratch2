@@ -1,8 +1,8 @@
-var originalog = console.log;
-console.log = function(message, m2, m3, m4) {
-  originalog(message, m2, m3, m4);
-  createAlert(message);
-}
+// var originalog = console.log;
+// console.log = function(message, m2, m3, m4) {
+//   originalog(message, m2, m3, m4);
+//   createAlert(message);
+// }
 
 let extscript = document.createElement('script');
 extscript.src = 'scratchext.js';

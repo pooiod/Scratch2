@@ -4,6 +4,7 @@
 //
 // Scratch 2.0 extension manager which Scratch communicates with to initialize extensions and communicate with them.
 // The extension manager also handles creating the browser plugin to enable access to HID and serial devices.
+
 window.ScratchExtensions = new (function () {
     var plugin = null;
     var handlers = {};
