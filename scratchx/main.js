@@ -410,7 +410,7 @@ function showPage(path, force) {
 
   if (showEditor) $toShow.css({ top: 0 });
 
-  if (document.location.hash.substr(1) != path) document.location.hash = path;
+  // if (document.location.hash.substr(1) != path) document.location.hash = path;
   $toShow[0].scrollIntoView(true);
   $(document).trigger("page:show", path);
 }
@@ -457,7 +457,7 @@ function showShortUrl(url) {
     var parser = UrlParser(data.id);
     var id = parser.pathname.replace('/', '');
     parser.href = window.location.origin;
-    parser.hash = "#!" + id;
+    // parser.hash = "#!" + id;
     var shortUrl = parser.href;
     var context = {
       longUrl: data.longUrl,
@@ -527,7 +527,7 @@ $(document).on('click', "[data-action='show']", function(e) {
 });
 
 $(window).on('hashchange', function(e) {
-  var path = document.location.hash.split('#')[1] || document.location.hash || 'home';
+  var path = document.location.hash.split('#')[1] || document.location.hash || 'scratch';
   if (path.charAt(0) != '!') showPage(path);
 });
 
