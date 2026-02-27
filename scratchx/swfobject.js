@@ -465,6 +465,7 @@ var swfobject = function() {
                 maxExecutionDuration: 99999999999,
                 allowscriptaccess: 'always',
                 allowfullscreen: 'true',
+                allowNetworking: "all",
                 menu: 'false',
                 wmode: 'direct'
             };
