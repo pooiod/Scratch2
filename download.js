@@ -16,6 +16,10 @@ function setProgress(perc){
     maxWidth = $("#loadholder").width();
     $("#loadprogress").width(perc + '%');
 
+    if (document.getElementById("virtual-kb-host")) {
+        document.getElementById("loadholder").style.transform = "translateX(-30px)";
+    }
+
     maxWidth = $("#loadholder2").width();
     $("#loadprogress2").width(perc + '%');
 }
