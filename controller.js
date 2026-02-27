@@ -23,7 +23,7 @@
         ::-webkit-scrollbar-thumb:hover { background: #A8A8A8; }
 
         #toggle-btn {
-            position: fixed; top: 3px; right: 3px;
+            position: fixed; top: 4px; right: 5px;
             background: transparent; border: none; outline: none; cursor: pointer; pointer-events: auto; z-index: 10;
             padding: 0; margin: 0; display: flex; align-items: center; justify-content: center;
         }
