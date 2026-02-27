@@ -289,6 +289,8 @@ function getOrCreateFromTemplate(elementId, templateId, elementType, appendTo, w
 
     console.log("Compiling Underscore template with data");
     $template = _.template(templateContent);
+
+    console.log("setting up element");
     
     $element = $("<" + elementType + "></" + elementType + ">")
       .attr("id", elementId)
