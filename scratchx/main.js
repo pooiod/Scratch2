@@ -47,6 +47,8 @@ Scratch.FlashApp = Scratch.FlashApp || {};
 const inScratchX2 = true;
 
 function doafterloadthings() {
+  $('#scratch-loader').hide();
+
   const extensionsParam = new URLSearchParams(window.location.search).get('ext');
   if (extensionsParam) {
     const extensionUrls = extensionsParam.split('|');
@@ -74,7 +76,6 @@ var ShortURL = {
 };
 
 function handleEmbedStatus(e) {
-  $('#scratch-loader').hide();
   //console.log(e);
   var scratch = $(document.getElementById(editorId) || document.querySelector('ruffle-player'));
   if (!e.success) {
@@ -357,12 +358,12 @@ $(document).on('click', "[data-action='modal']", function(e) {
 });
 
 function JSshowWarning(extensionData) {
-  $modal = showModal("template-warning", extensionData);
-  //$(document).trigger("modal:exit") // auto hide warning 
-  $("button", $modal).click(function(e) {
-    e.preventDefault();
-    $(document).trigger("modal:exit")
-  });
+  // $modal = showModal("template-warning", extensionData);
+  // //$(document).trigger("modal:exit") // auto hide warning 
+  // $("button", $modal).click(function(e) {
+  //   e.preventDefault();
+  //   $(document).trigger("modal:exit")
+  // });
 }
 
 
