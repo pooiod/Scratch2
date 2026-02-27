@@ -47,7 +47,7 @@ Scratch.FlashApp = Scratch.FlashApp || {};
 const inScratchX2 = true;
 
 function doafterloadthings() {
-  $('#scratch-loader').style.opacity = 0;
+  document.getElementById("scratch-loader").style.opacity = 0;
 
   const extensionsParam = new URLSearchParams(window.location.search).get('ext');
   if (extensionsParam) {
