@@ -160,7 +160,7 @@
                 </div>
 
                 <h1 class="loader-title">Loading Project</h1>
-                <p class="loader-status" id="LoaderStatus">Loading editor...</p>
+                <p class="loader-status" id="LoaderStatus">Preparing scripts...</p>
 
                 <div class="progress-container" id="loadholder2">
                     <div class="progress-bar" id="loadprogress2" style="width: 0%;"></div>
@@ -251,6 +251,7 @@
                     hasFlash=navigator.mimeTypes && navigator.mimeTypes["application/x-shockwave-flash"] !== undefined;
                 }
                 if (!hasFlash) {
+                    document.getElementById("LoaderStatus").innerText = "Loading ruffle...";
                     window.RufflePlayer = window.RufflePlayer || {};
                     window.RufflePlayer.config = {
                         allowScriptAccess: true 
@@ -266,12 +267,14 @@
                         // document.getElementById("flash").appendChild(player);
                         // await player.load({url:"ScratchX.swf", autoplay:"on", unmuteOverlay:"hidden", maxExecutionDuration: 99999999999});
 
+                        document.getElementById("LoaderStatus").innerText = "Loading editor...";
                         const script75645 = document.createElement("script");
                         script75645.src = "main.js";
                         document.head.appendChild(script75645);
                     };
                     document.head.appendChild(s);
                 } else {
+                    document.getElementById("LoaderStatus").innerText = "Loading editor...";
                     const script75645 = document.createElement("script");
                     script75645.src = "main.js";
                     document.head.appendChild(script75645);

@@ -47,7 +47,7 @@ Scratch.FlashApp = Scratch.FlashApp || {};
 const inScratchX2 = true;
 
 function doafterloadthings() {
-  $('#scratch-loader').hide();
+  $('#scratch-loader').style.opacity = 0;
 
   const extensionsParam = new URLSearchParams(window.location.search).get('ext');
   if (extensionsParam) {
@@ -58,9 +58,9 @@ function doafterloadthings() {
     console.log("Extensions loaded");
   }
 
-  setTimeout(function() {
-    $(document).trigger("modal:exit")
-  }, 10);
+  // setTimeout(function() {
+  //   $(document).trigger("modal:exit")
+  // }, 10);
 
   dragndrop();
 

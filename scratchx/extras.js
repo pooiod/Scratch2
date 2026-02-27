@@ -92,9 +92,9 @@ function loadext(ext) {
   if (userConfirmed) {
     Scratch.FlashApp.ASobj.ASloadGithubURL(ext);
     createAlert(`VM: Extension loaded: ${ext}`);
-    setTimeout(function() {
-      $(document).trigger("modal:exit")
-    }, 10);
+    // setTimeout(function() {
+    //   $(document).trigger("modal:exit")
+    // }, 10);
     return true;
   } else {
     createAlert('VM: Extension load canceled.', "yellow");
