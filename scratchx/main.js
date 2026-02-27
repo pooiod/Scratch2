@@ -169,6 +169,7 @@ swfobject.switchOffAutoHideShow();
 
 var swfAttributes = {
   data: 'ScratchX.swf',
+  allowNetworking: "all",
   width: '100%',
   height: '100%'
 };
