@@ -1,4 +1,4 @@
-// Controller support library by pooiod7
+// Controller support library by pooiod7 (only works on ruffle)
 
 (function() {
     if (document.getElementById('virtual-kb-host')) return;

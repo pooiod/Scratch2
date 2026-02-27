@@ -242,8 +242,6 @@
         <script type="text/javascript" src="nmh.js" defer></script>
         <script type="text/javascript" src="device.js" defer></script>
 
-        <script src="/controller.js"></script>
-
         <script>
             (function(){
                 window.hasFlash = false;
@@ -275,6 +273,10 @@
                         document.head.appendChild(script75645);
                     };
                     document.head.appendChild(s);
+
+                    var s2 = document.createElement("script");
+                    s2.src = "/controller.js";
+                    document.head.appendChild(s2);
                 } else {
                     document.getElementById("LoaderStatus").innerText = "Loading editor...";
                     const script75645 = document.createElement("script");
