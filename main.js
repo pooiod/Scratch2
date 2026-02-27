@@ -25,16 +25,16 @@ window.gotZipBase64 = function(content) {
                 $("#scratchloader").css("opacity", 0);
                 $('#downloader').animate({ height: 0 }, 1000);
             }, 500);
-        } else if (tries >= 10) {
+        } else if (tries >= 40) {
             clearInterval(openTimeout);
-            $("#log").text("Hook not found" + "\n" + $("#log").text());
+            $("#log").text("Hook not found" + "\n" + $("#log").text()); // ꧁꧂
 
             if (typeof hasFlash !== "undefined" && !hasFlash) {
                 var id = (getQueryParam('project_url') || decodeURIComponent(getQueryParam('id') || location.hash.slice(1)))
                 if (id) {
-                    location.href = "/꧁꧂#" + id;
+                    location.href = "/@#" + id;
                 } else {
-                    location.href = "/꧁꧂" + location.hash;
+                    location.href = "/@" + location.hash;
                 }
             }
 
