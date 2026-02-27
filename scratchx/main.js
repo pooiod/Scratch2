@@ -4,9 +4,9 @@
 //   createAlert(message);
 // }
 
-let extscript = document.createElement('script');
-extscript.src = 'scratchext.js';
-document.head.appendChild(extscript);
+// let extscript = document.createElement('script');
+// extscript.src = 'scratchext.js';
+// document.head.appendChild(extscript);
 
 // Simple alerts for errors (so you don't need to use the console)
 var logs = [];
