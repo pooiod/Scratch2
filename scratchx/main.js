@@ -1,4 +1,3 @@
-
 var originalog = console.log;
 console.log = function(message, m2, m3, m4) {
   originalog(message, m2, m3, m4);
@@ -264,50 +263,27 @@ function loadFromURLParameter(queryString) {
 /* Modals */
 
 function getOrCreateFromTemplate(elementId, templateId, elementType, appendTo, wrapper, data) {
-  console.log("getOrCreateFromTemplate started for elementId: " + elementId);
-
   elementType = elementType || "div";
   appendTo = appendTo || "body";
   data = data || {};
 
   var $element = $(document.getElementById(elementId));
-  
   if (!$element.length) {
-    console.log("Element not found. Creating new element from template: " + templateId);
-    
     var templateContent = "";
     if (typeof (templateId) != "string") {
-      console.log("templateId is a collection, gathering HTML from multiple IDs");
       for (var id in templateId) {
-        console.log("Appending content from template ID: " + templateId[id]);
         templateContent += $(document.getElementById(templateId[id])).html();
       }
     } else {
-      console.log("Fetching content from single template ID: " + templateId);
-      templateContent += $(document.getElementById(templateId)).html();
+      templateContent += $(document.getElementById(templateId)).html()
     }
-
-    console.log("Compiling Underscore template with data");
     $template = _.template(templateContent);
-
-    console.log("setting up element");
-    
     $element = $("<" + elementType + "></" + elementType + ">")
       .attr("id", elementId)
       .html($template(data));
-
-    if (wrapper) {
-      console.log("Applying wrapper to element content");
-      $element.wrapInner(wrapper);
-    }
-
-    console.log("Appending element to: " + appendTo);
-    $element.appendTo(appendTo);
-  } else {
-    console.log("Existing element found in DOM for id: " + elementId);
+    if (wrapper) $element.wrapInner(wrapper);
+    $element.appendTo(appendTo)
   }
-
-  console.log("Returning element for elementId: " + elementId);
   return $element;
 }
 
@@ -318,58 +294,36 @@ function showModal(templateId, data) {
    * page, which when clicked will close the popup.
    */
 
-  console.log("showModal started for templateId: " + templateId);
-
-  if (Array.isArray(templateId)) {
-    console.log("templateId is an array, iterating through IDs");
-    templateId.forEach(id => showModal(id, data));
-  }
+  // if (Array.isArray(templateId)) {
+  //   templateId.forEach(id => showModal(id, data));
+  // }
 
   var zIndex = 99999;
   var modalId = ("modal-" + templateId).replace(",", "-");
-  console.log("Constructed modalId: " + modalId);
-
   $modalwrapper = $("<div class='modal-fade-screen'><div class='modal-inner'></div></div>");
-  
-  console.log("Calling getOrCreateFromTemplate");
   var $modal = getOrCreateFromTemplate(modalId, templateId, "dialog", "body", $modalwrapper, data);
 
   $modal.addClass("modal");
-  console.log("Modal element initialized and class added");
 
   $(".modal-fade-screen", $modal)
     .addClass("visible")
-    .click(function(e) { 
-      if ($(e.target).is($(this))) {
-        console.log("Modal overlay background clicked");
-        $(this).trigger("modal:exit");
-      }
-    });
+    .click(function(e) { if ($(e.target).is($(this))) $(this).trigger("modal:exit") });
 
   $(".modal-close", $modal).click(function(e) {
     e.preventDefault();
-    console.log("Modal close button clicked");
     $(document).trigger("modal:exit")
   });
 
   $("body").addClass("modal-open");
-  console.log("Added modal-open class to body");
 
   $(document).one("modal:exit page:show editor:extensionLoaded", function(e) {
-    console.log("Exit event triggered: " + e.type);
-    
     $("body").removeClass("modal-open");
-    console.log("Removed modal-open class from body");
-
     try {
-      console.log("Attempting to disable Flash modal overlay");
       Scratch.FlashApp.ASobj.ASsetModalOverlay(false);
     } catch (e) {
-      console.log("Flash overlay disable failed - SWF likely not loaded");
+      // SWF not yet loaded
     }
-    
     $modal.remove();
-    console.log("Modal element removed from DOM");
   });
 
   return $modal;
