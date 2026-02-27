@@ -46,15 +46,15 @@ Scratch.editorIsReady = false;
 Scratch.FlashApp = Scratch.FlashApp || {};
 const inScratchX2 = true;
 
-function doafterloadthings() {
-  document.getElementById("scratch-loader").style.opacity = 0;
-
+async function doafterloadthings() {
   const extensionsParam = new URLSearchParams(window.location.search).get('ext');
   if (extensionsParam) {
+    document.getElementById("LoaderStatus").innerText = "Loading extensions...";
     const extensionUrls = extensionsParam.split('|');
     extensionUrls.forEach(extensionUrl => {
       Scratch.FlashApp.ASobj.ASloadGithubURL(extensionUrl);
     });
+    await new Promise(r => setTimeout(r, 500))
     console.log("Extensions loaded");
   }
 
@@ -64,6 +64,7 @@ function doafterloadthings() {
 
   dragndrop();
 
+  document.getElementById("scratch-loader").style.opacity = 0;
 }
 
 var editorId = "scratch";
