@@ -1,5 +1,7 @@
 // Custom JS functions (to be used with the JavaScript blocks or other extensions)
 
+// Scratch.FlashApp.ASobj.ASloadGithubURL("https://p7scratchextensions.pages.dev/ext/BoxedPhysics/griffpatch.js")
+
 const functs = ["JSshowExtensionDialog()", "loadext(extension)", "alert(text)", "showLogs()", "getlogs()", "log(text,color)", "scratchVM()", "closeAlerts()", "makestring(obj)", "showloader(color)", "hideloader()", "async promptai(prompt)"];
 
 function showloader(color) {
