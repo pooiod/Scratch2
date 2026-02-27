@@ -1,75 +1,12 @@
-// Function to check if width is less than 50% of height 
-function isWidthLessThan50PercentOfHeight() {
-  // Get viewport width and height
-  var viewportWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-  var viewportHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-  var halfHeight = viewportHeight * 0.8;
-  if (viewportWidth < halfHeight) {
-    return true;
-  } else {
-    return false;
-  }
+var originalog = console.log;
+console.log = function(message, m2, m3, m4) {
+  originalog(message, m2, m3, m4);
+  createAlert(message);
 }
 
-// Force editor on page load
-// if (!window.location.hash && !isWidthLessThan50PercentOfHeight()) { // fix for replit embed
-//   window.location.hash = "edit";
-// }
-// if (window.location.hash == "#edit") {
-//   if (window.location.href != '?url=Project.sbx#scratch') {
-//     window.location.href = '?url=Project.sbx#scratch';
-//   }
-// }
-
-// returns true if the user has flash or a flash emulator installed
-function hasFlash() { // any flash detection
-  var hasFlash = false;
-  if (navigator.plugins && navigator.plugins.length > 0) {
-    var flashPlugin = navigator.plugins['Shockwave Flash'];
-    if (flashPlugin) {
-      hasFlash = true;
-    }
-  }
-  return hasFlash;
-}
-function hasruffle() { // ruffle flash detection
-  if (document.querySelector('ruffle-object') !== null) {
-    return true;
-  } else {
-    return false;
-  }
-}
-function hasadobeflash() {
-  return hasFlash() && !hasruffle();
-}
-function hasRuffleScript() { // ruffle script detection
-  var headScripts = document.head.getElementsByTagName('script');
-  for (var i = 0; i < headScripts.length; i++) {
-    if (headScripts[i].getAttribute('src') === '/_static/js/ruffle.js') {
-      return true;
-    }
-  }
-  return false; // Script not found
-}
-
-// remove ruffle script
-// if (hasRuffleScript()) {
-//   var headScripts = document.head.getElementsByTagName('script');
-//   for (var i = 0; i < headScripts.length; i++) {
-//     if (headScripts[i].getAttribute('src') === '/_static/js/ruffle.js') {
-//       headScripts[i].parentNode.removeChild(headScripts[i]);
-//       console.log("Ruffle script removed from the page.");
-//       break;
-//     }
-//   }
-// }
-
-// Reload function
-document.addEventListener("keydown", function(event) {
-  if ((event.ctrlKey || event.metaKey) && event.key === "r") {
-    window.location.href = window.location.href;
-  }
-});
+let extscript = document.createElement('script');
+extscript.src = 'scratchext.js';
+document.head.appendChild(extscript);
 
 // Simple alerts for errors (so you don't need to use the console)
 var logs = [];
@@ -103,115 +40,16 @@ function createAlert(message, color) {
   }, 9000);
 }
 
-// Show error if the user does not have flash
-setTimeout(function() {
-  if (!hasFlash()) {
-    // window.location.href = "/download";
-  } else if (hasruffle()) {
-    createAlert("E");
-    // window.location.href = "/download";
-  } else {
-    // createAlert("This build of the editor is no longer supported.", "orange");
-    // createAlert("The new editor is coming out soon.", "orange");
-  }
-}, 1000);
-
 // Simulate the bare minimum of the view that existed on the main site
 var Scratch = Scratch || {v:"0.3.5"};
 Scratch.editorIsReady = false;
 Scratch.FlashApp = Scratch.FlashApp || {};
 const inScratchX2 = true;
 
-// Basic Scratch3 to ScratchX conversion compatanility (NOT RELIABLE) 
-Scratch.extensions = {};
-Scratch.extensions.unsandboxed = true; // Unsandboxed extensions
-Scratch.extensions.register = function(extcodeofthething) {
-  var extinfo = extcodeofthething.getInfo;
-  console.log(extinfo);
-
-  // Define the URL of the CORS proxy
-  var corsProxyURL = '/api/get?p=';
-
-  // Array to store the script URLs
-  var scriptUrls = [];
-
-  // Find all script elements in the <head> and extract their src attribute
-  var scripts = document.head.getElementsByTagName("script");
-  var scriptToRemove = null;
-
-  for (var i = 0; i < scripts.length; i++) {
-    var scriptSrc = scripts[i].src;
-    if (scriptSrc) {
-      scriptUrls.push(corsProxyURL + encodeURIComponent(scriptSrc));
-      if (scripts[i].textContent.includes(extinfo)) {
-        scriptToRemove = scripts[i];
-      }
-    }
-  }
-
-  // Remove the original script
-  if (scriptToRemove) {
-    scriptToRemove.remove();
-  }
-
-  // Fetch and check each script for extinfo content
-  scriptUrls.forEach(function(scriptUrl) {
-    fetch(scriptUrl)
-      .then(response => response.text())
-      .then(scriptContent => {
-        if (scriptContent.includes(extinfo)) {
-          // Convert the ext using extmaker
-          log("Dev loading Scratch3 extension", "yellow");
-          convertWithExtmaker(scriptContent);
-          showloader("#99c3ff");
-        }
-      })
-      .catch(error => {
-        log("Error loading Scratch3 extension", "red");
-        console.error("Error fetching script:", error);
-      });
-  });
-
-  function convertWithExtmaker(scriptContent) {
-    extmaker(scriptContent)
-      .then(resultingCode => {
-        if (resultingCode) {
-          if (resultingCode.includes('Scratch.BlockType')) {
-            console.log("Retrying conversion...");
-            showloader("#ffab19");
-            log("Retrying Scratch3 extension ", "orange", true);
-            convertWithExtmaker(scriptContent);
-          } else {
-            // Log the resulting code and add it to the page head
-            console.log(resultingCode);
-            hideloader();
-            var newScriptElement = document.createElement("script");
-            newScriptElement.textContent = resultingCode;
-            document.head.appendChild(newScriptElement);
-            hideloader();
-          }
-        } else {
-          log("Error loading Scratch3 extension", "red", true);
-          console.log("Extension not made");
-          hideloader();
-        }
-      })
-    .catch(error => {
-      hideloader();
-      log("Error loading Scratch3 extension", "red", true);
-      console.error("Error converting script: ", error);
-    });
-  }
-};
-
-// code that runs after the editor is loaded
 function doafterloadthings() {
-  //editor.cursor = "pointer";
   const extensionsParam = new URLSearchParams(window.location.search).get('ext');
   if (extensionsParam) {
-    // Split the extensions using '|'
     const extensionUrls = extensionsParam.split('|');
-    // Load each extension
     extensionUrls.forEach(extensionUrl => {
       Scratch.FlashApp.ASobj.ASloadGithubURL(extensionUrl);
     });
@@ -340,7 +178,6 @@ var swfAttributes = {
 };
 
 swfobject.addDomLoadEvent(function() {
-  // check if mobile/tablet browser user bowser
   if (bowser.mobile || bowser.tablet) {
     // if on mobile, show error screen
     handleEmbedStatus({ success: false });
@@ -461,7 +298,11 @@ function showModal(templateId, data) {
    * page, which when clicked will close the popup.
    */
 
-  var zIndex = 100;
+  // if (Array.isArray(templateId)) {
+  //   templateId.forEach(id => showModal(id, data));
+  // }
+
+  var zIndex = 99999;
   var modalId = ("modal-" + templateId).replace(",", "-");
   $modalwrapper = $("<div class='modal-fade-screen'><div class='modal-inner'></div></div>");
   var $modal = getOrCreateFromTemplate(modalId, templateId, "dialog", "body", $modalwrapper, data);
@@ -725,3 +566,53 @@ function initPage() {
   loadFromURLParameter(window.location.search, true);
 }
 $(initPage);
+
+
+var file;
+var filetype;
+function dragndrop() {
+  const flashObject = document.getElementById("scratch") || document.querySelector('ruffle-player');
+
+  flashObject.addEventListener("dragover", function(e) {
+    e.preventDefault();
+  });
+
+  flashObject.addEventListener("drop", function(e) {
+    e.preventDefault();
+
+    file = e.dataTransfer.files[0];
+    filetype = '.' + file.name.split('.').pop();
+
+    if (file) {
+      if (alertDiv) {
+        closeAlerts();
+      }
+      setTimeout(() => {
+        alert("Loading file: " + file.name + "...");
+        setTimeout(() => {
+            if (filetype !== ".sbx" && filetype !== ".sb2" && filetype !== ".sb") {
+              closeAlerts();
+              setTimeout(() => {
+                if (!file.name.includes('.')) {
+                  alert("ScratchX can't load folders");
+                } else {
+                  alert("Can't load file of type \"" + filetype + '"');
+                }
+              }, 300);
+            } else {
+              sendFileToFlash(file)
+            }
+        }, 1000);
+      }, 300);
+    }
+  });
+}
+
+function fileloadedtoflash() {
+  if (filetype) {
+    filetype = false;
+    setTimeout(() => {
+      closeAlerts();
+    }, 300);
+  }
+}
