@@ -220,6 +220,49 @@
                             <li class="loading-state">Loading extensions...</li>
                         </ul>
                     </section>
+                    <script>
+                        const targetInput = document.getElementById('partofthethigthattheuserusestoloadextensions');
+
+                        async function fetchExtensions() {
+                            const list = document.getElementById('extension-list');
+                            list.innerHTML = '<li style="padding:15px; text-align:center; color:#888;">Loading...</li>';
+
+                            try {
+                                const req = await fetch('extensions.json');
+                                if(!req.ok) throw new Error('File not found');
+                                const data = await req.json();
+
+                                list.innerHTML = '';
+
+                                data.forEach(ext => {
+                                    const li = document.createElement('li');
+                                    li.className = 'extension-item';
+
+                                    const span = document.createElement('span');
+                                    span.className = 'ext-name';
+                                    span.textContent = ext.name;
+
+                                    const btn = document.createElement('button');
+                                    btn.className = 'ext-load-btn';
+                                    btn.textContent = 'Select';
+
+                                    btn.onclick = () => {
+                                        targetInput.value = ext.url;
+                                        targetInput.focus();
+                                    };
+
+                                    li.appendChild(span);
+                                    li.appendChild(btn);
+                                    list.appendChild(li);
+                                });
+
+                            } catch (e) {
+                                list.innerHTML = `<li style="padding:15px; text-align:center; color:#ff6b6b;">Error: ${e.message}</li>`;
+                            }
+                        }
+
+                        fetchExtensions();
+                    </script>
                 </div>
             </dialog>
         </script>
