@@ -184,7 +184,7 @@ ruffle-player {
     
         var flashVars = {
             autostart: 'false',
-            extensionDevMode: 'true',
+            extensionDevMode: 'false',
             server: encodeURIComponent(location.host),
             cloudToken: '4af4863d-a921-4004-b2cb-e0ad00ee1927',
             cdnToken: '34f16bc63e8ada7dfd7ec12c715d0c94',
@@ -245,13 +245,13 @@ ruffle-player {
 
         var swf = swfobject.createSWF(swfAttributes, params, "scratch");
 
-        await new Promise(r=>{const i=setInterval(()=>document.querySelector("ruffle-player").ASloadProject&&(clearInterval(i),r()),0)});
+        await new Promise(r=>{const i=setInterval(()=>document.querySelector("ruffle-player").ASopenProjectFromData&&(clearInterval(i),r()),0)});
 
         window.gotZipBase64 = function(content) {
-            document.querySelector("ruffle-player").ASloadBase64SBX(content);
+            document.querySelector("ruffle-player").ASopenProjectFromData(content);
         };
 
-        const match = location.href.match(/projects\/(\d+)/);
+        var match = location.href.match(/projects\/(\d+)/);
         if(match) startDownload(match[1]);
         // document.querySelector("ruffle-player").setEditMode(!1)
     }
