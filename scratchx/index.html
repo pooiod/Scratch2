@@ -216,7 +216,7 @@
                         <br>
 
                         <ul id="extension-list" class="extension-list" style="max-height: calc(100vh - 450px); overflow-y: scroll;">
-                            <li class="loading-state">Loading extensions...</li>
+                            <li class="loading-state">Waiting for script...</li>
                         </ul>
                     </section>
                 </div>
@@ -226,7 +226,7 @@
 
                         async function fetchExtensions() {
                             const list = document.getElementById('extension-list');
-                            list.innerHTML = '<li style="padding:15px; text-align:center; color:#888;">Loading...</li>';
+                            list.innerHTML = '<li style="padding:15px; text-align:center; color:#888;">Fetching recommended extensions...</li>';
 
                             try {
                                 const req = await fetch('extensions.json');
