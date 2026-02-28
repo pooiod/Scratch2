@@ -1,19 +1,82 @@
 [
   {
-    "name": "example1",
-    "url": "rubrgrbt"
+    "name": "Fetch",
+    "url": "https://p7scratchextensions.pages.dev/ext/Fetch/main.js"
   },
   {
-    "name": "Utility Belt Tools",
-    "url": "htbebt"
+    "name": "JSON",
+    "url": "https://extensions.turbowarp.org/Skyhigh173/json.js"
   },
   {
-    "name": "Infinite Scroller",
-    "url": "erumtiuyrterrtbyntm"
+    "name": "Text utils",
+    "url": "https://extensions.turbowarp.org/text.js"
   },
   {
-    "name": "Video Downloader",
-    "url": "uikutjrteyrvtbytu"
+    "name": "Clipboard",
+    "url": "https://extensions.turbowarp.org/clipboard.js"
+  },
+  {
+    "name": "Griffpatch Box2D Physics",
+    "url": "https://p7scratchextensions.pages.dev/ext/BoxedPhysics/griffpatch.js"
+  },
+  {
+    "name": "Kobold AI",
+    "url": "https://p7scratchextensions.pages.dev/ext/KoboldAI/main.js"
+  },
+  {
+    "name": "Simple GPT3",
+    "url": "https://p7scratchextensions.pages.dev/ext/SimpleGPT3/main.js"
+  },
+  {
+    "name": "Dictation",
+    "url": "https://p7scratchextensions.pages.dev/ext/Dictation/main.js"
+  },
+  {
+    "name": "SAM TTS",
+    "url": "https://p7scratchextensions.pages.dev/ext/Sam/main.js"
+  },
+  {
+    "name": "Raccoon Facts",
+    "url": "https://p7scratchextensions.pages.dev/ext/RaccFacts/main.js"
+  },
+  {
+    "name": "Lists Plus",
+    "url": "https://p7scratchextensions.pages.dev/ext/ListsPlus/main.js"
+  },
+  {
+    "name": "Page opener",
+    "url": "https://p7scratchextensions.pages.dev/ext/PageOpener/main.js"
+  },
+  {
+    "name": "File Pile",
+    "url": "https://p7scratchextensions.pages.dev/ext/FilePile/main.js"
+  },
+  {
+    "name": "Local storage",
+    "url": "https://extensions.turbowarp.org/local-storage.js"
+  },
+  {
+    "name": "Navigator details",
+    "url": "https://extensions.turbowarp.org/navigator.js"
+  },
+  {
+    "name": "Battery",
+    "url": "https://extensions.turbowarp.org/navigator.js"
+  },
+  {
+    "name": "Cloud link",
+    "url": "https://extensions.turbowarp.org/cloudlink.js"
+  },
+  {
+    "name": "Tween",
+    "url": "https://extensions.turbowarp.org/JeremyGamer13/tween.js"
+  },
+  {
+    "name": "Cats",
+    "url": "https://extensions.penguinmod.com/extensions/Gen1x/CATS.js"
+  },
+  {
+    "name": "Yeet your files",
+    "url": "https://extensions.penguinmod.com/extensions/MubiLop/yeetyourfiles.js"
   }
 ]
-
