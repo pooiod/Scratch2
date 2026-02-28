@@ -197,7 +197,7 @@
         [{n:'Space',w:6,c:'Space'},{n:'←',c:'ArrowLeft'},{n:'↓',c:'ArrowDown'},{n:'→',c:'ArrowRight'}]
     ];
 
-    let pulseTime = parseInt(localStorage.getItem('vkb_pulse_time')) || 200;
+    let pulseTime = parseInt(localStorage.getItem('vkb_pulse_time')) || 400;
 
     const defaultExternalMapping = {
         button_0: 'Space', button_1: 'KeyR', button_2: 'KeyF', button_3: 'KeyE',
