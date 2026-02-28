@@ -180,7 +180,7 @@ var swfAttributes = {
 };
 
 swfobject.addDomLoadEvent(function() {
-  if (bowser.mobile || bowser.tablet) {
+  if (false && (bowser.mobile || bowser.tablet)) {
     // if on mobile, show error screen
     handleEmbedStatus({ success: false });
   } else {
