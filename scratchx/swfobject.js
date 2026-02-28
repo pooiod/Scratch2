@@ -449,7 +449,7 @@ var swfobject = function() {
             var ruffleInstance = window.RufflePlayer.newest();
             var rufflePlayer = ruffleInstance.createPlayer();
             
-            var movieUrl = existingFlashObject.data || existingFlashObject.src || existingFlashObject.querySelector("param[name='movie']")?.value;
+            var movieUrl = existingFlashObject.data || existingFlashObject.src;
 
             for (var i = 0; i < existingFlashObject.attributes.length; i++) {
                 var attr = existingFlashObject.attributes[i];
