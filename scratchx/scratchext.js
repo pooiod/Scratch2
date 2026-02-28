@@ -998,10 +998,10 @@ window.ScratchExtensions = new (function () {
             });
 
             s2Ext._getStatus = () => ({ status: 2, msg: 'Ready' });
-            
+
             s2Ext._shutdown = function() {
                 if (pollingInterval) clearInterval(pollingInterval);
-                showS2Notification('Scratch3 compatability warning', `${info.name} may have extra scripts running in the background. Be sure to reload before loading this extension again`);
+                showS2Notification('Scratch3 compatability warning', `${info.name} may have extra scripts running in the background. Be sure to reload the page before loading this extension again`);
                 if (extensionInstance._shutdown) extensionInstance._shutdown();
             };
 
