@@ -4,12 +4,18 @@ var id = null;
 var sourceZip = null;
 
 function logMessage(msg){
+    console.log(msg);
+
+    if (!document.getElementById("log")) return;
+
     $("#log").text(msg+"\n"+$("#log").text());
 
     $("#LoaderStatus").text(msg);
 }
 
 function setProgress(perc){
+    if (!document.getElementById("log")) return;
+
     maxWidth = $("#downloader").width();
     $("#progress").width(perc + '%');
 
@@ -25,6 +31,8 @@ function setProgress(perc){
 }
 
 function animError() {
+    if (!document.getElementById("log")) return;
+
     setProgress(100);
 
     $("#scratchloader").css("opacity", 0);
@@ -38,6 +46,8 @@ function animError() {
 }
 
 function psuccess(){
+    if (!document.getElementById("log")) return;
+
     setProgress(100);
     setTimeout(() => {
         $("#progress").addClass("success");

@@ -93,5 +93,3 @@ window.startMain = function() {
         }
     }
 };
-
-

@@ -23,7 +23,8 @@
     const externalscripts = [
         "https://unpkg.com/@ruffle-rs/ruffle@0.2.0-nightly.2026.2.2/ruffle.js",
         "https://scratchflash.pages.dev/scratchx/swfobject.js",
-        "https://scratchflash.pages.dev/scratchx/jquery-1.11.2.min.js"
+        "https://scratchflash.pages.dev/scratchx/jquery-1.11.2.min.js",
+        "https://scratchflash.pages.dev/scratchx/download.js"
     ];
 
     window.loadedexternal = false;
@@ -182,7 +183,7 @@ ruffle-player {
     
         var flashVars = {
             autostart: 'false',
-            extensionDevMode: 'false',
+            extensionDevMode: 'true',
             server: encodeURIComponent(location.host),
             cloudToken: '4af4863d-a921-4004-b2cb-e0ad00ee1927',
             cdnToken: '34f16bc63e8ada7dfd7ec12c715d0c94',
@@ -238,6 +239,11 @@ ruffle-player {
         document.body.appendChild(div);
 
         var swf = swfobject.createSWF(swfAttributes, params, "scratch");
+
+        await new Promise(r=>{const i=setInterval(()=>document.querySelector("ruffle-player").ASloadProject&&(clearInterval(i),r()),0)});
+
+        const match = location.href.match(/projects\/(\d+)/);
+        if(match) startDownload(match[1]);
         // document.querySelector("ruffle-player").setEditMode(!1)
     }
 })();
