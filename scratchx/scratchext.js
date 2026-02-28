@@ -1,7 +1,7 @@
 // scratch_ext.js
 // Shane M. Clements, November 2013
 // ScratchExtensions
-//
+
 // Scratch 2.0 extension manager which Scratch communicates with to initialize extensions and communicate with them.
 // The extension manager also handles creating the browser plugin to enable access to HID and serial devices.
 
@@ -615,3 +615,401 @@ window.ScratchExtensions = new (function () {
     Devices = {ble: BleDevice, wedo2: WeDo2Device};
 })();
 
+
+
+// Basic Scratch3 extension suport
+(function(global) {
+    'use strict';
+
+    global.Scratch = global.Scratch || {};
+
+    const mouseState = {
+        x: 0,
+        y: 0,
+        isDown: false,
+        buttons: 0
+    };
+
+    const keyState = {};
+
+    const getCanvas = () => {
+        const ruffle = document.querySelector('ruffle-player');
+        if (ruffle && ruffle.shadowRoot) {
+            return ruffle.shadowRoot.querySelector('canvas');
+        }
+        if (ruffle && ruffle.querySelector) {
+            return ruffle.querySelector('canvas');
+        }
+        return document.getElementsByTagName('canvas')[0] || null;
+    };
+
+    const updateMouse = (e) => {
+        const canvas = getCanvas();
+        if (!canvas) return;
+
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = 480 / rect.width;
+        const scaleY = 360 / rect.height;
+
+        const clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+        const clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+
+        mouseState.x = (clientX - rect.left) * scaleX - 240;
+        mouseState.y = 180 - (clientY - rect.top) * scaleY;
+        
+        mouseState.x = Math.max(-240, Math.min(240, mouseState.x));
+        mouseState.y = Math.max(-180, Math.min(180, mouseState.y));
+    };
+
+    window.addEventListener('mousemove', updateMouse);
+    window.addEventListener('mousedown', (e) => {
+        mouseState.isDown = true;
+        mouseState.buttons = e.buttons;
+        updateMouse(e);
+    });
+    window.addEventListener('mouseup', (e) => {
+        mouseState.isDown = false;
+        mouseState.buttons = e.buttons;
+        updateMouse(e);
+    });
+    window.addEventListener('touchstart', (e) => {
+        mouseState.isDown = true;
+        updateMouse(e);
+    }, {passive: true});
+    window.addEventListener('touchend', () => {
+        mouseState.isDown = false;
+    });
+
+    window.addEventListener('keydown', (e) => {
+        keyState[e.key] = true;
+        keyState[e.code] = true;
+    });
+    window.addEventListener('keyup', (e) => {
+        keyState[e.key] = false;
+        keyState[e.code] = false;
+    });
+
+    class VideoDevice {
+        constructor() {
+            this._stream = null;
+            this._video = null;
+            this.provider = null; 
+        }
+
+        get videoReady() {
+            return !!this._stream;
+        }
+
+        enableVideo() {
+            if (this._stream) return Promise.resolve(this._stream);
+            return navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    this._stream = stream;
+                    this._video = document.createElement('video');
+                    this._video.srcObject = stream;
+                    this._video.play();
+                    return stream;
+                })
+                .catch(e => {
+                    console.warn('Video access denied', e);
+                    return null;
+                });
+        }
+
+        disableVideo() {
+            if (this._stream) {
+                this._stream.getTracks().forEach(t => t.stop());
+                this._stream = null;
+            }
+            this._video = null;
+        }
+
+        getFrame({ format = 'canvas' } = {}) {
+            if (!this._video) return null;
+            if (format === 'image-data') {
+                const c = document.createElement('canvas');
+                c.width = 480;
+                c.height = 360;
+                const ctx = c.getContext('2d');
+                ctx.drawImage(this._video, 0, 0, 480, 360);
+                return ctx.getImageData(0, 0, 480, 360);
+            }
+            return this._video;
+        }
+    }
+
+    const videoDeviceInstance = new VideoDevice();
+
+    const S3API = {
+        BlockType: {
+            COMMAND: 'command', REPORTER: 'reporter', BOOLEAN: 'boolean',
+            HAT: 'hat', EVENT: 'event', LOOP: 'loop', CONDITIONAL: 'conditional', BUTTON: 'button'
+        },
+        ArgumentType: {
+            STRING: 'string', NUMBER: 'number', BOOLEAN: 'boolean',
+            COLOR: 'color', ANGLE: 'angle', MATRIX: 'matrix', NOTE: 'note', IMAGE: 'image'
+        },
+        extensions: {
+            unsandboxed: true,
+        },
+        Cast: {
+            toString: v => String(v),
+            toNumber: v => {
+                const n = Number(v);
+                return isNaN(n) ? 0 : n;
+            },
+            toBoolean: v => {
+                if (typeof v === 'boolean') return v;
+                if (typeof v === 'string') {
+                    if (v === '' || v === '0' || v.toLowerCase() === 'false') return false;
+                    return true;
+                }
+                return !!v;
+            },
+            compare: (v1, v2) => {
+                const n1 = Number(v1), n2 = Number(v2);
+                if (!isNaN(n1) && !isNaN(n2)) return n1 - n2;
+                return String(v1).localeCompare(String(v2));
+            },
+            isInt: v => !isNaN(v) && (parseFloat(v) | 0) === parseFloat(v),
+            isWhiteSpace: v => v === null || v.trim().length === 0,
+            toListIndex: (index, length, acceptAll) => {
+                if (typeof index !== 'number') {
+                    if (index === 'last') return length;
+                    if (index === 'random') return Math.floor(Math.random() * length) + 1;
+                    if (acceptAll && index === 'all') return 'all';
+                    index = Number(index);
+                }
+                index = Math.floor(index);
+                if (index < 1 || index > length) return 0;
+                return index;
+            },
+            toRgbColorList: (hex) => {
+                const hexValue = parseInt(hex.replace('#', ''), 16);
+                return [(hexValue >> 16) & 0xFF, (hexValue >> 8) & 0xFF, hexValue & 0xFF];
+            },
+            toRgbColorObject: (hex) => {
+                const [r, g, b] = S3API.Cast.toRgbColorList(hex);
+                return { r, g, b, a: 255 };
+            }
+        },
+        fetch: (url, opts) => window.fetch(url, opts),
+        canFetch: () => true,
+        openWindow: (url) => window.open(url, '_blank'),
+        redirect: (url) => window.location.href = url,
+        vm: {
+            runtime: {
+                startHats: () => {},
+                stopAll: () => {},
+                on: () => {},
+                emit: () => {},
+                ioDevices: {
+                    clock: { projectTimer: () => (Date.now() / 1000) },
+                    mouse: {
+                        getScratchX: () => mouseState.x,
+                        getScratchY: () => mouseState.y,
+                        getIsDown: () => mouseState.isDown,
+                        get x() { return mouseState.x; },
+                        get y() { return mouseState.y; },
+                        get isDown() { return mouseState.isDown; }
+                    },
+                    keyboard: {
+                        getKeyIsDown: (key) => !!(keyState[key] || keyState[key.toLowerCase()])
+                    },
+                    video: videoDeviceInstance
+                },
+                get renderer() {
+                    return {
+                        get canvas() { return getCanvas(); }
+                    };
+                }
+            },
+            renderer: {
+                get canvas() { return getCanvas(); }
+            },
+            on: () => {}
+        },
+        runtime: {
+            on: () => {},
+            emit: () => {},
+            startHats: () => {},
+            ioDevices: {
+                clock: { projectTimer: () => (Date.now() / 1000) },
+                mouse: {
+                    getScratchX: () => mouseState.x,
+                    getScratchY: () => mouseState.y,
+                    getIsDown: () => mouseState.isDown,
+                    get x() { return mouseState.x; },
+                    get y() { return mouseState.y; },
+                    get isDown() { return mouseState.isDown; }
+                },
+                keyboard: {
+                    getKeyIsDown: (key) => !!(keyState[key] || keyState[key.toLowerCase()])
+                },
+                video: videoDeviceInstance
+            }
+        },
+        renderer: {
+            get canvas() { return getCanvas(); }
+        },
+        audioEngine: {},
+        translate: (t) => t,
+    };
+
+    S3API.translate.setup = () => {};
+
+    Object.assign(global.Scratch, S3API);
+
+    function showS2Notification(title, message) {
+        const id = 's2-notification-' + Date.now();
+        const div = document.createElement('div');
+        
+        Object.assign(div.style, {
+            position: 'fixed',
+            bottom: '20px',
+            right: '20px',
+            width: '300px',
+            background: 'linear-gradient(to bottom, #fcfcfc 0%, #d0d0d0 100%)',
+            border: '1px solid #999',
+            borderRadius: '8px',
+            boxShadow: '0px 4px 10px rgba(0,0,0,0.3)',
+            padding: '10px',
+            fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+            fontSize: '13px',
+            color: '#333',
+            zIndex: '10000',
+            opacity: '0',
+            transition: 'opacity 0.5s ease',
+            pointerEvents: 'none'
+        });
+
+        div.innerHTML = `
+            <div style="font-weight: bold; margin-bottom: 5px; color: #444; border-bottom: 1px solid #bbb; padding-bottom: 5px;">
+                ${title}
+            </div>
+            <div>${message}</div>
+        `;
+
+        document.body.appendChild(div);
+
+        setTimeout(() => { div.style.opacity = '1'; }, 50);
+
+        setTimeout(() => {
+            div.style.opacity = '0';
+            setTimeout(() => document.body.removeChild(div), 500);
+        }, 5000);
+    }
+
+    Scratch.extensions.register = function(extensionInstance) {
+        let currentBlockJSON = '';
+        let pollingInterval = null;
+
+        const updateExtension = () => {
+            const info = extensionInstance.getInfo();
+            const visibleBlocks = info.blocks.filter(b => {
+                if (typeof b !== 'object') return true;
+                return !b.hide && !b.hideFromPalette;
+            });
+
+            const newBlockJSON = JSON.stringify(visibleBlocks);
+            if (newBlockJSON === currentBlockJSON) return;
+            currentBlockJSON = newBlockJSON;
+
+            const s2Descriptor = {
+                blocks: [],
+                menus: info.menus || {},
+                url: info.docsURI || null
+            };
+            const s2Ext = {};
+
+            if (s2Descriptor.menus) {
+                for (const key in s2Descriptor.menus) {
+                    const m = s2Descriptor.menus[key];
+                    if (m.items) s2Descriptor.menus[key] = m.items;
+                    else if (typeof m === 'function') s2Descriptor.menus[key] = m();
+                }
+            }
+
+            const parseBlockText = (text, args) => {
+                const argOrder = [];
+                const s2Text = text.replace(/\[([^\]]+)\]/g, (match, argName) => {
+                    argOrder.push(argName);
+                    const argDef = args[argName] || {};
+                    
+                    if (argDef.menu) return `%m.${argDef.menu}`;
+                    if (argDef.type === S3API.ArgumentType.NUMBER) return `%n`;
+                    if (argDef.type === S3API.ArgumentType.BOOLEAN) return `%b`;
+                    if (argDef.type === S3API.ArgumentType.COLOR) return `%c`;
+                    
+                    return `%s`;
+                });
+                return { s2Text, argOrder };
+            };
+
+            info.blocks.forEach(block => {
+                if (typeof block === 'object') {
+                    if (block.hide || block.hideFromPalette) return;
+
+                    const { s2Text, argOrder } = parseBlockText(block.text, block.arguments || {});
+
+                    let s2Type = 'err';
+                    if (block.blockType === S3API.BlockType.COMMAND) s2Type = 'w';
+                    else if (block.blockType === S3API.BlockType.REPORTER) s2Type = 'R';
+                    else if (block.blockType === S3API.BlockType.BOOLEAN) s2Type = 'b';
+                    else if (block.blockType === S3API.BlockType.HAT) s2Type = 'h';
+                    else if (block.blockType === S3API.BlockType.EVENT) s2Type = 'h';
+                    
+                    const blockEntry = [s2Type, s2Text, block.opcode];
+                    argOrder.forEach(argName => {
+                        const def = block.arguments[argName].defaultValue;
+                        blockEntry.push(def !== undefined ? def : '');
+                    });
+                    s2Descriptor.blocks.push(blockEntry);
+
+                    s2Ext[block.opcode] = function() {
+                        const argsArray = Array.from(arguments);
+                        
+                        const hasCallback = ['w', 'R', 'h'].includes(s2Type);
+                        const callback = hasCallback ? argsArray.pop() : null;
+
+                        const argsObj = {};
+                        argOrder.forEach((name, i) => argsObj[name] = argsArray[i]);
+
+                        const util = { yield: () => {}, thread: {} };
+
+                        try {
+                            const result = extensionInstance[block.opcode](argsObj, util);
+
+                            if (result && typeof result.then === 'function') {
+                                result.then(val => {
+                                    if (typeof callback === 'function') callback(val);
+                                }).catch(err => {
+                                    if (typeof callback === 'function') callback();
+                                });
+                            } else {
+                                if (typeof callback === 'function') callback(result);
+                                return result;
+                            }
+                        } catch (e) {
+                            if (typeof callback === 'function') callback();
+                        }
+                    };
+                }
+            });
+
+            s2Ext._getStatus = () => ({ status: 2, msg: 'Ready' });
+            
+            s2Ext._shutdown = function() {
+                if (pollingInterval) clearInterval(pollingInterval);
+                showS2Notification('Scratch3 compatability warning', `${info.name} may have extra scripts running in the background. Be sure to reload before loading this extension again`);
+                if (extensionInstance._shutdown) extensionInstance._shutdown();
+            };
+
+            ScratchExtensions.register(info.name, s2Descriptor, s2Ext);
+        };
+
+        updateExtension();
+        pollingInterval = setInterval(updateExtension, 1000);
+    };
+
+})(window);
