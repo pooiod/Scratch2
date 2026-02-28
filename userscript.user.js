@@ -169,7 +169,7 @@
 	});
 
     const style2435 = document.createElement("style");
-    style2435.textContent = `/*.gui.box_box_bP3Aq{display:none!important;}*/
+    style2435.textContent = `.gui.box_box_bP3Aq{display:none!important;}
 ruffle-player {
   position: fixed;
   top: 0;
@@ -243,7 +243,18 @@ ruffle-player {
             return true;
         };
 
+        function edithandle() {
+            const el = document.querySelector("ruffle-player")
+            if (!el) return
+            if (location.pathname.includes("/editor")) {
+                el.style.display = ""
+            } else {
+                el.style.display = "none"
+            }
+        }
+
         var swf = swfobject.createSWF(swfAttributes, params, "scratch");
+        setInterval(edithandle, 1000); edithandle();
 
         await new Promise(r=>{const i=setInterval(()=>document.querySelector("ruffle-player").ASopenProjectFromData&&(clearInterval(i),r()),0)});
 
