@@ -213,21 +213,23 @@
                             <button type="submit">Open</button>
                         </form>
 
-                        <ul id="extension-list" class="extension-list">
+                        <br>
+
+                        <ul id="extension-list" class="extension-list" style="max-height: callc(100vh - 200px);">
                             <li class="loading-state">Loading extensions...</li>
                         </ul>
                     </section>
                 </div>
                 <div>
                     <script>
-                        const targetInput = document.getElementById('partofthethigthattheuserusestoloadextensions');
+                        var targetInput = document.getElementById('partofthethigthattheuserusestoloadextensions');
 
                         async function fetchExtensions() {
                             const list = document.getElementById('extension-list');
                             list.innerHTML = '<li style="padding:15px; text-align:center; color:#888;">Loading...</li>';
 
                             try {
-                                const req = await fetch('');
+                                const req = await fetch('extensions.json');
                                 if(!req.ok) throw new Error('File not found');
                                 const data = await req.json();
 
@@ -239,11 +241,10 @@
 
                                     const span = document.createElement('span');
                                     span.className = 'ext-name';
-                                    span.textContent = ext.name;
 
                                     const btn = document.createElement('button');
                                     btn.className = 'ext-load-btn';
-                                    btn.textContent = 'Select';
+                                    btn.textContent = ext.name;
 
                                     btn.onclick = () => {
                                         targetInput.value = ext.url;

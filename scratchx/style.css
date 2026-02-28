@@ -1093,6 +1093,8 @@ picture {
   position: relative;
   display: table;
   margin: auto;
+  top: 0px;
+  margin-top: 10px;
 }
 
 .modal .modal-inner a.cta {
