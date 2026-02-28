@@ -66,10 +66,12 @@ function perror(err){
 }
 
 async function startDownload(projectId) {
-    $("#progress").removeClass("error success");
-    $("#progress").css("opacity", 1);
-    $("#scratchloader").css("opacity", 1);
-    document.getElementById("loadholder").classList.remove("pulse");
+    if (document.getElementById("log")) {
+        $("#progress").removeClass("error success");
+        $("#progress").css("opacity", 1);
+        $("#scratchloader").css("opacity", 1);
+        document.getElementById("loadholder").classList.remove("pulse");
+    }
 
     logMessage("Starting download for " + projectId);
     setProgress(5);

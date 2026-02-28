@@ -24,7 +24,7 @@
         "https://unpkg.com/@ruffle-rs/ruffle@0.2.0-nightly.2026.2.2/ruffle.js",
         "https://scratchflash.pages.dev/scratchx/swfobject.js",
         "https://scratchflash.pages.dev/scratchx/jquery-1.11.2.min.js",
-        "https://scratchflash.pages.dev/scratchx/download.js"
+        "https://scratchflash.pages.dev/download.js"
     ];
 
     window.loadedexternal = false;
