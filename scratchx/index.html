@@ -212,14 +212,13 @@
                             <input type="text" id="partofthethigthattheuserusestoloadextensions" placeholder="https://example.com..." />
                             <button type="submit">Open</button>
                         </form>
-                    </section>
-                </div>
-                <div>
-                    <section class="store-content">
+
                         <ul id="extension-list" class="extension-list">
                             <li class="loading-state">Loading extensions...</li>
                         </ul>
                     </section>
+                </div>
+                <div>
                     <script>
                         const targetInput = document.getElementById('partofthethigthattheuserusestoloadextensions');
 
@@ -228,7 +227,7 @@
                             list.innerHTML = '<li style="padding:15px; text-align:center; color:#888;">Loading...</li>';
 
                             try {
-                                const req = await fetch('extensions.json');
+                                const req = await fetch('');
                                 if(!req.ok) throw new Error('File not found');
                                 const data = await req.json();
 
