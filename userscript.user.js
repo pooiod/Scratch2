@@ -24,6 +24,7 @@
         "https://unpkg.com/@ruffle-rs/ruffle@0.2.0-nightly.2026.2.2/ruffle.js",
         "https://scratchflash.pages.dev/scratchx/swfobject.js",
         "https://scratchflash.pages.dev/scratchx/jquery-1.11.2.min.js",
+        "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js",
         "https://scratchflash.pages.dev/download.js"
     ];
 
@@ -221,7 +222,7 @@ ruffle-player {
 
         swfobject.switchOffAutoHideShow();
         var swfAttributes = {
-            data: 'https://scratchflash.pages.dev/WScratch.swf',
+            data: 'https://scratchflash.pages.dev/Scratch.swf',
             width: '100%',
             height: '100%'
         };
@@ -238,9 +239,17 @@ ruffle-player {
         });
         document.body.appendChild(div);
 
+        window.JSwillDownload = function() {
+            return true;
+        };
+
         var swf = swfobject.createSWF(swfAttributes, params, "scratch");
 
         await new Promise(r=>{const i=setInterval(()=>document.querySelector("ruffle-player").ASloadProject&&(clearInterval(i),r()),0)});
+
+        window.gotZipBase64 = function(content) {
+            document.querySelector("ruffle-player").ASloadBase64SBX(content);
+        };
 
         const match = location.href.match(/projects\/(\d+)/);
         if(match) startDownload(match[1]);
