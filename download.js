@@ -1298,7 +1298,7 @@ class ProjectConverter {
             }
         }
 
-if (this.compat) {
+        if (this.compat) {
             if(this.penUpDown) {
                 let pen = this.compatVarName('pen');
                 variables.push({name: pen, value: 'up', isPersistent: false});
@@ -1311,12 +1311,14 @@ if (this.compat) {
                 let gVar = this.compatVarName('Green');
                 let bVar = this.compatVarName('Blue');
                 let aVar = this.compatVarName('Alpha');
+                let tVar = this.compatVarName('TempColor');
 
                 variables.push({name: penColorVar, value: -16777216, isPersistent: false});
                 variables.push({name: rVar, value: 0, isPersistent: false});
                 variables.push({name: gVar, value: 0, isPersistent: false});
                 variables.push({name: bVar, value: 0, isPersistent: false});
                 variables.push({name: aVar, value: 255, isPersistent: false});
+                variables.push({name: tVar, value: 0, isPersistent: false});
 
                 scripts.push([0, 0, [
                     ['procDef', 'set pen color %s', ['color'], [''], false],
@@ -1326,43 +1328,23 @@ if (this.compat) {
 
                 scripts.push([0, 0, [
                     ['procDef', 'set pen %s to %n', ['param', 'val'], ['', 0], true],
-
-                    ['setVar:to:', bVar, ['%', ['readVariable', penColorVar], 256]],
-                    ['setVar:to:', gVar, ['%', ['computeFunction:of:', 'floor', ['/', ['readVariable', penColorVar], 256]], 256]],
-                    ['setVar:to:', rVar, ['%', ['computeFunction:of:', 'floor', ['/', ['readVariable', penColorVar], 65536]], 256]],
-                    ['setVar:to:', aVar, ['computeFunction:of:', 'floor', ['/', ['readVariable', penColorVar], 16777216]]],
-                    ['doIf', ['<', ['readVariable', aVar], 0], [['setVar:to:', aVar, ['+', ['readVariable', aVar], 256]]]],
-
+                    ['setVar:to:', tVar, ['readVariable', penColorVar]],
+                    ['doIf', ['<', ['readVariable', tVar], 0], [['setVar:to:', tVar, ['+', ['readVariable', tVar], 4294967296]]]],
+                    ['setVar:to:', bVar, ['%', ['readVariable', tVar], 256]],
+                    ['setVar:to:', gVar, ['%', ['computeFunction:of:', 'floor', ['/', ['readVariable', tVar], 256]], 256]],
+                    ['setVar:to:', rVar, ['%', ['computeFunction:of:', 'floor', ['/', ['readVariable', tVar], 65536]], 256]],
+                    ['setVar:to:', aVar, ['computeFunction:of:', 'floor', ['/', ['readVariable', tVar], 16777216]]],
+                    ['doIf', ['=', ['readVariable', aVar], 0], [['setVar:to:', aVar, 255]]],
                     ['doIf', ['=', ['getParam', 'param', 'r'], 'transparency'], [
                         ['setVar:to:', aVar, ['-', 255, ['*', ['getParam', 'val', 'r'], 2.55]]],
                         ['doIf', ['<', ['readVariable', aVar], 0], [['setVar:to:', aVar, 0]]],
                         ['doIf', ['>', ['readVariable', aVar], 255], [['setVar:to:', aVar, 255]]]
                     ]],
-
-                    ['setVar:to:', penColorVar, 
-                        ['+', 
-                            ['*', ['readVariable', aVar], 16777216],
-                            ['+',
-                                ['*', ['readVariable', rVar], 65536],
-                                ['+',
-                                    ['*', ['readVariable', gVar], 256],
-                                    ['readVariable', bVar]
-                                ]
-                            ]
-                        ]
-                    ],
-                    
+                    ['setVar:to:', penColorVar, ['+', ['*', ['readVariable', aVar], 16777216], ['+', ['*', ['readVariable', rVar], 65536], ['+', ['*', ['readVariable', gVar], 256], ['readVariable', bVar]]]]],
                     ['penColor:', ['readVariable', penColorVar]],
-
-                    ['doIf', ['=', ['getParam', 'param', 'r'], 'color'], [
-                        ['penHue:', ['*', ['getParam', 'val', 'r'], 2]]
-                    ]],
-                    ['doIf', ['=', ['getParam', 'param', 'r'], 'saturation'], [
-                        ['penShade:', ['-', 100, ['getParam', 'val', 'r']]]
-                    ]],
-                    ['doIf', ['=', ['getParam', 'param', 'r'], 'brightness'], [
-                        ['penShade:', ['getParam', 'val', 'r']]
-                    ]]
+                    ['doIf', ['=', ['getParam', 'param', 'r'], 'color'], [['penHue:', ['*', ['getParam', 'val', 'r'], 2]]]],
+                    ['doIf', ['=', ['getParam', 'param', 'r'], 'saturation'], [['penShade:', ['-', 100, ['getParam', 'val', 'r']]]]],
+                    ['doIf', ['=', ['getParam', 'param', 'r'], 'brightness'], [['penShade:', ['getParam', 'val', 'r']]]]
                 ]]);
             }
         }
