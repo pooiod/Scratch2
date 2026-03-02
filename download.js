@@ -1368,7 +1368,7 @@ class ProjectConverter {
                         ['doIfElse', ['=', ['readVariable', maxVar],['readVariable', rVar]], [['setVar:to:', hVar, ['*', 16.6666, ['%', ['+',['/', ['-', ['readVariable', gVar], ['readVariable', bVar]],['readVariable', deltaVar]], 6], 6]]]],
                             ['doIfElse', ['=',['readVariable', maxVar], ['readVariable', gVar]], [['setVar:to:', hVar, ['*', 16.6666, ['+', ['/', ['-',['readVariable', bVar], ['readVariable', rVar]], ['readVariable', deltaVar]], 2]]]],
                                 [['setVar:to:', hVar,['*', 16.6666, ['+', ['/', ['-', ['readVariable', rVar], ['readVariable', gVar]],['readVariable', deltaVar]], 4]]]]]]],
-                    ['setVar:to:', penColorList, ['readVariable', rVar]], // Dummy assignment to force list update context
+                    ['setVar:to:', penColorList, ['readVariable', rVar]],
                     ['call', 'tmp:203:updateHSV'],
                     ['setVar:to:', penColorList, ['readVariable', penColorVar]],
                     ['penColor:',['readVariable', penColorVar]]
@@ -1397,8 +1397,8 @@ class ProjectConverter {
                     ['setVar:to:', gVar, ['computeFunction:of:', 'round',['*', ['+', ['readVariable', gVar], ['readVariable', tMVar]], 2.55]]],
                     ['setVar:to:', bVar, ['computeFunction:of:', 'round', ['*',['+', ['readVariable', bVar], ['readVariable', tMVar]], 2.55]]],
                     
-                    ['setVar:to:', aVar, 255], // Reset Alpha before potentially modifying it
-                    ['setVar:to:', penColorList, ['readVariable', penColorVar]], // Dummy assignment to force list update context
+                    ['setVar:to:', aVar, 255],
+                    ['setVar:to:', penColorList, ['readVariable', penColorVar]],
                     ['setVar:to:', penColorList, ['readVariable', penColorVar]],
                     ['penColor:',['readVariable', penColorVar]]
                 ]]);
