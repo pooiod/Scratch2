@@ -1410,6 +1410,10 @@ class ProjectConverter {
             currentCostumeIndex: target.currentCostume
         };
 
+        if (this.compat) {
+            this.addPenScripts(obj);
+        }
+
         if (target.isStage) {
             obj.tempoBPM = target.tempo;
             obj.videoAlpha = (100 - target.videoTransparency) / 100;
