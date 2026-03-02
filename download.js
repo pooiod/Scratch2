@@ -259,7 +259,8 @@ async function processSB3(projectData) {
         totalAssets += t.costumes.length + t.sounds.length;
     });
 
-    converter.monitors = projectData.monitors ||[];
+    converter.monitors = projectData.monitors || [];
+    converter.monitors = projectData.monitors || []; 
 
     logMessage(`Converting ${totalAssets} assets...`);
 
@@ -284,13 +285,42 @@ async function processSB3(projectData) {
         }
     }
 
-sprites.sort((a, b) => a.layerOrder - b.layerOrder);
+    sprites.sort((a, b) => a.layerOrder - b.layerOrder);
     sprites.forEach(s => delete s.layerOrder);
 
     if (!stage) throw new Error("No Stage found in JSON.");
+    stage.children = sprites;
 
-    let watchers = [];
-    const monitors = projectData.monitors
+    if (projectData.monitors) {
+        projectData.monitors.forEach(m => {
+            if (m.opcode === 'data_variable') {
+                const isStage = m.spriteName === null;
+                const targetName = m.spriteName || "Stage";
+                const vName = converter.varName(m.params.VARIABLE);
+
+                let mode = 1; // Default
+                if (m.mode === 'large') mode = 2;
+                if (m.mode === 'slider') mode = 3;
+
+                stage.children.push({
+                    target: targetName,
+                    cmd: "getVar:",
+                    param: vName,
+                    color: 15629590,
+                    label: isStage ? vName : `${targetName}: ${vName}`,
+                    mode: mode,
+                    sliderMin: m.sliderMin || 0,
+                    sliderMax: m.sliderMax || 100,
+                    isDiscrete: m.isDiscrete || false,
+                    x: m.x || 0,
+                    y: m.y || 0,
+                    visible: !!m.visible
+                });
+            }
+        });
+    }
+
+    stage.info = stage.info || {};
     stage.info.flashVersion = "MAC 32,0,0,0";
     stage.info.swfVersion = "v461";
     stage.info.spriteCount = sprites.length;
@@ -639,6 +669,7 @@ class ProjectConverter {
         this.costumeAssets = {}; 
         this.sounds = [];
         this.costumes = [];
+        this.monitors = [];
         this.monitors = [];
         this.lists = {};
         this.stageLists = {};
