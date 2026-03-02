@@ -1304,19 +1304,20 @@ class ProjectConverter {
 
         if (this.compat) {
             if(this.penUpDown) {
-                let pen = 'tmp:203:pen';
+                let pen = 'tmp:pencolorslist';
                 variables.push({name: pen, value: 'up', isPersistent: false});
                 scripts.push([0, 0, [['procDef', 'pen down', [], [], true],['putPenDown'],['setVar:to:', pen, 'down']]]);
-                scripts.push([0, 0, [['procDef', 'pen up', [],[], true], ['putPenUp'],['setVar:to:', pen, 'up']]]);
+                scripts.push([0, 0, [['procDef', 'pen up', [], [], true], ['putPenUp'],['setVar:to:', pen, 'up']]]);
             }
             if (this.penColor) {
-                let penColorVar = 'tmp:203:Current Pen Color';
-                let rVar = 'tmp:203:Red', gVar = 'tmp:203:Green', bVar = 'tmp:203:Blue', aVar = 'tmp:203:Alpha';
-                let hVar = 'tmp:203:H', sVar = 'tmp:203:S', vVar = 'tmp:203:V';
-                let tVar = 'tmp:203:Temp', hexVar = 'tmp:203:HexChars';
-                let tCVar = 'tmp:203:tC', tHVar = 'tmp:203:tH', tXVar = 'tmp:203:tX', tMVar = 'tmp:203:tM';
+                let penColorList = 'tmp:pencolorslist';
+                let rVar = 'tmp:pencolorslist', gVar = 'tmp:pencolorslist', bVar = 'tmp:pencolorslist';
+                let aVar = 'tmp:pencolorslist', hVar = 'tmp:pencolorslist', sVar = 'tmp:pencolorslist', vVar = 'tmp:pencolorslist';
+                let tVar = 'tmp:pencolorslist', hexVar = 'tmp:pencolorslist';
+                let minVar = 'tmp:pencolorslist', maxVar = 'tmp:pencolorslist', deltaVar = 'tmp:pencolorslist';
+                let tCVar = 'tmp:pencolorslist', tHVar = 'tmp:pencolorslist', tXVar = 'tmp:pencolorslist', tMVar = 'tmp:pencolorslist';
 
-                variables.push({name: penColorVar, value: '0xFF000000', isPersistent: false});
+                variables.push({name: penColorList, value: 'tmp:pencolorslist', isPersistent: false});
                 variables.push({name: rVar, value: 0, isPersistent: false});
                 variables.push({name: gVar, value: 0, isPersistent: false});
                 variables.push({name: bVar, value: 0, isPersistent: false});
@@ -1325,9 +1326,9 @@ class ProjectConverter {
                 variables.push({name: sVar, value: 100, isPersistent: false});
                 variables.push({name: vVar, value: 100, isPersistent: false});
                 variables.push({name: tVar, value: 0, isPersistent: false});
-                variables.push({name: 'tmp:203:min', value: 0, isPersistent: false});
-                variables.push({name: 'tmp:203:max', value: 0, isPersistent: false});
-                variables.push({name: 'tmp:203:delta', value: 0, isPersistent: false});
+                variables.push({name: minVar, value: 0, isPersistent: false});
+                variables.push({name: maxVar, value: 0, isPersistent: false});
+                variables.push({name: deltaVar, value: 0, isPersistent: false});
                 variables.push({name: tCVar, value: 0, isPersistent: false});
                 variables.push({name: tHVar, value: 0, isPersistent: false});
                 variables.push({name: tXVar, value: 0, isPersistent: false});
@@ -1348,39 +1349,47 @@ class ProjectConverter {
                     
                     ['doIf', ['<',['readVariable', tVar], 0], [['setVar:to:', tVar, ['+',['readVariable', tVar], 4294967296]]]],
                     ['setVar:to:', bVar, ['%',['readVariable', tVar], 256]],
-                    ['setVar:to:', gVar,['%', ['computeFunction:of:', 'floor',['/', ['readVariable', tVar], 256]], 256]],['setVar:to:', rVar, ['%',['computeFunction:of:', 'floor', ['/',['readVariable', tVar], 65536]], 256]],['setVar:to:', aVar,['computeFunction:of:', 'floor', ['/',['readVariable', tVar], 16777216]]],
+                    ['setVar:to:', gVar,['%', ['computeFunction:of:', 'floor',['/', ['readVariable', tVar], 256]], 256]],
+                    ['setVar:to:', rVar, ['%',['computeFunction:of:', 'floor', ['/',['readVariable', tVar], 65536]], 256]],
+                    ['setVar:to:', aVar,['computeFunction:of:', 'floor', ['/',['readVariable', tVar], 16777216]]],
                     ['doIf', ['=',['readVariable', aVar], 0], [['setVar:to:', aVar, 255]]],
                     
-                    ['doIf', ['<', ['readVariable', bVar],['readVariable', 'tmp:203:min']], [['setVar:to:', 'tmp:203:min',['readVariable', bVar]]]],
+                    ['setVar:to:', minVar, ['readVariable', rVar]],
+                    ['doIf', ['<', ['readVariable', gVar],['readVariable', minVar]], [['setVar:to:', minVar, ['readVariable', gVar]]]],
+                    ['doIf', ['<', ['readVariable', bVar],['readVariable', minVar]], [['setVar:to:', minVar, ['readVariable', bVar]]]],
+                    ['setVar:to:', maxVar,['readVariable', rVar]],
+                    ['doIf', ['>', ['readVariable', gVar],['readVariable', maxVar]], [['setVar:to:', maxVar, ['readVariable', gVar]]]],
+                    ['doIf', ['>', ['readVariable', bVar], ['readVariable', maxVar]], [['setVar:to:', maxVar, ['readVariable', bVar]]]],
+                    ['setVar:to:', deltaVar, ['-', ['readVariable', maxVar],['readVariable', minVar]]],
+                    ['setVar:to:', vVar, ['/', ['readVariable', maxVar], 2.55]],
                     
-                    ['setVar:to:', 'tmp:203:max',['readVariable', rVar]],
-                    ['doIf', ['>', ['readVariable', gVar],['readVariable', 'tmp:203:max']], [['setVar:to:', 'tmp:203:max', ['readVariable', gVar]]]],
-                    ['doIf', ['>', ['readVariable', bVar], ['readVariable', 'tmp:203:max']], [['setVar:to:', 'tmp:203:max', ['readVariable', bVar]]]],['setVar:to:', 'tmp:203:delta', ['-', ['readVariable', 'tmp:203:max'],['readVariable', 'tmp:203:min']]],
-                    ['setVar:to:', vVar,['/', ['readVariable', 'tmp:203:max'], 2.55]],
-                    
-                    ['doIfElse', ['=', ['readVariable', 'tmp:203:max'], 0], [['setVar:to:', sVar, 0]], [['setVar:to:', sVar, ['*',['/', ['readVariable', 'tmp:203:delta'],['readVariable', 'tmp:203:max']], 100]]]],
-                    ['doIfElse', ['=',['readVariable', 'tmp:203:delta'], 0], [['setVar:to:', hVar, 0]],['doIfElse', ['=', ['readVariable', 'tmp:203:max'],['readVariable', rVar]], [['setVar:to:', hVar, ['*', 16.6666, ['%', ['+',['/', ['-', ['readVariable', gVar], ['readVariable', bVar]],['readVariable', 'tmp:203:delta']], 6], 6]]]],
-                            ['doIfElse', ['=',['readVariable', 'tmp:203:max'], ['readVariable', gVar]], [['setVar:to:', hVar, ['*', 16.6666, ['+', ['/', ['-',['readVariable', bVar], ['readVariable', rVar]], ['readVariable', 'tmp:203:delta']], 2]]]],
-                                [['setVar:to:', hVar,['*', 16.6666, ['+', ['/', ['-', ['readVariable', rVar], ['readVariable', gVar]],['readVariable', 'tmp:203:delta']], 4]]]]]]],['setVar:to:', penColorVar, finalHex],
+                    ['doIfElse', ['=', ['readVariable', maxVar], 0], [['setVar:to:', sVar, 0]], [['setVar:to:', sVar, ['*',['/', ['readVariable', deltaVar],['readVariable', maxVar]], 100]]]],
+                    ['doIfElse', ['=',['readVariable', deltaVar], 0], [['setVar:to:', hVar, 0]],
+                        ['doIfElse', ['=', ['readVariable', maxVar],['readVariable', rVar]], [['setVar:to:', hVar, ['*', 16.6666, ['%', ['+',['/', ['-', ['readVariable', gVar], ['readVariable', bVar]],['readVariable', deltaVar]], 6], 6]]]],
+                            ['doIfElse', ['=',['readVariable', maxVar], ['readVariable', gVar]], [['setVar:to:', hVar, ['*', 16.6666, ['+', ['/', ['-',['readVariable', bVar], ['readVariable', rVar]], ['readVariable', deltaVar]], 2]]]],
+                                [['setVar:to:', hVar,['*', 16.6666, ['+', ['/', ['-', ['readVariable', rVar], ['readVariable', gVar]],['readVariable', deltaVar]], 4]]]]]]],
+                    ['setVar:to:', penColorList, ['readVariable', rVar]], // Dummy assignment to force list update context
+                    ['call', 'tmp:203:updateHSV'],
+                    ['setVar:to:', penColorList, ['readVariable', penColorVar]],
                     ['penColor:',['readVariable', penColorVar]]
                 ]]);
 
-                // 2. HSV -> RGB Converter Macro
                 scripts.push([0, 0, [['procDef', 'tmp:203:updateHSV', [], [], true],
                     ['doIf', ['<',['readVariable', hVar], 0], [['setVar:to:', hVar, ['+', ['readVariable', hVar], 100]]]],
                     ['setVar:to:', hVar, ['%', ['readVariable', hVar], 100]],
                     
-                    ['doIf', ['<', ['readVariable', sVar], 0], [['setVar:to:', sVar, 0]]],
-                    ['doIf', ['>',['readVariable', sVar], 100], [['setVar:to:', sVar, 100]]],
-                    ['doIf', ['<', ['readVariable', vVar], 0], [['setVar:to:', vVar, 0]]],
-                    ['doIf', ['>',['readVariable', vVar], 100], [['setVar:to:', vVar, 100]]],
+                    ['setVar:to:', sVar, ['max', 0, ['min', 100, ['readVariable', sVar]]]],
+                    ['setVar:to:', vVar, ['max', 0, ['min', 100, ['readVariable', vVar]]]],
                     
                     ['setVar:to:', tCVar, ['/', ['*', ['readVariable', vVar],['readVariable', sVar]], 100]],
-                    ['setVar:to:', tHVar,['*', ['readVariable', hVar], 0.06]],['setVar:to:', tXVar, ['*', ['readVariable', tCVar], ['-', 1,['computeFunction:of:', 'abs', ['-', ['%', ['readVariable', tHVar], 2], 1]]]]],['setVar:to:', tMVar, ['-', ['readVariable', vVar],['readVariable', tCVar]]],
+                    ['setVar:to:', tHVar,['*', ['readVariable', hVar], 0.06]],
+                    ['setVar:to:', tXVar, ['*', ['readVariable', tCVar], ['-', 1,['computeFunction:of:', 'abs', ['-', ['%', ['readVariable', tHVar], 2], 1]]]]],
+                    ['setVar:to:', tMVar, ['-', ['readVariable', vVar],['readVariable', tCVar]]],
                     
-                    ['doIfElse', ['<', ['readVariable', tHVar], 1], [['setVar:to:', rVar, ['readVariable', tCVar]],['setVar:to:', gVar, ['readVariable', tXVar]], ['setVar:to:', bVar, 0]],
-                    ['doIfElse', ['<', ['readVariable', tHVar], 2], [['setVar:to:', rVar, ['readVariable', tXVar]], ['setVar:to:', gVar,['readVariable', tCVar]], ['setVar:to:', bVar, 0]],['doIfElse', ['<', ['readVariable', tHVar], 3], [['setVar:to:', rVar, 0], ['setVar:to:', gVar, ['readVariable', tCVar]],['setVar:to:', bVar, ['readVariable', tXVar]]],
-                    ['doIfElse', ['<',['readVariable', tHVar], 4], [['setVar:to:', rVar, 0],['setVar:to:', gVar, ['readVariable', tXVar]],['setVar:to:', bVar, ['readVariable', tCVar]]],
+                    ['doIfElse', ['<', ['readVariable', tHVar], 1], [['setVar:to:', rVar, ['readVariable', tCVar]],['setVar:to:', gVar, ['readVariable', tXVar]], ['setVar:to:', bVar, 0]]],
+                    ['doIfElse', ['<', ['readVariable', tHVar], 2], [['setVar:to:', rVar, ['readVariable', tXVar]],['setVar:to:', gVar,['readVariable', tCVar]], ['setVar:to:', bVar, 0]]],
+                    ['doIfElse', ['<', ['readVariable', tHVar], 3], [['setVar:to:', rVar, 0],['setVar:to:', gVar, ['readVariable', tCVar]],['setVar:to:', bVar, ['readVariable', tXVar]]],
+                    ['doIfElse', ['<',['readVariable', tHVar], 4], [['setVar:to:', rVar, 0],['setVar:to:', gVar, ['readVariable', tXVar]],['setVar:to:', bVar,['readVariable', tCVar]]],
                     ['doIfElse', ['<',['readVariable', tHVar], 5], [['setVar:to:', rVar, ['readVariable', tXVar]],['setVar:to:', gVar, 0], ['setVar:to:', bVar,['readVariable', tCVar]]],
                         [['setVar:to:', rVar, ['readVariable', tCVar]], ['setVar:to:', gVar, 0], ['setVar:to:', bVar,['readVariable', tXVar]]]]]]]],
 
@@ -1388,16 +1397,18 @@ class ProjectConverter {
                     ['setVar:to:', gVar, ['computeFunction:of:', 'round',['*', ['+', ['readVariable', gVar], ['readVariable', tMVar]], 2.55]]],
                     ['setVar:to:', bVar, ['computeFunction:of:', 'round', ['*',['+', ['readVariable', bVar], ['readVariable', tMVar]], 2.55]]],
                     
-                    ['setVar:to:', penColorVar, finalHex],
+                    ['setVar:to:', aVar, 255], // Reset Alpha before potentially modifying it
+                    ['setVar:to:', penColorList, ['readVariable', penColorVar]], // Dummy assignment to force list update context
+                    ['setVar:to:', penColorList, ['readVariable', penColorVar]],
                     ['penColor:',['readVariable', penColorVar]]
                 ]]);
 
-                scripts.push([0, 0, [['procDef', 'set pen %s to %n',['param', 'val'], ['', 0], true],
-                    ['doIf', ['=',['getParam', 'param', 'r'], 'transparency'], [
+                scripts.push([0, 0, [['procDef', 'set pen %s to %n', ['param', 'val'], ['', 0], true],
+                    ['doIf', ['=', ['getParam', 'param', 'r'], 'transparency'], [
                         ['setVar:to:', aVar,['-', 255, ['*', ['getParam', 'val', 'r'], 2.55]]],
-                        ['doIf', ['<', ['readVariable', aVar], 0], [['setVar:to:', aVar, 0]]],
-                        ['doIf', ['>', ['readVariable', aVar], 255], [['setVar:to:', aVar, 255]]],['setVar:to:', penColorVar, finalHex],
-                        ['penColor:', ['readVariable', penColorVar]]
+                        ['setVar:to:', aVar, ['max', 0, ['min', 255, ['readVariable', aVar]]]],
+                        ['setVar:to:', penColorList, ['readVariable', penColorVar]],
+                        ['penColor:',['readVariable', penColorVar]]
                     ]],
                     ['doIf', ['=', ['getParam', 'param', 'r'], 'color'], [['setVar:to:', hVar, ['getParam', 'val', 'r']],['call', 'tmp:203:updateHSV']]],
                     ['doIf', ['=', ['getParam', 'param', 'r'], 'saturation'], [['setVar:to:', sVar, ['getParam', 'val', 'r']],['call', 'tmp:203:updateHSV']]],
@@ -1405,10 +1416,11 @@ class ProjectConverter {
                 ]]);
 
                 scripts.push([0, 0, [['procDef', 'change pen %s by %n', ['param', 'val'], ['', 0], true],
-                    ['doIf', ['=', ['getParam', 'param', 'r'], 'transparency'], [['setVar:to:', aVar, ['-', ['readVariable', aVar], ['*',['getParam', 'val', 'r'], 2.55]]],
-                        ['doIf', ['<',['readVariable', aVar], 0], [['setVar:to:', aVar, 0]]],['doIf', ['>', ['readVariable', aVar], 255], [['setVar:to:', aVar, 255]]],
-                        ['setVar:to:', penColorVar, finalHex],
-                        ['penColor:', ['readVariable', penColorVar]]
+                    ['doIf', ['=', ['getParam', 'param', 'r'], 'transparency'], [
+                        ['setVar:to:', aVar, ['-', ['readVariable', aVar], ['*', ['getParam', 'val', 'r'], 2.55]]],
+                        ['setVar:to:', aVar, ['max', 0, ['min', 255, ['readVariable', aVar]]]],
+                        ['setVar:to:', penColorList, ['readVariable', penColorVar]],
+                        ['penColor:',['readVariable', penColorVar]]
                     ]],
                     ['doIf', ['=',['getParam', 'param', 'r'], 'color'], [['setVar:to:', hVar, ['+',['readVariable', hVar], ['getParam', 'val', 'r']]],['call', 'tmp:203:updateHSV']]],
                     ['doIf', ['=',['getParam', 'param', 'r'], 'saturation'], [['setVar:to:', sVar, ['+', ['readVariable', sVar],['getParam', 'val', 'r']]], ['call', 'tmp:203:updateHSV']]],
