@@ -17,7 +17,7 @@ window.gotZipBase64 = function(content) {
         console.log("Waiting for flash", tries);
 
         if (swf && swf.ASopenProjectFromData) {
-            $("#log").text("Opening project" + "\n" + $("#log").text());
+            $("#log").text("Preparing editor" + "\n" + $("#log").text());
             clearInterval(openTimeout);
             swf.ASopenProjectFromData(content);
 
