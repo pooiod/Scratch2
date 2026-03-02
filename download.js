@@ -912,7 +912,7 @@ class ProjectConverter {
                 try {
                     const pngBuffer = await this._rasterizeSvgToPng(svgText, c.bitmapResolution || 1);
                     zipOut.file(`${index}.png`, pngBuffer);
-                    this.costumeAssets[c.assetId] = [index, c.name, `${index}.png`];
+                    this.costumeAssets[c.assetId] = [index, c.name, `${index}.svg`];
                 } catch (e) {
                     console.warn(`SVG rasterize failed for ${c.name}, falling back to SVG:`, e);
                     zipOut.file(`${index}.svg`, svgText);
@@ -934,7 +934,7 @@ class ProjectConverter {
         });
     }
 
-    async _rasterizeSvgToPngAndWrapInSvg(svgText, scale) {
+    async _rasterizeSvgToPng(svgText, scale) {
         const fontMap = {
             'Sans Serif': 'Noto Sans',
             'Serif': 'Source Serif Pro',
