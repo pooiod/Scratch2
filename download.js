@@ -1298,7 +1298,7 @@ class ProjectConverter {
             }
         }
 
-        if (this.compat) {
+if (this.compat) {
             if(this.penUpDown) {
                 let pen = this.compatVarName('pen');
                 variables.push({name: pen, value: 'up', isPersistent: false});
@@ -1307,16 +1307,53 @@ class ProjectConverter {
             }
             if (this.penColor) {
                 let penColorVar = this.compatVarName('Current Pen Color');
-                variables.push({name: penColorVar, value: 0, isPersistent: false});
-                
+                let rVar = this.compatVarName('Red');
+                let gVar = this.compatVarName('Green');
+                let bVar = this.compatVarName('Blue');
+                let aVar = this.compatVarName('Alpha');
+
+                variables.push({name: penColorVar, value: -16777216, isPersistent: false});
+                variables.push({name: rVar, value: 0, isPersistent: false});
+                variables.push({name: gVar, value: 0, isPersistent: false});
+                variables.push({name: bVar, value: 0, isPersistent: false});
+                variables.push({name: aVar, value: 255, isPersistent: false});
+
                 scripts.push([0, 0, [
                     ['procDef', 'set pen color %s', ['color'], [''], false],
-                    ['setVar:to:', penColorVar, ['getParam', 'color', 'r']],
-                    ['penColor:', ['getParam', 'color', 'r']]
+                    ['setVar:to:', penColorVar, ['+', ['getParam', 'color', 'r'], 0]],
+                    ['penColor:', ['readVariable', penColorVar]]
                 ]]);
 
                 scripts.push([0, 0, [
-                    ['procDef', 'set pen %s to %n', ['param', 'val'], ['', 0], false],
+                    ['procDef', 'set pen %s to %n', ['param', 'val'], ['', 0], true],
+
+                    ['setVar:to:', bVar, ['%', ['readVariable', penColorVar], 256]],
+                    ['setVar:to:', gVar, ['%', ['computeFunction:of:', 'floor', ['/', ['readVariable', penColorVar], 256]], 256]],
+                    ['setVar:to:', rVar, ['%', ['computeFunction:of:', 'floor', ['/', ['readVariable', penColorVar], 65536]], 256]],
+                    ['setVar:to:', aVar, ['computeFunction:of:', 'floor', ['/', ['readVariable', penColorVar], 16777216]]],
+                    ['doIf', ['<', ['readVariable', aVar], 0], [['setVar:to:', aVar, ['+', ['readVariable', aVar], 256]]]],
+
+                    ['doIf', ['=', ['getParam', 'param', 'r'], 'transparency'], [
+                        ['setVar:to:', aVar, ['-', 255, ['*', ['getParam', 'val', 'r'], 2.55]]],
+                        ['doIf', ['<', ['readVariable', aVar], 0], [['setVar:to:', aVar, 0]]],
+                        ['doIf', ['>', ['readVariable', aVar], 255], [['setVar:to:', aVar, 255]]]
+                    ]],
+
+                    ['setVar:to:', penColorVar, 
+                        ['+', 
+                            ['*', ['readVariable', aVar], 16777216],
+                            ['+',
+                                ['*', ['readVariable', rVar], 65536],
+                                ['+',
+                                    ['*', ['readVariable', gVar], 256],
+                                    ['readVariable', bVar]
+                                ]
+                            ]
+                        ]
+                    ],
+                    
+                    ['penColor:', ['readVariable', penColorVar]],
+
                     ['doIf', ['=', ['getParam', 'param', 'r'], 'color'], [
                         ['penHue:', ['*', ['getParam', 'val', 'r'], 2]]
                     ]],
@@ -1325,8 +1362,7 @@ class ProjectConverter {
                     ]],
                     ['doIf', ['=', ['getParam', 'param', 'r'], 'brightness'], [
                         ['penShade:', ['getParam', 'val', 'r']]
-                    ]],
-                    ['doIf', ['=', ['getParam', 'param', 'r'], 'transparency'], []]
+                    ]]
                 ]]);
             }
         }
