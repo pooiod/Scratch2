@@ -298,7 +298,7 @@ async function processSB3(projectData) {
                 const targetName = m.spriteName || "Stage";
                 const vName = converter.varName(m.params.VARIABLE);
 
-                let mode = 1; // Default
+                let mode = 1;
                 if (m.mode === 'large') mode = 2;
                 if (m.mode === 'slider') mode = 3;
 
