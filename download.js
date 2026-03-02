@@ -1391,7 +1391,6 @@ class ProjectConverter {
         }
 
         if (this.compat) {
-            this.addPenScripts(obj);
             if(this.penUpDown) {
                 let pen = this.compatVarName('pen');
                 variables.push({name: pen, value: 'up', isPersistent: false});
