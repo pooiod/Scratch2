@@ -259,6 +259,8 @@ async function processSB3(projectData) {
         totalAssets += t.costumes.length + t.sounds.length;
     });
 
+    converter.monitors = projectData.monitors ||[];
+
     logMessage(`Converting ${totalAssets} assets...`);
 
     const targets = projectData.targets;
@@ -1214,16 +1216,24 @@ class ProjectConverter {
             });
         }
 
-        let lists = [];
+        let lists =[];
         for (let k in target.lists) {
             let l = target.lists[k];
+            
+            let monitor = this.monitors.find(m => m.id === k);
+            
             lists.push({
                 listName: this.varName(l[0]),
                 contents: l[1].map(x => this.specialNum(x)),
                 isPersistent: false,
-                x: 0, y: 0, width: 100, height: 200, visible: false 
+                x: monitor ? monitor.x : 0, 
+                y: monitor ? monitor.y : 0, 
+                width: monitor ? monitor.width : 100, 
+                height: monitor ? monitor.height : 200, 
+                visible: monitor ? monitor.visible : false 
             });
         }
+
         if (this.compat && !target.isStage) {
             const spriteCostumeNames = (target.costumes || []).map(c => c.name || '');
             const spriteListName = this.varName('SpriteCostumes');
