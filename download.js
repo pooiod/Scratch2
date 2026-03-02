@@ -934,7 +934,7 @@ class ProjectConverter {
         });
     }
 
-    async _rasterizeSvgToPng(svgText, scale) {
+    async _rasterizeSvgToPngAndWrapInSvg(svgText, scale) {
         const fontMap = {
             'Sans Serif': 'Noto Sans',
             'Serif': 'Source Serif Pro',
@@ -961,34 +961,31 @@ class ProjectConverter {
             const wMatch = svg.match(/\bwidth\s*=\s*"([0-9.]+)(px)?"/i);
             const hMatch = svg.match(/\bheight\s*=\s*"([0-9.]+)(px)?"/i);
             const vbMatch = svg.match(/viewBox\s*=\s*"([0-9.\-]+)\s+([0-9.\-]+)\s+([0-9.\-]+)\s+([0-9.\-]+)"/i);
-            if (wMatch && hMatch) return {width: parseFloat(wMatch[1]), height: parseFloat(hMatch[1]), viewBox: vbMatch ? {x: parseFloat(vbMatch[1]), y: parseFloat(vbMatch[2]), width: parseFloat(vbMatch[3]), height: parseFloat(vbMatch[4])} : null};
-            if (vbMatch) return {width: parseFloat(vbMatch[3]), height: parseFloat(vbMatch[4]), viewBox: {x: parseFloat(vbMatch[1]), y: parseFloat(vbMatch[2]), width: parseFloat(vbMatch[3]), height: parseFloat(vbMatch[4])}};
-            return {width: 480, height: 360, viewBox: null};
-        }
+            
+            let width = 480;
+            let height = 360;
 
-        const STAGE_W = 480 + 30;
-        const STAGE_H = 360 + 30;
+            if (wMatch && hMatch) {
+                width = parseFloat(wMatch[1]);
+                height = parseFloat(hMatch[1]);
+            } else if (vbMatch) {
+                width = parseFloat(vbMatch[3]);
+                height = parseFloat(vbMatch[4]);
+            }
+
+            return { width, height };
+        }
 
         const size = parseSvgSize(svgText);
         const outW = Math.max(1, Math.round(size.width * scale));
         const outH = Math.max(1, Math.round(size.height * scale));
 
-        if (size.width > STAGE_W || size.height > STAGE_H || outW > STAGE_W || outH > STAGE_H) {
-            throw new Error('SVG is past stage size');
-        }
-        if (size.viewBox) {
-            const vb = size.viewBox;
-            if (vb.x < 0 || vb.y < 0 || vb.x + vb.width > STAGE_W || vb.y + vb.height > STAGE_H) {
-                throw new Error('SVG view goes past stage borders');
-            }
-        }
-
         if (document.fonts && document.fonts.ready) {
             await document.fonts.ready;
         }
 
-        async function svgToPng(svgText) {
-            const svgBlob = new Blob([svgText], {type: 'image/svg+xml;charset=utf-8'});
+        const getPngDataUrl = async (originalSvg) => {
+            const svgBlob = new Blob([originalSvg], {type: 'image/svg+xml;charset=utf-8'});
             const url = URL.createObjectURL(svgBlob);
             const img = new Image();
             img.crossOrigin = 'Anonymous';
@@ -997,7 +994,6 @@ class ProjectConverter {
                 img.onload = () => resolve();
                 img.onerror = (e) => {
                     console.error(e);
-                    console.log("SVG:", svgText);
                     reject(new Error('SVG load failed'));
                 };
                 img.src = url;
@@ -1008,6 +1004,7 @@ class ProjectConverter {
             canvas.height = outH;
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
             try {
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
             } catch (e) {
@@ -1016,13 +1013,27 @@ class ProjectConverter {
             }
             URL.revokeObjectURL(url);
 
-            const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
-            if (!blob) throw new Error('Canvas toBlob failed');
-            const ab = await blob.arrayBuffer();
-            return new Uint8Array(ab);
-        }
+            return canvas.toDataURL('image/png');
+        };
 
-        return svgToPng(svgText);
+        const pngDataUrl = await getPngDataUrl(svgText);
+
+        const finalSvgWrapper = `
+            <svg 
+                version="1.1" 
+                xmlns="http://www.w3.org/2000/svg" 
+                xmlns:xlink="http://www.w3.org/1999/xlink" 
+                width="${size.width}" 
+                height="${size.height}" 
+                viewBox="0 0 ${size.width} ${size.height}">
+                <image 
+                    width="${size.width}" 
+                    height="${size.height}" 
+                    xlink:href="${pngDataUrl}" 
+                />
+            </svg>`.trim();
+
+        return finalSvgWrapper;
     }
 
     async _fetchFontAsBase64(name, url) {
@@ -1309,6 +1320,7 @@ class ProjectConverter {
                 scripts.push([0, 0, [['procDef', 'pen down', [], [], true],['putPenDown'],['setVar:to:', pen, 'down']]]);
                 scripts.push([0, 0, [['procDef', 'pen up', [],[], true], ['putPenUp'],['setVar:to:', pen, 'up']]]);
             }
+
             if (this.penColor) {
                 lists.push({
                     listName: 'tmp:colorlist',
@@ -1318,7 +1330,7 @@ class ProjectConverter {
 
                 const getHexChar = (val, isLow) => ['letter:of:', ['+', isLow ? ['%', val, 16] : ['computeFunction:of:', 'floor', ['/', val, 16]], 1], ['getLine:ofList:', 17, 'tmp:colorlist']];
                 const getHexByte = (val) => ['concatenate:with:', getHexChar(val, false), getHexChar(val, true)];
-                
+
                 let finalHex = ['concatenate:with:', '0x', ['concatenate:with:', ['concatenate:with:', getHexByte(['getLine:ofList:', 5, 'tmp:colorlist']), getHexByte(['getLine:ofList:', 2, 'tmp:colorlist'])], ['concatenate:with:', getHexByte(['getLine:ofList:', 3, 'tmp:colorlist']), getHexByte(['getLine:ofList:', 4, 'tmp:colorlist'])]]];
 
                 scripts.push([0, 0, [['procDef', 'set pen color %s', ['color'], [''], false],['doIfElse', ['=', ['letter:of:', 1,['getParam', 'color', 'r']], '#'], [
