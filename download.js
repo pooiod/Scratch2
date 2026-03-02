@@ -1352,34 +1352,6 @@ class ProjectConverter {
                     ['setLine:ofList:to:', 1, 'tmp:colorlist', finalHex],
                     ['penColor:', ['getLine:ofList:', 1, 'tmp:colorlist']]
                 ]]);
-
-                scripts.push([0, 0, [['procDef', 'tmp:203:updateHSV', [], [], true],
-                    ['doIf', ['<', ['getLine:ofList:', 6, 'tmp:colorlist'], 0], [['setLine:ofList:to:', 6, 'tmp:colorlist', ['+', ['getLine:ofList:', 6, 'tmp:colorlist'], 100]]]],
-                    ['setLine:ofList:to:', 6, 'tmp:colorlist', ['%', ['getLine:ofList:', 6, 'tmp:colorlist'], 100]],
-                    ['doIf', ['<', ['getLine:ofList:', 7, 'tmp:colorlist'], 0], [['setLine:ofList:to:', 7, 'tmp:colorlist', 0]]],
-                    ['doIf', ['>', ['getLine:ofList:', 7, 'tmp:colorlist'], 100], [['setLine:ofList:to:', 7, 'tmp:colorlist', 100]]],
-                    ['doIf', ['<', ['getLine:ofList:', 8, 'tmp:colorlist'], 0], [['setLine:ofList:to:', 8, 'tmp:colorlist', 0]]],
-                    ['doIf', ['>', ['getLine:ofList:', 8, 'tmp:colorlist'], 100], [['setLine:ofList:to:', 8, 'tmp:colorlist', 100]]],
-                    
-                    ['setLine:ofList:to:', 13, 'tmp:colorlist', ['/', ['*', ['getLine:ofList:', 8, 'tmp:colorlist'], ['getLine:ofList:', 7, 'tmp:colorlist']], 100]],
-                    ['setLine:ofList:to:', 14, 'tmp:colorlist', ['*', ['getLine:ofList:', 6, 'tmp:colorlist'], 0.06]],
-                    ['setLine:ofList:to:', 15, 'tmp:colorlist', ['*', ['getLine:ofList:', 13, 'tmp:colorlist'], ['-', 1, ['computeFunction:of:', 'abs', ['-', ['%', ['getLine:ofList:', 14, 'tmp:colorlist'], 2], 1]]]]],
-                    ['setLine:ofList:to:', 16, 'tmp:colorlist', ['-', ['getLine:ofList:', 8, 'tmp:colorlist'], ['getLine:ofList:', 13, 'tmp:colorlist']]],
-                    
-                    ['doIfElse', ['<', ['getLine:ofList:', 14, 'tmp:colorlist'], 1], [['setLine:ofList:to:', 2, 'tmp:colorlist', ['getLine:ofList:', 13, 'tmp:colorlist']], ['setLine:ofList:to:', 3, 'tmp:colorlist', ['getLine:ofList:', 15, 'tmp:colorlist']], ['setLine:ofList:to:', 4, 'tmp:colorlist', 0]],
-                    ['doIfElse', ['<', ['getLine:ofList:', 14, 'tmp:colorlist'], 2], [['setLine:ofList:to:', 2, 'tmp:colorlist', ['getLine:ofList:', 15, 'tmp:colorlist']], ['setLine:ofList:to:', 3, 'tmp:colorlist', ['getLine:ofList:', 13, 'tmp:colorlist']], ['setLine:ofList:to:', 4, 'tmp:colorlist', 0]],
-                    ['doIfElse', ['<', ['getLine:ofList:', 14, 'tmp:colorlist'], 3], [['setLine:ofList:to:', 2, 'tmp:colorlist', 0], ['setLine:ofList:to:', 3, 'tmp:colorlist', ['getLine:ofList:', 13, 'tmp:colorlist']], ['setLine:ofList:to:', 4, 'tmp:colorlist', ['getLine:ofList:', 15, 'tmp:colorlist']]],
-                    ['doIfElse', ['<', ['getLine:ofList:', 14, 'tmp:colorlist'], 4], [['setLine:ofList:to:', 2, 'tmp:colorlist', 0], ['setLine:ofList:to:', 3, 'tmp:colorlist', ['getLine:ofList:', 15, 'tmp:colorlist']], ['setLine:ofList:to:', 4, 'tmp:colorlist', ['getLine:ofList:', 13, 'tmp:colorlist']]],
-                    ['doIfElse', ['<', ['getLine:ofList:', 14, 'tmp:colorlist'], 5], [['setLine:ofList:to:', 2, 'tmp:colorlist', ['getLine:ofList:', 15, 'tmp:colorlist']], ['setLine:ofList:to:', 3, 'tmp:colorlist', 0], ['setLine:ofList:to:', 4, 'tmp:colorlist', ['getLine:ofList:', 13, 'tmp:colorlist']]],
-                        [['setLine:ofList:to:', 2, 'tmp:colorlist', ['getLine:ofList:', 13, 'tmp:colorlist']], ['setLine:ofList:to:', 3, 'tmp:colorlist', 0], ['setLine:ofList:to:', 4, 'tmp:colorlist', ['getLine:ofList:', 15, 'tmp:colorlist']]]]]]]]],
-
-                    ['setLine:ofList:to:', 2, 'tmp:colorlist', ['computeFunction:of:', 'round', ['*', ['+', ['getLine:ofList:', 2, 'tmp:colorlist'], ['getLine:ofList:', 16, 'tmp:colorlist']], 2.55]]],
-                    ['setLine:ofList:to:', 3, 'tmp:colorlist', ['computeFunction:of:', 'round', ['*', ['+', ['getLine:ofList:', 3, 'tmp:colorlist'], ['getLine:ofList:', 16, 'tmp:colorlist']], 2.55]]],
-                    ['setLine:ofList:to:', 4, 'tmp:colorlist', ['computeFunction:of:', 'round', ['*', ['+', ['getLine:ofList:', 4, 'tmp:colorlist'], ['getLine:ofList:', 16, 'tmp:colorlist']], 2.55]]],
-                    
-                    ['setLine:ofList:to:', 1, 'tmp:colorlist', finalHex],
-                    ['penColor:', ['getLine:ofList:', 1, 'tmp:colorlist']]
-                ]]);
             }
         }
 
