@@ -663,6 +663,10 @@ class BlockArgMapper {
         if(this.c.compat) { this.c.penColor = true; return ['call', 'set pen %s to %n', this.c.inputVal('COLOR_PARAM', b, bs), this.c.inputVal('VALUE', b, bs)]; }
         return null;
     }
+    pen_changePenColorParamBy(b, bs) {
+        if(this.c.compat) { this.c.penColor = true; return['call', 'change pen %s by %n', this.c.inputVal('COLOR_PARAM', b, bs), this.c.inputVal('VALUE', b, bs)]; }
+        return null;
+    }
     pen_changePenSizeBy(b, bs) { return ['changePenSizeBy:', this.c.inputVal('SIZE', b, bs)]; }
     pen_setPenSizeTo(b, bs) { return ['penSize:', this.c.inputVal('SIZE', b, bs)]; }
 }
