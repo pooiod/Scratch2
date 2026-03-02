@@ -797,7 +797,7 @@ class ProjectConverter {
                 [['changeVar:by:', '_PenV', ['getParam', 'val', 'r']]],
             ['doIfElse', ['=', ['getParam', 'param', 'r'], 'transparency'], 
                 [['changeVar:by:', '_PenT', ['getParam', 'val', 'r']]],
-            []]]]]],
+            []]]]],
             ['call', 'Update Pen Color From HSV']
         ]]);
 
