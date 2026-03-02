@@ -1311,9 +1311,9 @@ class ProjectConverter {
                 let gVar = this.compatVarName('Green');
                 let bVar = this.compatVarName('Blue');
                 let aVar = this.compatVarName('Alpha');
-                let tVar = this.compatVarName('TempColor');
+                let tVar = this.compatVarName('Temp');
 
-                variables.push({name: penColorVar, value: -16777216, isPersistent: false});
+                variables.push({name: penColorVar, value: 0, isPersistent: false});
                 variables.push({name: rVar, value: 0, isPersistent: false});
                 variables.push({name: gVar, value: 0, isPersistent: false});
                 variables.push({name: bVar, value: 0, isPersistent: false});
@@ -1341,10 +1341,7 @@ class ProjectConverter {
                         ['doIf', ['>', ['readVariable', aVar], 255], [['setVar:to:', aVar, 255]]]
                     ]],
                     ['setVar:to:', penColorVar, ['+', ['*', ['readVariable', aVar], 16777216], ['+', ['*', ['readVariable', rVar], 65536], ['+', ['*', ['readVariable', gVar], 256], ['readVariable', bVar]]]]],
-                    ['penColor:', ['readVariable', penColorVar]],
-                    ['doIf', ['=', ['getParam', 'param', 'r'], 'color'], [['penHue:', ['*', ['getParam', 'val', 'r'], 2]]]],
-                    ['doIf', ['=', ['getParam', 'param', 'r'], 'saturation'], [['penShade:', ['-', 100, ['getParam', 'val', 'r']]]]],
-                    ['doIf', ['=', ['getParam', 'param', 'r'], 'brightness'], [['penShade:', ['getParam', 'val', 'r']]]]
+                    ['penColor:', ['readVariable', penColorVar]]
                 ]]);
             }
         }
