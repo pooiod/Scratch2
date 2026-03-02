@@ -1302,7 +1302,7 @@ class ProjectConverter {
             if(this.penUpDown) {
                 let pen = 'tmp:203:pen';
                 variables.push({name: pen, value: 'up', isPersistent: false});
-                scripts.push([0, 0, [['procDef', 'pen down', [], [], true],['putPenDown'], ['setVar:to:', pen, 'down']]]);
+                scripts.push([0, 0, [['procDef', 'pen down', [], [], true],['putPenDown'],['setVar:to:', pen, 'down']]]);
                 scripts.push([0, 0, [['procDef', 'pen up', [], [], true], ['putPenUp'],['setVar:to:', pen, 'up']]]);
             }
             if (this.penColor) {
@@ -1322,7 +1322,7 @@ class ProjectConverter {
                 variables.push({name: tVar, value: 0, isPersistent: false});
                 variables.push({name: hexVar, value: '0123456789ABCDEF', isPersistent: false});
 
-                const getHexChar = (val, isLow) => ['letter:of:', ['+', isLow ? ['%', val, 16] :['computeFunction:of:', 'floor', ['/', val, 16]], 1], ['readVariable', hexVar]];
+                const getHexChar = (val, isLow) => ['letter:of:',['+', isLow ? ['%', val, 16] :['computeFunction:of:', 'floor',['/', val, 16]], 1], ['readVariable', hexVar]];
                 const getHexByte = (val) =>['concatenate:with:', getHexChar(val, false), getHexChar(val, true)];
 
                 let str_A = getHexByte(['readVariable', aVar]);
@@ -1330,38 +1330,40 @@ class ProjectConverter {
                 let str_G = getHexByte(['readVariable', gVar]);
                 let str_B = getHexByte(['readVariable', bVar]);
                 
-                let finalHex = ['concatenate:with:', '0x',['concatenate:with:', ['concatenate:with:', str_A, str_R],['concatenate:with:', str_G, str_B]]];
+                let finalHex = ['concatenate:with:', '0x',['concatenate:with:',['concatenate:with:', str_A, str_R],['concatenate:with:', str_G, str_B]]];
 
                 scripts.push([0, 0, [['procDef', 'set pen color %s', ['color'], [''], false],
-                    ['setVar:to:', tVar,['getParam', 'color', 'r']],
-                    ['doIf', ['<', ['readVariable', tVar], 0], [['setVar:to:', tVar, ['+', ['readVariable', tVar], 4294967296]]]],
-                    ['setVar:to:', bVar, ['%',['readVariable', tVar], 256]],
-                    ['setVar:to:', gVar,['%', ['computeFunction:of:', 'floor', ['/', ['readVariable', tVar], 256]], 256]],
+                    ['doIfElse', ['=', ['letter:of:', 1,['getParam', 'color', 'r']], '#'], [
+                        ['setVar:to:', tVar,['concatenate:with:', '0x', 
+                            ['concatenate:with:', ['letter:of:', 2,['getParam', 'color', 'r']], 
+                            ['concatenate:with:', ['letter:of:', 3,['getParam', 'color', 'r']], 
+                            ['concatenate:with:', ['letter:of:', 4,['getParam', 'color', 'r']], 
+                            ['concatenate:with:', ['letter:of:', 5,['getParam', 'color', 'r']], 
+                            ['concatenate:with:',['letter:of:', 6, ['getParam', 'color', 'r']], 
+                            ['letter:of:', 7,['getParam', 'color', 'r']]]]]]]]]
+                    ], [['setVar:to:', tVar, ['getParam', 'color', 'r']]
+                    ]],
+                    ['doIf', ['<',['readVariable', tVar], 0], [['setVar:to:', tVar, ['+',['readVariable', tVar], 4294967296]]]],['setVar:to:', bVar, ['%',['readVariable', tVar], 256]],['setVar:to:', gVar,['%', ['computeFunction:of:', 'floor', ['/', ['readVariable', tVar], 256]], 256]],
                     ['setVar:to:', rVar, ['%',['computeFunction:of:', 'floor', ['/', ['readVariable', tVar], 65536]], 256]],
-                    ['setVar:to:', aVar, ['computeFunction:of:', 'floor', ['/',['readVariable', tVar], 16777216]]],
-                    ['doIf', ['=',['readVariable', aVar], 0], [['setVar:to:', aVar, 255]]],
-                    ['setVar:to:', penColorVar, finalHex],
-                    ['penColor:',['readVariable', penColorVar]]
+                    ['setVar:to:', aVar,['computeFunction:of:', 'floor', ['/',['readVariable', tVar], 16777216]]],['doIf', ['=',['readVariable', aVar], 0], [['setVar:to:', aVar, 255]]],
+                    ['setVar:to:', penColorVar, finalHex],['penColor:',['readVariable', penColorVar]]
                 ]]);
 
                 scripts.push([0, 0, [['procDef', 'set pen %s to %n', ['param', 'val'], ['', 0], true],
-                    ['setVar:to:', tVar, ['readVariable', penColorVar]],
-                    ['doIf',['<', ['readVariable', tVar], 0], [['setVar:to:', tVar, ['+',['readVariable', tVar], 4294967296]]]],['setVar:to:', bVar, ['%', ['readVariable', tVar], 256]],['setVar:to:', gVar, ['%', ['computeFunction:of:', 'floor', ['/',['readVariable', tVar], 256]], 256]],['setVar:to:', rVar, ['%', ['computeFunction:of:', 'floor', ['/', ['readVariable', tVar], 65536]], 256]],
-                    ['setVar:to:', aVar,['computeFunction:of:', 'floor', ['/', ['readVariable', tVar], 16777216]]],
-                    ['doIf', ['=', ['readVariable', aVar], 0], [['setVar:to:', aVar, 255]]],
+                    ['setVar:to:', tVar, ['readVariable', penColorVar]],['doIf',['<', ['readVariable', tVar], 0], [['setVar:to:', tVar,['+',['readVariable', tVar], 4294967296]]]],['setVar:to:', bVar, ['%', ['readVariable', tVar], 256]],['setVar:to:', gVar, ['%', ['computeFunction:of:', 'floor', ['/',['readVariable', tVar], 256]], 256]],['setVar:to:', rVar, ['%',['computeFunction:of:', 'floor', ['/', ['readVariable', tVar], 65536]], 256]],
+                    ['setVar:to:', aVar,['computeFunction:of:', 'floor', ['/', ['readVariable', tVar], 16777216]]],['doIf', ['=', ['readVariable', aVar], 0], [['setVar:to:', aVar, 255]]],
                     ['doIf', ['=',['getParam', 'param', 'r'], 'transparency'], [
-                        ['setVar:to:', aVar,['-', 255, ['*', ['getParam', 'val', 'r'], 2.55]]],['doIf', ['<', ['readVariable', aVar], 0], [['setVar:to:', aVar, 0]]],
+                        ['setVar:to:', aVar,['-', 255,['*', ['getParam', 'val', 'r'], 2.55]]],['doIf',['<', ['readVariable', aVar], 0], [['setVar:to:', aVar, 0]]],
                         ['doIf', ['>', ['readVariable', aVar], 255], [['setVar:to:', aVar, 255]]]
                     ]],['setVar:to:', penColorVar, finalHex],
                     ['penColor:', ['readVariable', penColorVar]]
                 ]]);
 
                 scripts.push([0, 0, [['procDef', 'change pen %s by %n', ['param', 'val'], ['', 0], true],['setVar:to:', tVar, ['readVariable', penColorVar]],
-                    ['doIf', ['<',['readVariable', tVar], 0], [['setVar:to:', tVar, ['+',['readVariable', tVar], 4294967296]]]],['setVar:to:', bVar, ['%', ['readVariable', tVar], 256]],['setVar:to:', gVar, ['%', ['computeFunction:of:', 'floor', ['/', ['readVariable', tVar], 256]], 256]],
-                    ['setVar:to:', rVar, ['%',['computeFunction:of:', 'floor', ['/', ['readVariable', tVar], 65536]], 256]],
-                    ['setVar:to:', aVar, ['computeFunction:of:', 'floor',['/', ['readVariable', tVar], 16777216]]],['doIf', ['=', ['readVariable', aVar], 0], [['setVar:to:', aVar, 255]]],
-                    ['doIf', ['=', ['getParam', 'param', 'r'], 'transparency'], [
-                        ['setVar:to:', aVar, ['-', ['readVariable', aVar],['*', ['getParam', 'val', 'r'], 2.55]]],['doIf', ['<', ['readVariable', aVar], 0], [['setVar:to:', aVar, 0]]],
+                    ['doIf', ['<',['readVariable', tVar], 0], [['setVar:to:', tVar, ['+',['readVariable', tVar], 4294967296]]]],['setVar:to:', bVar, ['%', ['readVariable', tVar], 256]],['setVar:to:', gVar, ['%', ['computeFunction:of:', 'floor', ['/',['readVariable', tVar], 256]], 256]],['setVar:to:', rVar, ['%',['computeFunction:of:', 'floor', ['/', ['readVariable', tVar], 65536]], 256]],
+                    ['setVar:to:', aVar,['computeFunction:of:', 'floor',['/', ['readVariable', tVar], 16777216]]],['doIf', ['=', ['readVariable', aVar], 0], [['setVar:to:', aVar, 255]]],
+                    ['doIf', ['=',['getParam', 'param', 'r'], 'transparency'], [
+                        ['setVar:to:', aVar, ['-',['readVariable', aVar],['*', ['getParam', 'val', 'r'], 2.55]]],['doIf', ['<', ['readVariable', aVar], 0], [['setVar:to:', aVar, 0]]],
                         ['doIf', ['>', ['readVariable', aVar], 255], [['setVar:to:', aVar, 255]]]
                     ]],['setVar:to:', penColorVar, finalHex],
                     ['penColor:', ['readVariable', penColorVar]]
