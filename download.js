@@ -294,6 +294,7 @@ async function processSB3(projectData) {
     stage.info = stage.info || {};
     stage.info.flashVersion = "MAC 32,0,0,0";
     stage.info.swfVersion = "v461";
+    stage.info.convertedwith = "Pooiod7's SB3 to SB2 converter in JS";
     stage.info.spriteCount = sprites.length;
     stage.info.scriptCount = sprites.reduce((acc, s) => acc + s.scripts.length, 0) + stage.scripts.length;
 
@@ -653,9 +654,15 @@ class BlockArgMapper {
         return ['putPenUp'];
     }
     pen_setPenColorToColor(b, bs) {
-        let val = this.c.inputVal('COLOR', b, bs);
-        // if(this.c.compat) { this.c.penColor = true; return ['call', 'set pen color to %c', val]; }
-        return ['penColor:', val];
+        return ['call', 'Set Pen Color %s', this.c.inputVal('COLOR', b, bs)];
+    }
+    pen_changePenColorParamBy(b, bs) {
+        let param = this.c.fieldVal('COLOR_PARAM', b);
+        return ['call', 'Change Pen %s by %n', param, this.c.inputVal('VALUE', b, bs)];
+    }
+    pen_setPenColorParamTo(b, bs) {
+        let param = this.c.fieldVal('COLOR_PARAM', b);
+        return ['call', 'Set Pen %s to %n', param, this.c.inputVal('VALUE', b, bs)];
     }
     pen_changePenSizeBy(b, bs) { return ['changePenSizeBy:', this.c.inputVal('SIZE', b, bs)]; }
     pen_setPenSizeTo(b, bs) { return ['penSize:', this.c.inputVal('SIZE', b, bs)]; }
@@ -741,6 +748,97 @@ class ProjectConverter {
         } else {
             try { return this.convertBlock(blocks[out], blocks); } catch(e) { return false; }
         }
+    }
+
+    addPenScripts(targetObj) {
+        if (this._penScriptsAdded) return;
+        this._penScriptsAdded = true;
+
+        const vars = ['_PenH', '_PenS', '_PenV', '_PenT', '_PenRGB'];
+        vars.forEach(v => {
+            if (!targetObj.variables.some(tv => tv.name === v)) {
+                targetObj.variables.push({name: v, value: 0, isPersistent: false});
+            }
+        });
+        targetObj.scripts.push([0,0, [['whenGreenFlag'], 
+            ['setVar:to:', '_PenH', 66], ['setVar:to:', '_PenS', 100], 
+            ['setVar:to:', '_PenV', 100], ['setVar:to:', '_PenT', 0]
+        ]]);
+
+        targetObj.scripts.push([0, 0, [
+            ['procDef', 'Set Pen Color %s', ['color'], ['0'], false],
+            ['setVar:to:', '_PenRGB', ['+', 0, ['getParam', 'color', 'r']]],
+            ['penColor:', ['readVariable', '_PenRGB']],
+            ['setVar:to:', '_PenV', 100], 
+            ['setVar:to:', '_PenS', 100]
+        ]]);
+
+        targetObj.scripts.push([0, 0, [
+            ['procDef', 'Set Pen %s to %n', ['param', 'val'], ['color', '50'], false],
+            ['doIfElse', ['=', ['getParam', 'param', 'r'], 'color'], 
+                [['setVar:to:', '_PenH', ['getParam', 'val', 'r']]],
+            ['doIfElse', ['=', ['getParam', 'param', 'r'], 'saturation'], 
+                [['setVar:to:', '_PenS', ['getParam', 'val', 'r']]],
+            ['doIfElse', ['=', ['getParam', 'param', 'r'], 'brightness'], 
+                [['setVar:to:', '_PenV', ['getParam', 'val', 'r']]],
+            ['doIfElse', ['=', ['getParam', 'param', 'r'], 'transparency'], 
+                [['setVar:to:', '_PenT', ['getParam', 'val', 'r']]],
+            []]]]]],
+            ['call', 'Update Pen Color From HSV']
+        ]]);
+
+        targetObj.scripts.push([0, 0, [
+            ['procDef', 'Change Pen %s by %n', ['param', 'val'], ['color', '10'], false],
+            ['doIfElse', ['=', ['getParam', 'param', 'r'], 'color'], 
+                [['changeVar:by:', '_PenH', ['getParam', 'val', 'r']]],
+            ['doIfElse', ['=', ['getParam', 'param', 'r'], 'saturation'], 
+                [['changeVar:by:', '_PenS', ['getParam', 'val', 'r']]],
+            ['doIfElse', ['=', ['getParam', 'param', 'r'], 'brightness'], 
+                [['changeVar:by:', '_PenV', ['getParam', 'val', 'r']]],
+            ['doIfElse', ['=', ['getParam', 'param', 'r'], 'transparency'], 
+                [['changeVar:by:', '_PenT', ['getParam', 'val', 'r']]],
+            []]]]]],
+            ['call', 'Update Pen Color From HSV']
+        ]]);
+
+        const getVar = (n) => ['readVariable', n];
+        const setLocal = (n, v) => ['setVar:to:', n, v];
+        
+        targetObj.scripts.push([0, 0, [
+            ['procDef', 'Update Pen Color From HSV', [], [], true], // Atomic/Warp
+            ['setVar:to:', 'H_calc', ['%', ['*', getVar('_PenH'), 3.6], 360]], // 0-360
+            ['setVar:to:', 'S_calc', ['/', getVar('_PenS'), 100]], // 0-1
+            ['setVar:to:', 'V_calc', ['/', getVar('_PenV'), 100]], // 0-1
+            
+            ['setVar:to:', 'C_calc', ['*', getVar('V_calc'), getVar('S_calc')]],
+            ['setVar:to:', 'X_calc', ['*', getVar('C_calc'), ['-', 1, ['abs', ['-', ['%', ['/', getVar('H_calc'), 60], 2], 1]]]]],
+            ['setVar:to:', 'm_calc', ['-', getVar('V_calc'), getVar('C_calc')]],
+            
+            ['setVar:to:', 'R_temp', 0], ['setVar:to:', 'G_temp', 0], ['setVar:to:', 'B_temp', 0],
+            
+            ['doIfElse', ['<', getVar('H_calc'), 60],
+                [[setLocal('R_temp', getVar('C_calc')), setLocal('G_temp', getVar('X_calc')), setLocal('B_temp', 0)]],
+            ['doIfElse', ['<', getVar('H_calc'), 120],
+                [[setLocal('R_temp', getVar('X_calc')), setLocal('G_temp', getVar('C_calc')), setLocal('B_temp', 0)]],
+            ['doIfElse', ['<', getVar('H_calc'), 180],
+                [[setLocal('R_temp', 0), setLocal('G_temp', getVar('C_calc')), setLocal('B_temp', getVar('X_calc'))]],
+            ['doIfElse', ['<', getVar('H_calc'), 240],
+                [[setLocal('R_temp', 0), setLocal('G_temp', getVar('X_calc')), setLocal('B_temp', getVar('C_calc'))]],
+            ['doIfElse', ['<', getVar('H_calc'), 300],
+                [[setLocal('R_temp', getVar('X_calc')), setLocal('G_temp', 0), setLocal('B_temp', getVar('C_calc'))]],
+            [[setLocal('R_temp', getVar('C_calc')), setLocal('G_temp', 0), setLocal('B_temp', getVar('X_calc'))]]
+            ]]]]],
+
+            ['setVar:to:', 'R_final', ['rounded', ['*', ['+', getVar('R_temp'), getVar('m_calc')], 255]]],
+            ['setVar:to:', 'G_final', ['rounded', ['*', ['+', getVar('G_temp'), getVar('m_calc')], 255]]],
+            ['setVar:to:', 'B_final', ['rounded', ['*', ['+', getVar('B_temp'), getVar('m_calc')], 255]]],
+            
+            ['penColor:', ['+', ['*', getVar('R_final'), 65536], ['+', ['*', getVar('G_final'), 256], getVar('B_final')]]]
+        ]]);
+        
+        ['H_calc', 'S_calc', 'V_calc', 'C_calc', 'X_calc', 'm_calc', 'R_temp', 'G_temp', 'B_temp', 'R_final', 'G_final', 'B_final'].forEach(v => {
+             if (!targetObj.variables.some(tv => tv.name === v)) targetObj.variables.push({name: v, value: 0, isPersistent: false});
+        });
     }
 
     fieldVal(fieldName, block) {
@@ -1293,6 +1391,7 @@ class ProjectConverter {
         }
 
         if (this.compat) {
+            this.addPenScripts(obj);
             if(this.penUpDown) {
                 let pen = this.compatVarName('pen');
                 variables.push({name: pen, value: 'up', isPersistent: false});
