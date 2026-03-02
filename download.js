@@ -284,13 +284,13 @@ async function processSB3(projectData) {
         }
     }
 
-    sprites.sort((a, b) => a.layerOrder - b.layerOrder);
+sprites.sort((a, b) => a.layerOrder - b.layerOrder);
     sprites.forEach(s => delete s.layerOrder);
 
     if (!stage) throw new Error("No Stage found in JSON.");
-    stage.children = sprites;
 
-    stage.info = stage.info || {};
+    let watchers = [];
+    const monitors = projectData.monitors ||
     stage.info.flashVersion = "MAC 32,0,0,0";
     stage.info.swfVersion = "v461";
     stage.info.spriteCount = sprites.length;
