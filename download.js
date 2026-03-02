@@ -911,7 +911,7 @@ class ProjectConverter {
                 zipOut.file(`${index}.svg`, svgText);
                 try {
                     const pngBuffer = await this._rasterizeSvgToPng(svgText, c.bitmapResolution || 1);
-                    zipOut.file(`${index}.png`, pngBuffer);
+                    zipOut.file(`${index}.svg`, pngBuffer);
                     this.costumeAssets[c.assetId] = [index, c.name, `${index}.svg`];
                 } catch (e) {
                     console.warn(`SVG rasterize failed for ${c.name}, falling back to SVG:`, e);
