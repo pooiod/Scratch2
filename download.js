@@ -291,6 +291,12 @@ async function processSB3(projectData) {
     if (!stage) throw new Error("No Stage found in JSON.");
     stage.children = sprites;
 
+    stage.info = stage.info || {};
+    stage.info.flashVersion = "MAC 32,0,0,0";
+    stage.info.swfVersion = "v461";
+    stage.info.spriteCount = sprites.length;
+    stage.info.scriptCount = sprites.reduce((acc, s) => acc + s.scripts.length, 0) + stage.scripts.length;
+
     if (projectData.monitors) {
         projectData.monitors.forEach(m => {
             if (m.opcode === 'data_variable') {
@@ -319,12 +325,6 @@ async function processSB3(projectData) {
             }
         });
     }
-
-    stage.info = stage.info || {};
-    stage.info.flashVersion = "MAC 32,0,0,0";
-    stage.info.swfVersion = "v461";
-    stage.info.spriteCount = sprites.length;
-    stage.info.scriptCount = sprites.reduce((acc, s) => acc + s.scripts.length, 0) + stage.scripts.length;
 
     // if (converter.timerCompat) {
     //     const gfResetTimer = [0, 0, [['whenGreenFlag'], ['doIf', ['>', ['-', ['*', 86400, ['-', ['timestamp'], ['readVariable', 'reset time']]], ['timer']], '0.1'], [['setVar:to:', 'reset time', ['-', ['timestamp'], ['/', ['timer'], 86400]]]]]]];
