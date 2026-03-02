@@ -14,6 +14,7 @@ window.gotZipBase64 = function(content) {
     var openTimeout = setInterval(function() {
         swf = document.querySelector('#scratch embed') || document.querySelector('ruffle-player');
         tries += 1;
+        console.log("Waiting for flash", tries);
 
         if (swf && swf.ASopenProjectFromData) {
             $("#log").text("Opening project" + "\n" + $("#log").text());
