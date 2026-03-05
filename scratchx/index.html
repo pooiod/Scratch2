@@ -329,6 +329,8 @@
                     document.head.appendChild(script75645);
                 }
             })();
+
+            (()=>{let H=/^http:/i,S=['src','href'],U=s=>H.test(s?.url||s)?s.url?new Request(U(s.url),s):(s+'').replace(H,'https:'):s,A=e=>S.map(a=>{let v=e.getAttribute?.(a);H.test(v)&&e.setAttribute(a,U(v))}),C=e=>{A(e);e.querySelectorAll?.('[src],[href]').forEach(A)},F=fetch,P=XMLHttpRequest.prototype,X=P.open;window.fetch=(r,...o)=>F(U(r),...o);P.open=function(m,u,...a){X.call(this,m,U(u),...a)};new MutationObserver(M=>M.map(m=>m.type[0]=='a'?A(m.target):m.addedNodes.forEach(C))).observe(document,{childList:1,subtree:1,attributes:1,attributeFilter:S});C(document)})();
         </script>
 
         <div id="container" style="display:none;">
