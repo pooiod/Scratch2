@@ -347,7 +347,7 @@
 
                     if (typeof input === 'string' && httpRegex.test(input)) {
                         const newUrl = input.replace(httpRegex, 'https:');
-                        console.log(`Upgraded URL: ${input} -> ${newUrl}`);
+                        console.log(`Upgraded http to ${newUrl}`);
                         return newUrl;
                     }
 
