@@ -235,7 +235,7 @@ async function startDownload(projectId) {
         }
 
         const isSB3 = projectData && isJSON(projectData) && projectData.targets && Array.isArray(projectData.targets);
-        const   = !isJSON(projectData);
+        const isSB1  = !isJSON(projectData);
 
         jszip = new JSZip();
         jszip.comment = "Converted sb3 to sb2 by pooiod7's converter (scratchflash.pages.dev/download)";
@@ -245,10 +245,10 @@ async function startDownload(projectId) {
             await processSB3(projectData);
         } else if (isSB1) {
             logMessage('Downloading project...');
-            await processNormal(projectData);
+            await processLegacy(projectData);
         } else {
             logMessage('Downloading project...');
-            await processLegacy(projectData);
+            await processNormal(projectData);
         }
 
     } catch (err) {
