@@ -257,7 +257,7 @@ async function startDownload(projectId) {
 
         function isJSON(str) {
             try {
-                if (typeof result === 'object') return true;
+                if (str.targets) return true;
                 JSON.parse(str);
                 return true;
             } catch (e) {
