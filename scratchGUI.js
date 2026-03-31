@@ -123,9 +123,38 @@ function showProjectPicker() {
         var desc = p.description;
         desc = desc.length > 16 ? desc.slice(0,16) + "..." : desc;
 
+        if (!author) author = [
+            "30177353": "pooiod7",
+            "40377592": "BlueEngineer3",
+            "17680060": "rookmein",
+            "4839310": "-ScratchOs",
+            "333184": "RokCoder",
+            "1882674": "griffpatch",
+            "2690799": "griffpatch_tutor",
+            "26235259": "Gracher",
+            "3398978": "squig3",
+            "574993": "BobbyF",
+            "3994425": "Hobson-TV",
+            "6777752": "PutneyCat",
+            "2716932": "ilikelegos",
+            "34908": "AddZero",
+            "3954248": "_youtubeN1",
+            "31563725": "xXName77Xx",
+            "94780": "colorgram",
+            "1132083": "WO997",
+            "14370369": "IguanaLover_PT",
+            "3838581": "chooper100",
+            "925220": "DadOfMrLog",
+            "4496993": "MegaApuTurkUltra",
+            "395764": "djdolphin",
+            "4549915": "Ctrl-Alt-Llama",
+            "52179808": "Xatalyst"
+        ][p.author.id] || null;
+
         var meta = document.createElement("div");
         meta.className = "s2-meta";
-        meta.innerText = "by " + author;
+        if (author) meta.innerText = "by " + author;
+        else meta.innerText = desc;
 
         card.appendChild(thumb);
         card.appendChild(name);
@@ -165,7 +194,7 @@ function showProjectPicker() {
 
         var api = query
             ? "https://scratch.pooiod7.workers.dev/search/projects?q=" + encodeURIComponent(query) + "&limit=" + limit + "&offset=" + (page * limit)
-            : "https://scratch.pooiod7.workers.dev/users/S2Listing/favorites?q=08246&mode=recent&limit=" + limit + "&offset=" + (page * limit); // /explore/projects
+            : "https://scratch.pooiod7.workers.dev/users/S2Listing/favorites?q=7402&mode=recent&limit=" + limit + "&offset=" + (page * limit); // /explore/projects
 
         fetch(api)
             .then(r => r.json())
