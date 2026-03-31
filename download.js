@@ -261,11 +261,15 @@ async function startDownload(projectId) {
             } catch (e) {
                 return false;
             }
+
+            console.log(projectData);
         }
 
         const isSB1 = !isJSON(projectData);
         var isSB3 = projectData && !isSB1;
         if (isSB3) isSB3 = projectData.targets && Array.isArray(projectData.targets);
+
+        console.log(isSB1, isSB3);
 
         jszip = new JSZip();
         jszip.comment = "Converted sb3 to sb2 by pooiod7's converter (scratchflash.pages.dev/convert)";
