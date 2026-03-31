@@ -253,6 +253,8 @@ async function startDownload(projectId) {
             }
         }
 
+        console.log(projectData);
+
         function isJSON(str) {
             try {
                 if (typeof result === 'object') return true;
@@ -261,8 +263,6 @@ async function startDownload(projectId) {
             } catch (e) {
                 return false;
             }
-
-            console.log(projectData);
         }
 
         const isSB1 = !isJSON(projectData);
