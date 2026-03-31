@@ -244,6 +244,7 @@ async function startDownload(projectId) {
 
         function isJSON(str) {
             try {
+                if (typeof result === 'object') return true;
                 JSON.parse(str);
                 return true;
             } catch (e) {
@@ -404,7 +405,10 @@ async function processNormal(projectData) {
     
     const assetsToDownload = [];
 
+    console.log(projectData)
+
     function parseNode(node) {
+        console.log(node)
         if (node.costumes) {
             node.costumes.forEach(c => {
                 c.baseLayerID = costumeId++;
