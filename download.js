@@ -75,7 +75,7 @@ async function startDownload(projectId) {
     logMessage("Starting download for " + projectId);
     setProgress(5);
 
-    // try {
+    try {
         let projectData = null;
 
         const isDirectSource = projectId && (typeof projectId === 'string' || projectId instanceof String) && (projectId.startsWith('http') || projectId.startsWith('data:'));
@@ -221,8 +221,16 @@ async function startDownload(projectId) {
 
             logMessage('Downloading project JSON...');
             const projectResponse = await fetch(`https://projects.scratch.mit.edu/${projectId}?token=${token}`);
-            if (!projectResponse.ok) throw new Error('Failed to download project JSON.');
-            projectData = await projectResponse.json();
+            if (!projectResponse.ok) throw new Error('Failed to download project.');
+
+            const raw = await projectResponse.text();
+
+            let projectData;
+            try {
+                projectData = JSON.parse(raw);
+            } catch {
+                projectData = raw;
+            }
         }
 
         function isJSON(str) {
@@ -252,10 +260,10 @@ async function startDownload(projectId) {
             await processNormal(projectData);
         }
 
-    // } catch (err) {
-    //     console.error(err);
-    //     perror(err);
-    // }
+    } catch (err) {
+        console.error(err);
+        perror(err);
+    }
 }
 
 // Based on https://github.com/RexScratch/sb3tosb2
