@@ -124,6 +124,7 @@ function showProjectPicker() {
         desc = desc.length > 16 ? desc.slice(0,16) + "..." : desc;
 
         if (!author) author = {
+            "170160419": "S2Listing",
             "30177353": "pooiod7",
             "40377592": "BlueEngineer3",
             "17680060": "rookmein",
@@ -196,7 +197,7 @@ function showProjectPicker() {
 
         var api = query
             ? "https://scratch.pooiod7.workers.dev/search/projects?q=" + encodeURIComponent(query) + "&limit=" + limit + "&offset=" + (page * limit)
-            : "https://scratch.pooiod7.workers.dev/users/S2Listing/favorites?q=7402&mode=recent&limit=" + limit + "&offset=" + (page * limit); // /explore/projects
+            : "https://scratch.pooiod7.workers.dev/users/S2Listing/favorites?q=5285&mode=recent&limit=" + limit + "&offset=" + (page * limit); // /explore/projects
 
         fetch(api)
             .then(r => r.json())
