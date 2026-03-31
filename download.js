@@ -237,7 +237,6 @@ async function startDownload(projectId) {
                     projectResponse = await fetch(`https://projects.scratch.mit.edu/${projectId}?token=${token}`);
                     if (!projectResponse.ok) throw new Error('Failed to download project.');
 
-                    projectData = raw;
                     const buffer = await projectResponse.arrayBuffer();
                     const bytes = new Uint8Array(buffer);
                     let binary = '';
@@ -249,7 +248,7 @@ async function startDownload(projectId) {
                     }
 
                     const base64 = btoa(binary);
-                    const projectData = 'data:application/octet-stream;base64,' + base64;
+                    rojectData = 'data:application/octet-stream;base64,' + base64;
                 }
             }
         }
