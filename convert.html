@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>SB3 to SB2 Converter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
+    <script src="json.js"></script>
+    <script src="download.js"></script>
+    <style>
+        :root {
+            --bg-color: #f9fafb;
+            --card-bg: #ffffff;
+            --border-color: #e5e7eb;
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --primary: #4d97ff;
+            --primary-hover: #3b82f6;
+            --secondary: #4ec959;
+            --secondary-hover: #45b34f;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 440px;
+            padding: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: none;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: 24px;
+            font-weight: 600;
+            text-align: center;
+            letter-spacing: -0.02em;
+        }
+
+        p.subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 32px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+            background: var(--bg-color);
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover { background-color: var(--primary-hover); }
+
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: white;
+            margin-top: 8px;
+        }
+
+        .btn-secondary:hover { background-color: var(--secondary-hover); }
+
+        .separator {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 24px 0;
+            color: var(--border-color);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .separator::before, .separator::after {
+            content: '';
+            flex: 1;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .separator:not(:empty)::before { margin-right: 12px; }
+        .separator:not(:empty)::after { margin-left: 12px; }
+
+        #fileInput { display: none; }
+        
+        .drop-zone {
+            border: 2px dashed var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .drop-zone:hover {
+            border-color: var(--secondary);
+            background: #f0fdf4;
+        }
+
+        #downloader {
+            margin-top: 24px;
+            display: none;
+        }
+
+        .progress-wrapper {
+            width: 100%;
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        #progressBar {
+            height: 100%;
+            width: 0%;
+            background: var(--primary);
+            transition: width 0.2s ease;
+        }
+
+        #log {
+            font-size: 13px;
+            color: var(--text-muted);
+            background: var(--bg-color);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            white-space: pre-wrap;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 480px) {
+            .card { padding: 24px; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>SB2 Converter</h1>
+            <p class="subtitle">Make Scratch 3 projects work in Scratch 2</p>
+
+            <div class="input-group">
+                <label>Download a project</label>
+                <input type="text" id="projectId" placeholder="Project ID or URL">
+                <button id="go" class="btn btn-primary" style="margin-top: 10px;">Download</button>
+            </div>
+
+            <div class="separator">or</div>
+
+            <div class="input-group">
+                <label>Convert from computer</label>
+                <input type="file" id="fileInput" accept=".sb3">
+                <div class="drop-zone" onclick="document.getElementById('fileInput').click()">
+                    <span style="font-size: 14px; font-weight: 500; color: var(--text-main);">Click to upload .sb3</span>
+                </div>
+            </div>
+
+            <div id="downloader">
+                <div class="progress-wrapper">
+                    <div id="progressBar"></div>
+                </div>
+                <div id="log"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var progressTimer;
+        var DownloadedTitle = "";
+
+        function startProgress() {
+            $("#downloader").fadeIn(200);
+            $("#progressBar").css("width", "0%");
+            $("#log").text("");
+            var p = 0;
+            clearInterval(progressTimer);
+            progressTimer = setInterval(function () {
+                p = Math.min(p + Math.random() * 8, 90);
+                $("#progressBar").css("width", p + "%");
+            }, 200);
+        }
+
+        window.gotZipBase64 = function (content) {
+            clearInterval(progressTimer);
+            $("#progressBar").css("width", "100%");
+            $("#log").append("Done! Saving file...");
+            JSdownloadSB2(content, (DownloadedTitle || "project") + ".sb2");
+        };
+
+        function JSdownloadSB2(data, filename) {
+            var a = document.createElement("a");
+            a.href = "data:application/octet-stream;base64," + data;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        function extractId(v) {
+            if (!v) return "";
+            if (v.includes("#")) return v.split("#").pop();
+            if (v.startsWith("http")) {
+                var p = v.split("/");
+                for (var i = 0; i < p.length; i++) {
+                    if (/^\d+$/.test(p[i])) return p[i];
+                }
+            }
+            return v;
+        }
+
+        $("#go").on("click", function () {
+            var v = extractId($("#projectId").val().trim());
+            if (!v) return;
+            $("#log").text("Fetching project " + v + "...\n");
+            startProgress();
+            if (typeof startDownload === "function") startDownload(v);
+        });
+
+        $("#fileInput").on("change", function (e) {
+            var file = e.target.files[0];
+            if (!file) return;
+
+            DownloadedTitle = file.name.replace(".sb3", "");
+            startProgress();
+            $("#log").text("Reading: " + file.name + "\n");
+
+            var reader = new FileReader();
+            reader.onload = function (event) {
+                var arrayBuffer = event.target.result;
+                $("#log").append("Converting assets...\n");
+                
+                try {
+                    if (typeof processZip === "function") {
+                        processZip(arrayBuffer);
+                    } else if (typeof startDownload === "function") {
+                        startDownload(arrayBuffer);
+                    }
+                } catch (err) {
+                    $("#log").append("Error: " + err.message);
+                    clearInterval(progressTimer);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        });
+    </script>
+</body>
+</html>
