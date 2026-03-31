@@ -220,16 +220,17 @@ async function startDownload(projectId) {
             window.DownloadedTitle = metaData.title;
 
             logMessage('Downloading project JSON...');
+            let projectData;
+
             const projectResponse = await fetch(`https://projects.scratch.mit.edu/${projectId}?token=${token}`);
             if (!projectResponse.ok) throw new Error('Failed to download project.');
 
-            const raw = await projectResponse.text();
-
-            let projectData;
             try {
-                projectData = JSON.parse(raw);
+                projectData = await projectResponse.json();
             } catch {
-                projectData = raw;
+                const retryResponse = await fetch(`https://projects.scratch.mit.edu/${projectId}?token=${token}`);
+                if (!retryResponse.ok) throw new Error('Failed to download project.');
+                projectData = await retryResponse.text();
             }
         }
 
