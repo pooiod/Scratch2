@@ -75,9 +75,9 @@ async function startDownload(projectId) {
     logMessage("Starting download for " + projectId);
     setProgress(5);
 
-    try {
-        let projectData = null;
+    let projectData = null;
 
+    try {
         const isDirectSource = projectId && (typeof projectId === 'string' || projectId instanceof String) && (projectId.startsWith('http') || projectId.startsWith('data:'));
 
         if (isDirectSource) {
@@ -256,6 +256,7 @@ async function startDownload(projectId) {
         if (isSB3) isSB3 = projectData.targets && Array.isArray(projectData.targets);
 
         console.log(isSB3, isSB1)
+        console.log(projectData)
 
         jszip = new JSZip();
         jszip.comment = "Converted sb3 to sb2 by pooiod7's converter (scratchflash.pages.dev/convert)";
