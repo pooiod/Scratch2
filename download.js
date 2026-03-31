@@ -482,7 +482,7 @@ function processLegacy(data) {
     const base64 = btoa(binary);
 
     const dataUri = 'data:application/octet-stream;base64,' + base64;
-    console.log(dataUri');
+    console.log(dataUri);
     finish(dataUri);
 }
 
