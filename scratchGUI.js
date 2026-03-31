@@ -120,7 +120,7 @@ function showProjectPicker() {
         name.innerText = p.title;
 
         var author = p.author ? p.author.username : null;
-        var desc = p.description;
+        var desc = p.description || p.instructions;
         desc = desc.length > 16 ? desc.slice(0,16) + "..." : desc;
 
         if (!author) author = {
@@ -138,6 +138,7 @@ function showProjectPicker() {
             "6777752": "PutneyCat",
             "2716932": "ilikelegos",
             "34908": "AddZero",
+            "46103807": "Howtomakeausername"
             "3954248": "_youtubeN1",
             "31563725": "xXName77Xx",
             "94780": "colorgram",
@@ -154,11 +155,12 @@ function showProjectPicker() {
         var meta = document.createElement("div");
         meta.className = "s2-meta";
         if (author) meta.innerText = "by " + author;
-        else meta.innerText = desc;
+        else if (desc) meta.innerText = desc;
+        else meta.innerText = "By unknown";
 
         card.appendChild(thumb);
         card.appendChild(name);
-        if (author || desc) card.appendChild(meta);
+        card.appendChild(meta);
         grid.appendChild(card);
     }
 
