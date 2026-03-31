@@ -248,7 +248,7 @@ async function startDownload(projectId) {
                     }
 
                     const base64 = btoa(binary);
-                    rojectData = 'data:application/octet-stream;base64,' + base64;
+                    projectData = 'data:application/octet-stream;base64,' + base64;
                 }
             }
         }
