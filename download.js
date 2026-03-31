@@ -237,8 +237,6 @@ async function startDownload(projectId) {
                     projectData = raw;
                 }
             }
-
-            console.log(projectData);
         }
 
         function isJSON(str) {
@@ -254,9 +252,6 @@ async function startDownload(projectId) {
         const isSB1 = !isJSON(projectData);
         var isSB3 = projectData && !isSB1;
         if (isSB3) isSB3 = projectData.targets && Array.isArray(projectData.targets);
-
-        console.log(isSB3, isSB1)
-        console.log(projectData)
 
         jszip = new JSZip();
         jszip.comment = "Converted sb3 to sb2 by pooiod7's converter (scratchflash.pages.dev/convert)";
@@ -405,10 +400,7 @@ async function processNormal(projectData) {
     
     const assetsToDownload = [];
 
-    console.log(projectData)
-
     function parseNode(node) {
-        console.log(node)
         if (node.costumes) {
             node.costumes.forEach(c => {
                 c.baseLayerID = costumeId++;
@@ -475,7 +467,15 @@ async function processNormal(projectData) {
 }
 
 function processLegacy(data) {
-    finish(data);
+    let binary = '';
+    const bytes = new Uint8Array(data);
+    const chunkSize = 0x8000;
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+        const chunk = bytes.subarray(i, i + chunkSize);
+        binary += String.fromCharCode.apply(null, chunk);
+    }
+    const base64 = btoa(binary);
+    finish('data:application/octet-stream;base64,' + base64);
 }
 
 const STAGE_ATTRS = new Set(['backdrop #', 'backdrop name', 'volume']);
