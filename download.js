@@ -227,14 +227,22 @@ async function startDownload(projectId) {
             try {
                 projectData = await projectResponse.json();
             } catch {
-                const retryResponse = await fetch(`https://projects.scratch.mit.edu/${projectId}?token=${token}`);
-                if (!retryResponse.ok) throw new Error('Failed to download project.');
-                var raw = await retryResponse.text();
+                var raw = await projectResponse.text();
 
                 try {
                     projectData = JSON.parse(raw);
                 } catch {
                     projectData = raw;
+                    const buffer = await projectResponse.arrayBuffer();
+                    const bytes = new Uint8Array(buffer);
+                    let binary = '';
+                    const chunkSize = 0x8000;
+                    for (let i = 0; i < bytes.length; i += chunkSize) {
+                        const chunk = bytes.subarray(i, i + chunkSize);
+                        binary += String.fromCharCode.apply(null, chunk);
+                    }
+                    const base64 = btoa(binary);
+                    const projectData = 'data:application/octet-stream;base64,' + base64;
                 }
             }
         }
@@ -467,23 +475,7 @@ async function processNormal(projectData) {
 }
 
 function processLegacy(data) {
-    const bytes = new Uint8Array(data.length);
-    for (let i = 0; i < data.length; i++) {
-        bytes[i] = data.charCodeAt(i) & 0xff;
-    }
-
-    let binary = '';
-    const chunkSize = 0x8000;
-    for (let i = 0; i < bytes.length; i += chunkSize) {
-        const chunk = bytes.subarray(i, i + chunkSize);
-        binary += String.fromCharCode.apply(null, chunk);
-    }
-
-    const base64 = btoa(binary);
-
-    const dataUri = 'data:application/octet-stream;base64,' + base64;
-    console.log(dataUri);
-    finish(dataUri);
+    finish(data);
 }
 
 const STAGE_ATTRS = new Set(['backdrop #', 'backdrop name', 'volume']);
