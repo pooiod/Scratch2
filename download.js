@@ -262,7 +262,7 @@ async function startDownload(projectId) {
             logMessage('Starting conversion...');
             await processSB3(projectData);
         } else if (isSB1) {
-            logMessage('Downloading project...');
+            logMessage('Downloading s1 project...');
             await processLegacy(projectData);
         } else {
             logMessage('Downloading project...');
