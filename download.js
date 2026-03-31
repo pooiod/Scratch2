@@ -220,7 +220,6 @@ async function startDownload(projectId) {
             window.DownloadedTitle = metaData.title;
 
             logMessage('Downloading project JSON...');
-            let projectData;
 
             var projectResponse = await fetch(`https://projects.scratch.mit.edu/${projectId}?token=${token}`);
             if (!projectResponse.ok) throw new Error('Failed to download project.');
