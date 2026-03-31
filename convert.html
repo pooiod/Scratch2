@@ -293,14 +293,15 @@
 
             var reader = new FileReader();
             reader.onload = function (event) {
-                var arrayBuffer = event.target.result;
-                $("#log").append("Converting assets...\n");
-                
+                var fullDataUri = event.target.result;
+
+                $("#log").append("Processing conversion...\n");
+
                 try {
-                    if (typeof processZip === "function") {
-                        processZip(arrayBuffer);
-                    } else if (typeof startDownload === "function") {
-                        startDownload(arrayBuffer);
+                    if (typeof startDownload === "function") {
+                        startDownload(fullDataUri);
+                    } else {
+                        $("#log").append("Error: startDownload function not found.");
                     }
                 } catch (err) {
                     $("#log").append("Error: " + err.message);

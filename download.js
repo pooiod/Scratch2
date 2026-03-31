@@ -75,7 +75,7 @@ async function startDownload(projectId) {
     logMessage("Starting download for " + projectId);
     setProgress(5);
 
-    try {
+    // try {
         let projectData = null;
 
         const isDirectSource = projectId && (typeof projectId === 'string' || projectId instanceof String) && (projectId.startsWith('http') || projectId.startsWith('data:'));
@@ -252,10 +252,10 @@ async function startDownload(projectId) {
             await processNormal(projectData);
         }
 
-    } catch (err) {
-        console.error(err);
-        perror(err);
-    }
+    // } catch (err) {
+    //     console.error(err);
+    //     perror(err);
+    // }
 }
 
 // Based on https://github.com/RexScratch/sb3tosb2
