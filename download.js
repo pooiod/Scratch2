@@ -59,7 +59,6 @@ function psuccess(){
 }
 
 function perror(err){
-    console.error(err);
     alert("Error: " + err.message);
     logMessage("Error: " + err.message);
     animError();
@@ -172,6 +171,7 @@ async function startDownload(projectId) {
                     parsed = true;
                 }
             } catch (err) {
+                console.error(err);
                 perror(err);
             }
 
@@ -252,6 +252,7 @@ async function startDownload(projectId) {
         }
 
     } catch (err) {
+        console.error(err);
         perror(err);
     }
 }
