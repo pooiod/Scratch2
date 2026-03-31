@@ -467,15 +467,23 @@ async function processNormal(projectData) {
 }
 
 function processLegacy(data) {
+    const bytes = new Uint8Array(data.length);
+    for (let i = 0; i < data.length; i++) {
+        bytes[i] = data.charCodeAt(i) & 0xff;
+    }
+
     let binary = '';
-    const bytes = new Uint8Array(data);
     const chunkSize = 0x8000;
     for (let i = 0; i < bytes.length; i += chunkSize) {
         const chunk = bytes.subarray(i, i + chunkSize);
         binary += String.fromCharCode.apply(null, chunk);
     }
+
     const base64 = btoa(binary);
-    finish('data:application/octet-stream;base64,' + base64);
+
+    const dataUri = 'data:application/octet-stream;base64,' + base64;
+    console.log(dataUri');
+    finish(dataUri);
 }
 
 const STAGE_ATTRS = new Set(['backdrop #', 'backdrop name', 'volume']);
