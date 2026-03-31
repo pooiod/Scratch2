@@ -172,7 +172,6 @@
         .progress-wrapper {
             width: 100%;
             height: 8px;
-            background: var(--border-color);
             border-radius: 10px;
             overflow: hidden;
             margin-bottom: 12px;
@@ -187,11 +186,8 @@
 
         #log {
             font-size: 13px;
-            color: var(--text-muted);
-            background: var(--bg-color);
             padding: 12px;
             border-radius: 8px;
-            border: 1px solid var(--border-color);
             white-space: pre-wrap;
             max-height: 100px;
             overflow-y: auto;
@@ -225,6 +221,7 @@
                 </div>
             </div>
 
+            <div id="loadholder"></div>
             <div id="downloader">
                 <div class="progress-wrapper">
                     <div id="progressBar"></div>
