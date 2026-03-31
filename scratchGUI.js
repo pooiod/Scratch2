@@ -158,7 +158,7 @@ function showProjectPicker() {
 
         var api = query
             ? "https://scratch.pooiod7.workers.dev/search/projects?q=" + encodeURIComponent(query) + "&limit=" + limit + "&offset=" + (page * limit)
-            : "https://scratch.pooiod7.workers.dev/users/S2Listing/favorites?q=7241&mode=recent&limit=" + limit + "&offset=" + (page * limit); // /explore/projects
+            : "https://scratch.pooiod7.workers.dev/users/S2Listing/favorites?q=08246&mode=recent&limit=" + limit + "&offset=" + (page * limit); // /explore/projects
 
         fetch(api)
             .then(r => r.json())
@@ -255,3 +255,12 @@ const removeSecondButton = () => {
 
 window.addEventListener('mouseup', removeSecondButton, true);
 window.addEventListener('mousedown', removeSecondButton, true);
+
+function checkHash() {
+  if (location.hash === "#96659160") {
+    location.href = "/scratchx/box2dcar";
+  }
+}
+
+checkHash();
+window.addEventListener("hashchange", checkHash);
