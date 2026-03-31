@@ -119,18 +119,25 @@ function showProjectPicker() {
         name.className = "s2-name";
         name.innerText = p.title;
 
+        var author = p.author ? p.author.username : null;
+        var desc = p.description;
+        desc = desc.length > 16 ? desc.slice(0,16) + "..." : desc;
+
         var meta = document.createElement("div");
         meta.className = "s2-meta";
-        meta.innerText = "by " + (p.author ? p.author.username : "?");
+        meta.innerText = "by " + author;
 
         card.appendChild(thumb);
         card.appendChild(name);
-        card.appendChild(meta);
+        if (author || desc) card.appendChild(meta);
         grid.appendChild(card);
     }
 
     function load(reset) {
         if (/^\d+$/.test(query) || query.startsWith("http")) {
+            var sid = query.match(/^https:\/\/scratch\.mit\.edu\/projects\/(\d+)\/?$/);
+            query = sid ? sid[1] : query;
+
             if (query.startsWith("http")) {
                 const newUrl = new URL(window.location.href);
                 newUrl.searchParams.set('project_url', query);
