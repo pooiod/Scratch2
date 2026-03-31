@@ -238,6 +238,8 @@ async function startDownload(projectId) {
                     projectData = raw;
                 }
             }
+
+            console.log(projectData);
         }
 
         function isJSON(str) {
