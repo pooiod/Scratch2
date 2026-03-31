@@ -123,7 +123,7 @@ function showProjectPicker() {
         var desc = p.description;
         desc = desc.length > 16 ? desc.slice(0,16) + "..." : desc;
 
-        if (!author) author = [
+        if (!author) author = {
             "30177353": "pooiod7",
             "40377592": "BlueEngineer3",
             "17680060": "rookmein",
@@ -149,7 +149,7 @@ function showProjectPicker() {
             "395764": "djdolphin",
             "4549915": "Ctrl-Alt-Llama",
             "52179808": "Xatalyst"
-        ][p.author.id] || null;
+        }[p.author.id] || null;
 
         var meta = document.createElement("div");
         meta.className = "s2-meta";
