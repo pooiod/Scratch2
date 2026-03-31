@@ -225,7 +225,17 @@ async function startDownload(projectId) {
             projectData = await projectResponse.json();
         }
 
-        const isSB3 = projectData && projectData.targets && Array.isArray(projectData.targets);
+        function isJSON(str) {
+            try {
+                JSON.parse(str);
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        const isSB3 = projectData && isJSON(projectData) && projectData.targets && Array.isArray(projectData.targets);
+        const   = !isJSON(projectData);
 
         jszip = new JSZip();
         jszip.comment = "Converted sb3 to sb2 by pooiod7's converter (scratchflash.pages.dev/download)";
@@ -233,6 +243,9 @@ async function startDownload(projectId) {
         if (isSB3) {
             logMessage('Starting conversion...');
             await processSB3(projectData);
+        } else if (isSB1) {
+            logMessage('Downloading project...');
+            await processNormal(projectData);
         } else {
             logMessage('Downloading project...');
             await processLegacy(projectData);
@@ -363,13 +376,13 @@ function finish(content) {
     }
 }
 
-async function processLegacy(projectData) {
+async function processNormal(projectData) {
     let costumeId = 0;
     let soundId = 0;
     let textLayerIDCounter = 100000;
     
     const assetsToDownload = [];
-    
+
     function parseNode(node) {
         if (node.costumes) {
             node.costumes.forEach(c => {
@@ -434,6 +447,10 @@ async function processLegacy(projectData) {
 
     jszip.file("project.json", JSON.stringify(projectData));
     finalizeZip();
+}
+
+function processLegacy(data) {
+    finish(data);
 }
 
 const STAGE_ATTRS = new Set(['backdrop #', 'backdrop name', 'volume']);
