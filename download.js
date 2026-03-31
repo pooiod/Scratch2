@@ -254,7 +254,8 @@ async function startDownload(projectId) {
         const isSB1 = !isJSON(projectData);
         var isSB3 = projectData && !isSB1;
         if (isSB3) isSB3 = projectData.targets && Array.isArray(projectData.targets);
-        else isSB3 = false;
+
+        console.log(isSB3, isSB1)
 
         jszip = new JSZip();
         jszip.comment = "Converted sb3 to sb2 by pooiod7's converter (scratchflash.pages.dev/convert)";
