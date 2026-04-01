@@ -26,10 +26,12 @@
     function loadFiles(cb) {
         var remaining = files.length;
         for (var i = 0; i < files.length; i++) {
-            load(files[i], function () {
-                remaining--;
-                if (remaining === 0) cb();
-            });
+            if (!(window.skipgui && fileUrl == "/scratchGUI.js")) {
+                load(files[i], function () {
+                    remaining--;
+                    if (remaining === 0) cb();
+                });
+            }
         }
     }
 
@@ -37,7 +39,7 @@
         var remaining = files.length;
         for (var i = 0; i < files.length; i++) {
             (function(fileUrl) {
-                if (window.location.pathname == "/player" && fileUrl == "/scratchGUI.js") {
+                if (window.skipgui && fileUrl == "/scratchGUI.js") {
                     console.log("Skipped " + fileUrl + " for player");
                     return;
                 }
