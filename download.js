@@ -401,6 +401,7 @@ function finalizeZip() {
 }
 
 function finish(content) {
+    console.log(content);
     logMessage("Opening project...");
     setProgress(100);
     if (window.gotZipBase64) {
