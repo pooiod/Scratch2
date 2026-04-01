@@ -104,6 +104,7 @@ function showProjectPicker() {
             window.location.hash = p.id;
             startDownload(p.id);
             close.click();
+            if (window.skipgui2) location.reload();
         };
 
         var thumb = document.createElement("div");
@@ -181,6 +182,7 @@ function showProjectPicker() {
             }
             startDownload(query);
             close.click();
+            if (window.skipgui2) location.reload();
             return;
         }
 
