@@ -5,7 +5,7 @@
 // @description  A button to load projects that don't work in scratch3 using actual scratch2
 // @author       pooiod7
 // @match        https://scratch.mit.edu/projects/*
-// @icon         https://www.google.com/s2/favicons?sz=64&domain=mit.edu
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=scratch.mit.edu
 // @grant        none
 // ==/UserScript==
 
@@ -27,11 +27,11 @@
         return year >= 2013 && year <= 2019;
     }
 
-    function createButton(id, title, imgSrc) {
+    function createButton() {
         const btn = document.createElement("button");
-        btn.id = id;
+        btn.id = "s2btn";
         btn.className = "button sa-s2-button";
-        btn.title = title;
+        btn.title = "Scratch 2";
         btn.dataset.saSharedSpaceOrder = "1";
         btn.style.background = "#4e97fe";
         btn.style.padding = "0";
@@ -43,41 +43,29 @@
         btn.style.display = "inline-flex";
         btn.style.alignItems = "center";
         btn.style.justifyContent = "center";
-        if (imgSrc) {
-            const img = document.createElement("img");
-            img.src = imgSrc;
-            img.style.width = "1.25rem";
-            img.style.height = "1.25rem";
-            btn.appendChild(img);
-        }
+        const img = document.createElement("img");
+        img.src = "/favicon.ico";
+        img.style.width = "1.25rem";
+        img.style.height = "1.25rem";
+        btn.appendChild(img);
         btn.onclick = toggle;
         return btn;
     }
 
-    function createTurboWarpButton() {
-        const btn = document.createElement("button");
-        btn.className = "button sa-tw-button";
-        btn.title = "TurboWarp";
-        btn.dataset.saSharedSpaceOrder = "1";
-        return btn;
-    }
-
-    function insertButtons() {
+    function insertButton() {
         if (!parseShareDate()) return;
         const wrap = document.querySelector("div.project-buttons");
         if (!wrap) return;
         if (document.querySelector("#s2btn")) return;
 
-        const s2Button = createButton("s2btn", "Scratch 2", "/favicon.ico");
+        const s2Button = createButton();
         const remixButton = wrap.querySelector('button.remix-button');
-        const seeInside = wrap.querySelector('button.see-inside-button');
+        const seeInsideButton = wrap.querySelector('button.see-inside-button');
 
         if (remixButton) {
-            const twButton = createTurboWarpButton();
-            wrap.insertBefore(twButton, remixButton);
             wrap.insertBefore(s2Button, remixButton.nextSibling);
-        } else if (seeInside) {
-            wrap.insertBefore(s2Button, seeInside.nextSibling);
+        } else if (seeInsideButton) {
+            wrap.insertBefore(s2Button, seeInsideButton.nextSibling);
         } else {
             wrap.appendChild(s2Button);
         }
@@ -112,11 +100,10 @@
     }
 
     function tick() {
-        insertButtons();
+        insertButton();
     }
 
     setInterval(tick, 500);
     window.addEventListener("load", tick);
     window.addEventListener("popstate", tick);
-
 })();

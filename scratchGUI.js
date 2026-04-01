@@ -301,7 +301,7 @@ if (!window.skipgui2) {
     window.addEventListener('mousedown', removeSecondButton, true);
 }
 
-if (!location.hash && !new URLSearchParams(window.location.search).has("project_url")) showProjectPicker();
+if (window.skipgui2 && !location.hash && !new URLSearchParams(window.location.search).has("project_url")) showProjectPicker();
 
 function checkHash() {
   if (location.hash === "#96659160") {
