@@ -37,6 +37,10 @@
         var remaining = files.length;
         for (var i = 0; i < files.length; i++) {
             (function(fileUrl) {
+                if (window.location.pathname == "/player" && fileUrl == "/scratchGUI.js") {
+                    console.log("Skipped " + fileUrl + " for player");
+                    return;
+                }
                 console.log("Transpiling " + fileUrl);
                 get(fileUrl, function (code) {
                     try {
