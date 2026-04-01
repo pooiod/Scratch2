@@ -144,6 +144,7 @@ function showProjectPicker() {
             "31563725": "xXName77Xx",
             "94780": "colorgram",
             "1132083": "WO997",
+            "2117258": "AlphaAxle",
             "10249132": "MartinBraendli",
             "14370369": "IguanaLover_PT",
             "3838581": "chooper100",
@@ -198,7 +199,7 @@ function showProjectPicker() {
 
         var api = query
             ? "https://scratch.pooiod7.workers.dev/search/projects?q=" + encodeURIComponent(query) + "&limit=" + limit + "&offset=" + (page * limit)
-            : "https://scratch.pooiod7.workers.dev/users/S2Listing/favorites?q=742&mode=recent&limit=" + limit + "&offset=" + (page * limit); // /explore/projects
+            : "https://scratch.pooiod7.workers.dev/users/S2Listing/favorites?q=7242&mode=recent&limit=" + limit + "&offset=" + (page * limit); // /explore/projects
 
         fetch(api)
             .then(r => r.json())
