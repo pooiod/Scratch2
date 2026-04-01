@@ -31,6 +31,9 @@
                     remaining--;
                     if (remaining === 0) cb();
                 });
+            } else {
+                remaining--;
+                if (remaining === 0) cb();
             }
         }
     }
