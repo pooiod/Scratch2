@@ -37,7 +37,7 @@ function showProjectPicker() {
     close.onclick = function () { popup.remove(); };
 
     header.appendChild(title);
-    header.appendChild(close);
+    if (!window.skipgui2) header.appendChild(close);
 
     var toolbar = document.createElement("div");
     toolbar.className = "s2-toolbar";
@@ -294,8 +294,12 @@ const removeSecondButton = () => {
     }, 200);
 };
 
-window.addEventListener('mouseup', removeSecondButton, true);
-window.addEventListener('mousedown', removeSecondButton, true);
+if (!window.skipgui2) {
+    window.addEventListener('mouseup', removeSecondButton, true);
+    window.addEventListener('mousedown', removeSecondButton, true);
+}
+
+if (!location.hash) showProjectPicker();
 
 function checkHash() {
   if (location.hash === "#96659160") {
