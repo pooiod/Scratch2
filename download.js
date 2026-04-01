@@ -257,7 +257,7 @@ async function startDownload(projectId) {
 
         function isJSON(str) {
             try {
-                if (str.targets) return true;
+                if (str.targets || str.costumes) return true;
                 JSON.parse(str);
                 return true;
             } catch (e) {
