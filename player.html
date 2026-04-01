@@ -388,7 +388,7 @@
         </div>
 
         <script>
-            (function() {
+            document.addEventListener('DOMContentLoaded', () => {
                 const wrapper = document.createElement("div");
                 const box = document.createElement("div");
                 const topBar = document.createElement("div");
@@ -470,7 +470,7 @@
                 window.addEventListener("touchstart", e => {
                     handleClick(e.touches[0]);
                 });
-            })();
+            });
 
             (function(){
                 window.hasFlash = false;
