@@ -201,7 +201,7 @@ function showProjectPicker() {
 
         var api = query
             ? "https://scratch.pooiod7.workers.dev/search/projects?q=" + encodeURIComponent(query) + "&limit=" + limit + "&offset=" + (page * limit)
-            : "https://scratch.pooiod7.workers.dev/users/S2Listing/favorites?q=7242&mode=recent&limit=" + limit + "&offset=" + (page * limit); // /explore/projects
+            : "https://scratch.pooiod7.workers.dev/users/S2Listing/favorites?q=7642&mode=recent&limit=" + limit + "&offset=" + (page * limit); // /explore/projects
 
         fetch(api)
             .then(r => r.json())
