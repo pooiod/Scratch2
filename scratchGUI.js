@@ -1,6 +1,6 @@
 function showProjectPicker() {
     var css = `
-    .s2-popup { position: fixed; top: 100px; left: 100px; width: 800px; height: 500px; background: #E0E0E0; border-radius: 8px; border: 1px solid #B0B0B0; box-shadow: 0 10px 25px rgba(0,0,0,0.3); display: flex; flex-direction: column; overflow: hidden; z-index: 2147483647; font-family: Helvetica, Arial, sans-serif; }
+    .s2-popup { position: fixed; top: 50px; left: 50px; width: 800px; height: 500px; background: #E0E0E0; border-radius: 8px; border: 1px solid #B0B0B0; box-shadow: 0 10px 25px rgba(0,0,0,0.3); display: flex; flex-direction: column; overflow: hidden; z-index: 2147483647; font-family: Helvetica, Arial, sans-serif; }
     .s2-header { height: 35px; background: linear-gradient(#E0E0E0, #C0C0C0); border-bottom: 1px solid #A0A0A0; display: flex; align-items: center; padding: 0 10px; justify-content: space-between; cursor: move; }
     .s2-title { font-weight: bold; font-size: 14px; }
     .s2-close { width: 22px; height: 22px; background: #929292; border-radius: 4px; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; }
