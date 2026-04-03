@@ -65,11 +65,6 @@ if (value.indexOf('#') !== -1) {
 //     value = foundPart;
 // }
 
-value = {
-    "212388708": "1298706676",
-    "1298757456": "https://pooiod7.pages.dev/s2/GeometryDash.sb2"
-}[value] || value;
-
 window.startMain = function() {
     document.getElementById("scratchloader").classList.add("hiddenblocks")
 

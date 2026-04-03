@@ -75,6 +75,11 @@ async function startDownload(projectId) {
     logMessage("Starting download for " + projectId);
     setProgress(5);
 
+    projectId = {
+        "212388708": "1298706676",
+        "1298757456": "https://pooiod7.pages.dev/s2/GeometryDash.sb2"
+    }[projectId] || projectId;
+
     let projectData = null;
 
     try {
@@ -181,7 +186,7 @@ async function startDownload(projectId) {
                     projectData = JSON.parse(text);
                     parsed = true;
                 } catch (e) {
-                    throw new Error('Downloaded file is not a valid project JSON or SB archive.');
+                    throw new Error('Downloaded file is not a valid project.');
                 }
             }
 
