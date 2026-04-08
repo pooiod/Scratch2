@@ -10,7 +10,7 @@ window.gotZipBase64 = function(content) {
 
     $("#log").text("Waiting for flash hook" + "\n" + $("#log").text());
     var tries = 0;
-    
+
     var openTimeout = setInterval(function() {
         swf = document.querySelector('#scratch embed') || document.querySelector('ruffle-player');
         tries += 1;
@@ -29,6 +29,8 @@ window.gotZipBase64 = function(content) {
         } else if (tries >= 40) {
             clearInterval(openTimeout);
             $("#log").text("Hook not found" + "\n" + $("#log").text()); // ꧁꧂
+
+            if (window.HasFlashForCurrent) return;
 
             if (typeof hasFlash !== "undefined" && !hasFlash) {
                 var id = (getQueryParam('project_url') || decodeURIComponent(getQueryParam('id') || location.hash.slice(1)))
@@ -52,7 +54,7 @@ var value = decodeURIComponent(getQueryParam('id') || location.hash.slice(1));
 
 if (value.indexOf('#') !== -1) {
     value = value.split('#').pop();
-} 
+}
 // else if (value.indexOf('http') === 0) {
 //     var parts = value.split('/');
 //     var foundPart = '';
