@@ -223,6 +223,8 @@
             }
         </style>
         <script>
+            window.ShouldUseFlashForCurrent = true;
+
             window.JSloadID = function(id) {
                 location.hash = id;
                 location.reload();
@@ -484,7 +486,7 @@
                 if (!hasFlash) {
                     window.RufflePlayer = window.RufflePlayer || {};
                     window.RufflePlayer.config = {
-                        allowScriptAccess: true 
+                        allowScriptAccess: true
                     };
                     var s = document.createElement("script");
                     s.src = "https://unpkg.com/@ruffle-rs/ruffle";
