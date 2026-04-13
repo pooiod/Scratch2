@@ -16,7 +16,7 @@
     style.textContent = `
         :host { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 13px; color: #333; }
         * { box-sizing: border-box; }
-        
+
         ::-webkit-scrollbar { width: 10px; height: 10px; }
         ::-webkit-scrollbar-track { background: #F0F0F0; border-left: 1px solid #D0D0D0; }
         ::-webkit-scrollbar-thumb { background: #C1C1C1; border-radius: 4px; border: 2px solid #F0F0F0; }
@@ -27,15 +27,15 @@
             background: transparent; border: none; outline: none; cursor: pointer; pointer-events: auto; z-index: 10;
             padding: 0; margin: 0; display: flex; align-items: center; justify-content: center;
         }
-        #toggle-btn svg { 
-            height: 20px; 
-            width: auto; 
-            overflow: visible; 
+        #toggle-btn svg {
+            height: 20px;
+            width: auto;
+            overflow: visible;
             display: block;
         }
-        #toggle-btn path { 
-            fill: white; 
-            stroke: ${location.pathname.includes("scratchx")?"#30485f":"#9c9ea2"}; 
+        #toggle-btn path {
+            fill: white;
+            stroke: ${location.pathname.includes("scratchx")?"#30485f":"#9c9ea2"};
             stroke-width: 1px;
             vector-effect: non-scaling-stroke;
         }
@@ -63,7 +63,7 @@
             text-shadow: 0 -1px 0 rgba(0,0,0,0.3);
         }
         .title { flex: 1; font-size: 14px; pointer-events: none; }
-        
+
         button.ui-btn {
             background: linear-gradient(to bottom, #FFFFFF, #D0D0D0);
             border: 1px solid #999; border-radius: 5px;
@@ -73,7 +73,7 @@
         }
         button.ui-btn:hover { background: linear-gradient(to bottom, #FFF, #E0E0E0); }
         button.ui-btn:active { background: #CCC; box-shadow: inset 0 1px 3px rgba(0,0,0,0.2); }
-        
+
         button.close-btn {
             background: linear-gradient(to bottom, #E74C3C, #C0392B);
             border: 1px solid #900; color: white;
@@ -84,7 +84,7 @@
         button.close-btn:hover { background: linear-gradient(to bottom, #FF5D4D, #D64536); }
 
         input[type="number"] {
-            border: 1px solid #B0B0B0; background: white; 
+            border: 1px solid #B0B0B0; background: white;
             border-radius: 3px; padding: 3px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
             color: #333; font-family: inherit; font-size: 12px;
         }
@@ -93,7 +93,7 @@
             padding: 10px; text-align: center; font-size: 13px;
             background: #F2F2F2; color: #555; border-bottom: 1px solid #D0D0D0;
         }
-        
+
         #ext-cols { display: flex; flex: 1; flex-direction: row; overflow: hidden; background: #F9F9F9; }
         .ext-col { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 10px; gap: 8px; }
         #ext-left { border-right: 1px solid #D0D0D0; background: #FFF; }
@@ -103,10 +103,10 @@
             font-size: 12px; color: #666; text-transform: uppercase;
             border-bottom: 2px solid #E0E0E0; padding-bottom: 5px; margin-bottom: 5px;
         }
-        
-        .ext-map-item { 
+
+        .ext-map-item {
             background: linear-gradient(to bottom, #5CA0FF, #3D88F5);
-            padding: 6px 10px; border-radius: 4px; cursor: pointer; 
+            padding: 6px 10px; border-radius: 4px; cursor: pointer;
             border: 1px solid #3070D0; color: white;
             display: flex; justify-content: space-between; font-size: 11px;
             box-shadow: 0 1px 2px rgba(0,0,0,0.2); text-shadow: 0 -1px 0 rgba(0,0,0,0.2);
@@ -117,14 +117,14 @@
         }
 
         .joy-block {
-            background: #E0E0E0; border: 1px solid #B0B0B0; 
-            border-radius: 6px; padding: 10px; 
+            background: #E0E0E0; border: 1px solid #B0B0B0;
+            border-radius: 6px; padding: 10px;
             display: flex; flex-direction: column; gap: 8px;
         }
         .joy-header { font-size: 12px; font-weight: bold; text-align: center; color: #555; }
-        .joy-settings { 
-            display: flex; flex-wrap: wrap; justify-content: space-around; 
-            font-size: 11px; color: #444; align-items: center; gap: 6px; 
+        .joy-settings {
+            display: flex; flex-wrap: wrap; justify-content: space-around;
+            font-size: 11px; color: #444; align-items: center; gap: 6px;
             background: #D6D6D6; padding: 5px; border-radius: 4px; border: 1px solid #C0C0C0;
         }
         .joy-mappings { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
@@ -135,7 +135,7 @@
             position: relative;
             perspective: 400px;
         }
-        
+
         .joy-base {
             width: 70px; height: 70px;
             background: linear-gradient(135deg, #bbb, #999);
@@ -172,15 +172,15 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.5); font-family: sans-serif;
         }
         .modal-box textarea {
-            width: 100%; padding: 8px; background: white; color: #333; 
-            border: 1px solid #AAA; height: 150px; resize: none; 
+            width: 100%; padding: 8px; background: white; color: #333;
+            border: 1px solid #AAA; height: 150px; resize: none;
             font-family: monospace; font-size: 12px; border-radius: 4px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
         }
         .modal-btns { display: flex; justify-content: flex-end; gap: 10px; margin-top: 5px; }
-        
+
         .mini-key {
-            text-align: center; padding: 8px 4px; background: #FFF; border-radius: 4px; 
-            cursor: pointer; font-size: 11px; border: 1px solid #CCC; color: #333; 
+            text-align: center; padding: 8px 4px; background: #FFF; border-radius: 4px;
+            cursor: pointer; font-size: 11px; border: 1px solid #CCC; color: #333;
             box-shadow: 0 2px 0 #CCC; position: relative; top: 0; transition: top 0.1s, box-shadow 0.1s;
         }
         .mini-key:active { top: 2px; box-shadow: 0 0 0 #CCC; }
@@ -202,7 +202,7 @@
     const defaultExternalMapping = {
         button_0: 'Space', button_1: 'KeyR', button_2: 'KeyF', button_3: 'KeyE',
         button_4: 'Digit1', button_5: 'Digit2', button_6: 'Digit3', button_7: 'Digit4',
-        button_8: 'Enter', button_9: 'KeyP', 
+        button_8: 'Enter', button_9: 'KeyP',
         button_12: 'ArrowUp', button_13: 'ArrowDown', button_14: 'ArrowLeft', button_15: 'ArrowRight',
         button_16: 'Escape',
         axis_0_negative: 'KeyA', axis_0_positive: 'KeyD', axis_1_negative: 'KeyW', axis_1_positive: 'KeyS',
@@ -215,6 +215,7 @@
 
     const toggleBtn = document.createElement('button');
     toggleBtn.id = 'toggle-btn';
+    toggleBtn.style.display = "none";
     toggleBtn.innerHTML = `
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
             <path d="M192 64C86 64 0 150 0 256S86 448 192 448l256 0c106 0 192-86 192-192s-86-192-192-192L192 64zM496 168a40 40 0 1 1 0 80 40 40 0 1 1 0-80zM392 304a40 40 0 1 1 80 0 40 40 0 1 1 -80 0zM168 200c0-13.3 10.7-24 24-24s24 10.7 24 24l0 32 32 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-32 0 0 32c0 13.3-10.7 24-24 24s-24-10.7-24-24l0-32-32 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l32 0 0-32z"/>
@@ -232,9 +233,9 @@
                 <button id="io-btn" class="ui-btn" title="Import/Export Settings">Data</button>
                 <button class="close-btn" id="close-main">✕</button>
             </div>
-            
+
             <div id="ext-status">Listening for controller... Press any button.</div>
-            
+
             <div id="ext-cols">
                 <div id="ext-left" class="ext-col">
                     <div class="ext-col-title">Buttons</div>
@@ -273,7 +274,7 @@
     });
 
     const modalOverlay = shadow.getElementById('modal-overlay');
-    
+
     function openModal(title, html, onSave) {
         shadow.getElementById('modal-title').textContent = title;
         shadow.getElementById('modal-body').innerHTML = html;
@@ -291,7 +292,7 @@
         kbLayout.forEach(row => {
             kbHtml += '<div style="display:flex; gap:4px;">';
             row.forEach(key => {
-                const flex = key.w || 1; 
+                const flex = key.w || 1;
                 const activeClass = currentVal === key.c ? 'mini-key-active' : '';
                 kbHtml += `<div class="mini-key ${activeClass}" data-code="${key.c}" style="flex:${flex};">${key.n}</div>`;
             });
@@ -307,11 +308,11 @@
             </div>
             ${kbHtml}
         `;
-        
+
         let selectedCode = currentVal;
         const updateUI = (code) => {
             selectedCode = code; shadow.getElementById('map-current').textContent = code || 'Unmapped';
-            shadow.querySelectorAll('.mini-key').forEach(k => { 
+            shadow.querySelectorAll('.mini-key').forEach(k => {
                 if (k.dataset.code === code) k.classList.add('mini-key-active');
                 else k.classList.remove('mini-key-active');
             });
@@ -332,10 +333,10 @@
         openModal('Import/Export Data', `<textarea id="io-text" spellcheck="false" placeholder="Leave blank or type {} to reset to defaults">${data}</textarea>`, () => {
             const textVal = shadow.getElementById('io-text').value.trim();
             if (!textVal || textVal === '{}') {
-                externalMapping = JSON.parse(JSON.stringify(defaultExternalMapping)); 
-                externalSettings = JSON.parse(JSON.stringify(defaultExternalSettings)); 
+                externalMapping = JSON.parse(JSON.stringify(defaultExternalMapping));
+                externalSettings = JSON.parse(JSON.stringify(defaultExternalSettings));
                 pulseTime = 200;
-                localStorage.setItem('vkb_external_mapping', JSON.stringify(externalMapping)); 
+                localStorage.setItem('vkb_external_mapping', JSON.stringify(externalMapping));
                 localStorage.setItem('vkb_external_settings', JSON.stringify(externalSettings));
                 localStorage.setItem('vkb_pulse_time', pulseTime); shadow.getElementById('pulse-ms').value = pulseTime;
                 if (activeGpId !== null) renderExtView(navigator.getGamepads()[activeGpId]);
@@ -369,9 +370,9 @@
         const createMapUI = (id, label, parent) => {
             const div = document.createElement('div'); div.className = 'ext-map-item';
             div.innerHTML = `<span>${label}</span> <span>[${externalMapping[id] || '...'}]</span>`;
-            div.onclick = () => showMappingModal(label, externalMapping[id] || '', val => { 
-                if (val==='') delete externalMapping[id]; else externalMapping[id] = val; 
-                localStorage.setItem('vkb_external_mapping', JSON.stringify(externalMapping)); renderExtView(gp); 
+            div.onclick = () => showMappingModal(label, externalMapping[id] || '', val => {
+                if (val==='') delete externalMapping[id]; else externalMapping[id] = val;
+                localStorage.setItem('vkb_external_mapping', JSON.stringify(externalMapping)); renderExtView(gp);
             });
             parent.appendChild(div); externalDomNodes[id] = div;
         };
@@ -399,21 +400,21 @@
                 <div class="joy-mappings" id="jm-${s}"></div>
             `;
             externalJoystickList.appendChild(block); externalDomNodes[`dpad_${s}`] = block.querySelector(`#ext-vis-joy-${s}`);
-            
+
             block.querySelector(`#joystick-analog-${s}`).onchange = e => { set.analog = e.target.checked; saveExternalSettings(); };
             block.querySelector(`#joystick-deadzone-${s}`).onchange = e => { set.deadzone = parseFloat(e.target.value)||0; saveExternalSettings(); };
             block.querySelector(`#joystick-maxzone-${s}`).onchange = e => { set.maxzone = parseFloat(e.target.value)||1; saveExternalSettings(); };
-            
+
             const mapContainer = block.querySelector(`#jm-${s}`);
-            createMapUI(`axis_${s*2+1}_negative`, `Up`, mapContainer); 
+            createMapUI(`axis_${s*2+1}_negative`, `Up`, mapContainer);
             createMapUI(`axis_${s*2+1}_positive`, `Down`, mapContainer);
-            createMapUI(`axis_${s*2}_negative`, `Left`, mapContainer); 
+            createMapUI(`axis_${s*2}_negative`, `Left`, mapContainer);
             createMapUI(`axis_${s*2}_positive`, `Right`, mapContainer);
         }
     }
 
-    function toggleExternalUI(id, active) { 
-        if (externalDomNodes[id]) externalDomNodes[id].classList.toggle('active-ext', active); 
+    function toggleExternalUI(id, active) {
+        if (externalDomNodes[id]) externalDomNodes[id].classList.toggle('active-ext', active);
     }
 
     function dispatchMapped(code, type) {
@@ -424,7 +425,9 @@
     function masterPollLoop() {
         let keysToPressThisFrame = new Set();
         let uiToHighlight = new Set();
-        
+
+        toggleBtn.style.display = activeGpId?"":"none";
+
         const cycleLength = pulseTime;
         const cyclePos = performance.now() % cycleLength;
 
@@ -436,7 +439,7 @@
             let active = false;
             for (let i=0; i<g.buttons.length; i++) { if (g.buttons[i].pressed) active = true; }
             for (let i=0; i<g.axes.length; i++) { if (Math.abs(g.axes[i]) > 0.1) active = true; }
-            
+
             if (active && activeGpId !== g.index) { activeGpId = g.index; renderExtView(g); }
             if (g.index === activeGpId) { found = true; activeGp = g; break; }
         }
@@ -444,8 +447,8 @@
         if (found && activeGp) {
             for (let i=0; i<activeGp.buttons.length; i++) {
                 if (activeGp.buttons[i].pressed) {
-                    const code = externalMapping[`button_${i}`]; 
-                    if (code) keysToPressThisFrame.add(code); 
+                    const code = externalMapping[`button_${i}`];
+                    if (code) keysToPressThisFrame.add(code);
                     uiToHighlight.add(`button_${i}`);
                 }
             }
@@ -453,7 +456,7 @@
             for (let s=0; s<numSticks; s++) {
                 const ax = activeGp.axes[s*2], ay = activeGp.axes[s*2+1];
                 const set = externalSettings[`joystick_${s}`] || { analog: true, deadzone: 0.15, maxzone: 0.90 };
-                
+
                 if (externalDomNodes[`dpad_${s}`]) {
                     externalDomNodes[`dpad_${s}`].style.transform = `rotateX(${-ay * 35}deg) rotateY(${ax * 35}deg)`;
                 }
@@ -463,7 +466,7 @@
                 let ny = absY > set.deadzone ? Math.min(1, (absY - set.deadzone) / (set.maxzone - set.deadzone)) : 0;
 
                 let downX = false, downY = false; let dirX = 0, dirY = 0;
-                
+
                 if (set.analog) {
                     downX = cyclePos < nx * cycleLength; downY = cyclePos < ny * cycleLength;
                     dirX = ax < 0 ? -1 : 1; dirY = ay < 0 ? -1 : 1;
@@ -486,8 +489,8 @@
                 if (downY && dirY === -1) { const c = externalMapping[`axis_${s*2+1}_negative`]; if (c) keysToPressThisFrame.add(c); if(ny>0) uiToHighlight.add(`axis_${s*2+1}_negative`); }
                 if (downY && dirY === 1) { const c = externalMapping[`axis_${s*2+1}_positive`]; if (c) keysToPressThisFrame.add(c); if(ny>0) uiToHighlight.add(`axis_${s*2+1}_positive`); }
             }
-            Object.keys(externalDomNodes).forEach(id => { 
-                if (id.startsWith('button_') || id.startsWith('axis_')) toggleExternalUI(id, uiToHighlight.has(id)); 
+            Object.keys(externalDomNodes).forEach(id => {
+                if (id.startsWith('button_') || id.startsWith('axis_')) toggleExternalUI(id, uiToHighlight.has(id));
             });
         } else if (!found && activeGpId !== null) { activeGpId = null; renderExtView(null); }
 
