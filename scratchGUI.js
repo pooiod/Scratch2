@@ -303,10 +303,10 @@ const removeSecondButton = () => {
     }, 200);
 };
 
-if (!window.skipgui2) {
-    window.addEventListener('mouseup', removeSecondButton, true);
-    window.addEventListener('mousedown', removeSecondButton, true);
-}
+// if (!window.skipgui2) {
+//     window.addEventListener('mouseup', removeSecondButton, true);
+//     window.addEventListener('mousedown', removeSecondButton, true);
+// }
 
 if (window.skipgui2 && !location.hash && !new URLSearchParams(window.location.search).has("project_url")) showProjectPicker();
 
