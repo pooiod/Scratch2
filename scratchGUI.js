@@ -259,49 +259,49 @@ function showProjectPicker() {
     load(true);
 }
 
-var button = document.createElement('button');
-button.style.position = 'absolute';
-button.style.left = '40px';
-button.style.top = '0px';
-button.style.height = '30px';
-button.style.width = '35px';
-button.style.backgroundColor = 'red';
-button.style.zIndex = '99999';
-button.style.opacity = '0';
-button.style.pointerEvents = 'none';
-document.body.appendChild(button);
+// var button = document.createElement('button');
+// button.style.position = 'absolute';
+// button.style.left = '40px';
+// button.style.top = '0px';
+// button.style.height = '30px';
+// button.style.width = '35px';
+// button.style.backgroundColor = 'red';
+// button.style.zIndex = '99999';
+// button.style.opacity = '0';
+// button.style.pointerEvents = 'none';
+// document.body.appendChild(button);
 
-var secondButton;
+// var secondButton;
 
-document.addEventListener('mousemove', (e) => {
-    const x = e.clientX;
-    const y = e.clientY;
-    const rect = button.getBoundingClientRect();
-    const hovering = x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
-    if (hovering && !secondButton) {
-        secondButton = document.createElement('button');
-        secondButton.style.position = 'absolute';
-        secondButton.style.left = '40px';
-        secondButton.style.top = '54px';
-        secondButton.style.height = '30px';
-        secondButton.style.width = '250px';
-        secondButton.style.backgroundColor = 'red';
-        secondButton.style.cursor = "pointer";
-        secondButton.style.opacity = '0';
-        secondButton.style.zIndex = '99999';
-        secondButton.onclick = showProjectPicker;
-        document.body.appendChild(secondButton);
-    }
-});
+// document.addEventListener('mousemove', (e) => {
+//     const x = e.clientX;
+//     const y = e.clientY;
+//     const rect = button.getBoundingClientRect();
+//     const hovering = x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+//     if (hovering && !secondButton) {
+//         secondButton = document.createElement('button');
+//         secondButton.style.position = 'absolute';
+//         secondButton.style.left = '40px';
+//         secondButton.style.top = '54px';
+//         secondButton.style.height = '30px';
+//         secondButton.style.width = '250px';
+//         secondButton.style.backgroundColor = 'red';
+//         secondButton.style.cursor = "pointer";
+//         secondButton.style.opacity = '0';
+//         secondButton.style.zIndex = '99999';
+//         secondButton.onclick = showProjectPicker;
+//         document.body.appendChild(secondButton);
+//     }
+// });
 
-const removeSecondButton = () => {
-    setTimeout(() => {
-        if (secondButton) {
-            secondButton.remove();
-            secondButton = null;
-        }
-    }, 200);
-};
+// const removeSecondButton = () => {
+//     setTimeout(() => {
+//         if (secondButton) {
+//             secondButton.remove();
+//             secondButton = null;
+//         }
+//     }, 200);
+// };
 
 // if (!window.skipgui2) {
 //     window.addEventListener('mouseup', removeSecondButton, true);
