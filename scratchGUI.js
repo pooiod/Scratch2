@@ -138,13 +138,20 @@ function showProjectPicker() {
             "574993": "BobbyF",
             "3994425": "Hobson-TV",
             "6777752": "PutneyCat",
+            "2544155": "MCAnimator3D",
+            "3398978": "squig3",
+            "5016638": "IguanaLover",
             "2716932": "ilikelegos",
             "34908": "AddZero",
             "46103807": "Howtomakeausername",
+            "44776373": "Spidertest_Recovered",
             "3954248": "_youtubeN1",
             "31563725": "xXName77Xx",
             "94780": "colorgram",
             "1132083": "WO997",
+            "14864375": "Java_Programmer",
+            "98183580": "alltrue",
+            "14036013": "ajzat25",
             "2117258": "AlphaAxle",
             "10249132": "MartinBraendli",
             "14370369": "IguanaLover_PT",
@@ -201,7 +208,7 @@ function showProjectPicker() {
 
         var api = query
             ? "https://scratch.pooiod7.workers.dev/search/projects?q=" + encodeURIComponent(query) + "&limit=" + limit + "&offset=" + (page * limit)
-            : "https://scratch.pooiod7.workers.dev/users/S2Listing/favorites?q=7642&mode=recent&limit=" + limit + "&offset=" + (page * limit); // /explore/projects
+            : "https://scratch.pooiod7.workers.dev/users/S2Listing/favorites?q=0813&mode=recent&limit=" + limit + "&offset=" + (page * limit); // /explore/projects
 
         fetch(api)
             .then(r => r.json())
