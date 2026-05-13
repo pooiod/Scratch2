@@ -5,3 +5,7 @@ General Scratch2 / ScratchX repository <br>
 - [Scratch2 in modern browsers](https://scratchflash.pages.dev/)
 - [SB3 project to SB2 conversion](https://scratchflash.pages.dev/convert/)
 - [ScratchX in modern browsers](https://scratchflash.pages.dev/scratchx/)
+- Cloud variable support
+- Controller support for Scratch2
+
+See the swf source [here](https://github.com/pooiod/s2online-mod).
