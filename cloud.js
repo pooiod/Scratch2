@@ -282,7 +282,7 @@
 
         disconnect(true);
 
-        if (currentProjectId) showStatus("swapping cloud servers");
+        // if (currentProjectId) showStatus("swapping cloud servers");
     }
 
     function updateLoop() {
