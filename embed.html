@@ -505,6 +505,11 @@
                     var s2 = document.createElement("script");
                     s2.src = "/controller.js";
                     document.head.appendChild(s2);
+
+                    window.scratchActiveSounds = true;
+                    var s3 = document.createElement("script");
+                    s3.src = "/rufflesound.js";
+                    document.head.appendChild(s3);
                 }
             })();
         </script>
