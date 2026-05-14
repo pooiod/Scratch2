@@ -39,6 +39,7 @@
     var hideTimer = null;
 
     function showStatus(text, keep) {
+        console.log(text);
         mountToast();
         toast.textContent = text;
         toast.style.opacity = "1";
