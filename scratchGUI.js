@@ -16,6 +16,17 @@ function showProjectPicker() {
     .s2-msg { grid-column: 1 / -1; text-align: center; padding: 40px; color: #666; font-size: 14px; }
     .s2-spinner { position: absolute; bottom: 10px; right: 10px; width: 28px; height: 28px; border: 4px solid #bbb; border-top-color: #4CB7FF; border-radius: 50%; animation: s2spin 1s linear infinite; display: none; }
     @keyframes s2spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    @media (max-width: 1000px) {
+        .s2-header { cursor: default; }
+        .s2-popup {
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            border-radius: 0 !important;
+        }
+    }
     `;
     var style = document.createElement("style");
     style.innerHTML = css;
