@@ -428,9 +428,9 @@ async function ShowCard(id) {
                 <div class="s2-mini-footer" ${window.noswap?'style="display:none;"':"">
                     <div class="s2-mini-ok" id="btnok" style="margin-right: 10px;">OK</div>
                     ${location.pathname.includes("player")?`
-                        <div class="s2-mini-ok" id="btnswp" title="ctrl + p">Swap to editor</div>
+                        <div class="s2-mini-ok" id="btnswp" title="ctrl + e">Swap to editor</div>
                     `:`
-                        <div class="s2-mini-ok" id="btnswp" title="ctrl + e">Swap to player</div>
+                        <div class="s2-mini-ok" id="btnswp" title="Do this for better cloud support">Swap to player</div>
                     `}
                 </div>
             </div>
