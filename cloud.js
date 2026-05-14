@@ -75,7 +75,7 @@
         hash = new URLSearchParams(window.location.search).get('project_url') || hash;
         hash = new URLSearchParams(window.location.search).get('url') || hash;
         if (!hash) return "";
-        var prefix = isPlayerPath() ? "" : (isScratchXPath():"scratchx-":"editor-");
+        var prefix = isPlayerPath() ? "" : (isScratchXPath():"scratchx-":"editor-"));
         return prefix + decodeURIComponent(hash);
     }
 
