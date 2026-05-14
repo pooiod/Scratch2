@@ -425,7 +425,7 @@ async function ShowCard(id) {
                     <p class="s2-mini-text">${data.description || ""}</p>
                 </div>
                 <div class="s2-mini-footer">
-                    <div class="s2-mini-ok" id="btnok">OK</div>
+                    <div class="s2-mini-ok" id="btnok" style="margin-right: 10px;">OK</div>
                     ${location.pathname.includes("player")?`
                         <div class="s2-mini-ok" id="btnswp" title="ctrl + p">Swap to editor</div>
                     `:`
@@ -440,7 +440,7 @@ async function ShowCard(id) {
         const close = () => win.remove();
         win.querySelector('.s2-mini-close-x').onclick = close;
         win.querySelector('#btnok').onclick = close;
-        win.querySelector('#btnok').onclick = swap;
+        win.querySelector('#btnswp').onclick = swap;
 
         const header = win.querySelector('.s2-mini-header');
         let active = false, curX, curY, initX, initY, xOff = 0, yOff = 0;
