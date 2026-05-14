@@ -377,12 +377,35 @@ function showProjectPicker() {
     load(true);
 }
 
+function swap() {
+    if (location.pathname.includes("player")) {
+        const url = new URL(window.location.href);
+        url.pathname = url.pathname.replace(/\/player\/?$/, '');
+        window.location.href = url.href;
+    } else {
+        const url = new URL(window.location.href);
+        url.pathname = url.pathname.replace(/\/$/, "") + "/player";
+        window.location.href = url.href;
+    }
+}
+
+window.addEventListener('keydown', function (e) {
+    if (e.ctrlKey || e.metaKey) {
+        const key = e.key.toLowerCase();
+
+        if (key === 'p' || key === 'e') {
+            e.preventDefault();
+            swap();
+        }
+    }
+});
+
 async function ShowCard(id) {
     try {
         const response = await fetch(`https://scratch.pooiod7.workers.dev/projects/${id}`);
         const data = await response.json();
 
-        if (!data.title) return;
+        if (!data.instructions && !data.description) return;
 
         const win = document.createElement('div');
         win.className = 's2-mini-window';
@@ -393,16 +416,21 @@ async function ShowCard(id) {
                 <div class="s2-mini-close-x">&times;</div>
             </div>
             <div class="s2-mini-body">
-                <div>
+                <div ${data.instructions?"":'style="display:none"'}>
                     <h2 class="s2-mini-section-head">Instructions</h2>
                     <p class="s2-mini-text">${data.instructions || ""}</p>
-                </div>
+                </div ${data.description?"":'style="display:none"'}>
                 <div>
                     <h2 class="s2-mini-section-head">Notes and Credits</h2>
                     <p class="s2-mini-text">${data.description || ""}</p>
                 </div>
                 <div class="s2-mini-footer">
-                    <div class="s2-mini-ok">OK</div>
+                    <div class="s2-mini-ok" id="btnok">OK</div>
+                    ${location.pathname.includes("player")?`
+                        <div class="s2-mini-ok" id="btnswp" title="ctrl + p">Swap to editor</div>
+                    `:`
+                        <div class="s2-mini-ok" id="btnswp" title="ctrl + e">Swap to player</div>
+                    `}
                 </div>
             </div>
         `;
@@ -411,7 +439,8 @@ async function ShowCard(id) {
 
         const close = () => win.remove();
         win.querySelector('.s2-mini-close-x').onclick = close;
-        win.querySelector('.s2-mini-ok').onclick = close;
+        win.querySelector('#btnok').onclick = close;
+        win.querySelector('#btnok').onclick = swap;
 
         const header = win.querySelector('.s2-mini-header');
         let active = false, curX, curY, initX, initY, xOff = 0, yOff = 0;

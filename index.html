@@ -418,6 +418,12 @@
                     document.head.appendChild(s2);
                 }
             })();
+
+            document.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+                    window.location.reload();
+                }
+            });
         </script>
 
         <div id="container">
