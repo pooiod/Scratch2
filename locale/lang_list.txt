@@ -1,1 +1,1 @@
-es,Español
+en,English
