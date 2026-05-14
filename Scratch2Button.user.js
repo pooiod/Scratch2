@@ -80,7 +80,7 @@
         f.style.height = "400px";
         f.style.border = "0";
         f.allow = "fullscreen";
-        f.src = "https://scratchflash.pages.dev/player/#" + getProjectId();
+        f.src = "https://scratchflash.pages.dev/embed/#" + getProjectId();
         gui.appendChild(f);
         return f;
     }
