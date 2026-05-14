@@ -4,7 +4,7 @@ Added support for Scratch3 fonts (when rasterized)
 Added support for (costume [name v]) block
 
 Issues:
-Audio is still broke
+Audio speed is broken
 No <[text] contains [thing]> support
 No {glide (seconds) secs to [random pos / mouse pos v]} support
 No (# of [thing] in [list v]) support

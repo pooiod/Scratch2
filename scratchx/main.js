@@ -174,7 +174,7 @@ $.each(flashVars, function(prop, val) {
 swfobject.switchOffAutoHideShow();
 
 var swfAttributes = {
-  data: 'ScratchX.swf',
+  data: '/Scratch.swf',
   width: '100%',
   height: '100%'
 };
