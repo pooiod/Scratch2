@@ -1,37 +1,125 @@
-function showProjectPicker() {
-    var css = `
-    .s2-popup { position: fixed; top: 50px; left: 50px; width: 800px; height: 500px; background: #E0E0E0; border-radius: 8px; border: 1px solid #B0B0B0; box-shadow: 0 10px 25px rgba(0,0,0,0.3); display: flex; flex-direction: column; overflow: hidden; z-index: 2147483647; font-family: Helvetica, Arial, sans-serif; }
-    .s2-header { height: 35px; background: linear-gradient(#E0E0E0, #C0C0C0); border-bottom: 1px solid #A0A0A0; display: flex; align-items: center; padding: 0 10px; justify-content: space-between; cursor: move; }
-    .s2-title { font-weight: bold; font-size: 14px; }
-    .s2-close { width: 22px; height: 22px; background: #929292; border-radius: 4px; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-    .s2-toolbar { padding: 8px; background: #D0D0D0; border-bottom: 1px solid #B0B0B0; display: flex; gap: 8px; }
-    .s2-input { flex: 1; padding: 5px; border: 1px solid #999; border-radius: 4px; }
-    .s2-btn { padding: 5px 12px; background: linear-gradient(#4CB7FF, #2E95DC); border: 1px solid #2080C0; border-radius: 4px; color: white; font-weight: bold; cursor: pointer; }
-    .s2-grid { position: relative; flex: 1; overflow-y: auto; padding: 10px; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; background: #F2F2F2; }
-    .s2-card { background: #fff; border: 1px solid #C0C0C0; border-radius: 4px; padding: 8px; cursor: pointer; }
-    .s2-thumb { width: 100%; aspect-ratio: 4/3; background: #ddd; margin-bottom: 6px; }
-    .s2-img { width: 100%; height: 100%; object-fit: cover; }
-    .s2-name { font-size: 13px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .s2-meta { font-size: 11px; color: #777; }
-    .s2-msg { grid-column: 1 / -1; text-align: center; padding: 40px; color: #666; font-size: 14px; }
-    .s2-spinner { position: absolute; bottom: 10px; right: 10px; width: 28px; height: 28px; border: 4px solid #bbb; border-top-color: #4CB7FF; border-radius: 50%; animation: s2spin 1s linear infinite; display: none; }
-    @keyframes s2spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+var style2409 = document.createElement("style");
+style2409.innerHTML = `
+.s2-popup { position: fixed; top: 50px; left: 50px; width: 800px; height: 500px; background: #E0E0E0; border-radius: 8px; border: 1px solid #B0B0B0; box-shadow: 0 10px 25px rgba(0,0,0,0.3); display: flex; flex-direction: column; overflow: hidden; z-index: 2147483647; font-family: Helvetica, Arial, sans-serif; }
+.s2-header { height: 35px; background: linear-gradient(#E0E0E0, #C0C0C0); border-bottom: 1px solid #A0A0A0; display: flex; align-items: center; padding: 0 10px; justify-content: space-between; cursor: move; }
+.s2-title { font-weight: bold; font-size: 14px; }
+.s2-close { width: 22px; height: 22px; background: #929292; border-radius: 4px; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.s2-toolbar { padding: 8px; background: #D0D0D0; border-bottom: 1px solid #B0B0B0; display: flex; gap: 8px; }
+.s2-input { flex: 1; padding: 5px; border: 1px solid #999; border-radius: 4px; }
+.s2-btn { padding: 5px 12px; background: linear-gradient(#4CB7FF, #2E95DC); border: 1px solid #2080C0; border-radius: 4px; color: white; font-weight: bold; cursor: pointer; }
+.s2-grid { position: relative; flex: 1; overflow-y: auto; padding: 10px; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; background: #F2F2F2; }
+.s2-card { background: #fff; border: 1px solid #C0C0C0; border-radius: 4px; padding: 8px; cursor: pointer; }
+.s2-thumb { width: 100%; aspect-ratio: 4/3; background: #ddd; margin-bottom: 6px; }
+.s2-img { width: 100%; height: 100%; object-fit: cover; }
+.s2-name { font-size: 13px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.s2-meta { font-size: 11px; color: #777; }
+.s2-msg { grid-column: 1 / -1; text-align: center; padding: 40px; color: #666; font-size: 14px; }
+.s2-spinner { position: absolute; bottom: 10px; right: 10px; width: 28px; height: 28px; border: 4px solid #bbb; border-top-color: #4CB7FF; border-radius: 50%; animation: s2spin 1s linear infinite; display: none; }
+@keyframes s2spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-    @media (max-width: 1000px) {
-        .s2-header { cursor: default; }
-        .s2-popup {
-            top: 0 !important;
-            left: 0 !important;
-            width: 100vw !important;
-            height: 100vh !important;
-            border-radius: 0 !important;
-        }
+@media (max-width: 1000px) {
+    .s2-header { cursor: default; }
+    .s2-popup {
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        border-radius: 0 !important;
     }
-    `;
-    var style = document.createElement("style");
-    style.innerHTML = css;
-    document.head.appendChild(style);
+}
 
+.s2-mini-window {
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 380px;
+    background-color: #f2f2f2;
+    border: 1px solid #999;
+    border-radius: 8px 8px 0 0;
+    z-index: 999999999;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #4a4a4a;
+    user-select: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.s2-mini-header {
+    background: linear-gradient(180deg, #FAFAFA 0%, #D2D2D2 100%);
+    border-bottom: 1px solid #999;
+    padding: 4px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: move;
+    height: 26px;
+}
+
+.s2-mini-title {
+    font-size: 12px;
+    font-weight: bold;
+    flex-grow: 1;
+    text-align: center;
+    color: #333;
+}
+
+.s2-mini-close-x {
+    font-size: 16px;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.s2-mini-body {
+    background-color: white;
+    padding: 12px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-radius: 0 0 8px 8px;
+}
+
+.s2-mini-section-head {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.s2-mini-text {
+    font-size: 12px;
+    line-height: 1.4;
+    margin: 0 0 4px 0;
+    white-space: pre-wrap;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+.s2-mini-footer {
+    display: flex;
+    justify-content: center;
+    padding-top: 4px;
+}
+
+.s2-mini-ok {
+    background: linear-gradient(180deg, #FAFAFA 0%, #D2D2D2 100%);
+    border: 1px solid #aaa;
+    border-radius: 5px;
+    padding: 4px 18px;
+    font-size: 12px;
+    color: #333;
+    cursor: pointer;
+    box-shadow: inset 0 1px 0 white;
+}
+
+.s2-mini-ok:active {
+    background: #ccc;
+}
+`;
+document.head.appendChild(style2409);
+
+function showProjectPicker() {
     var popup = document.createElement("div");
     popup.className = "s2-popup";
 
@@ -63,6 +151,7 @@ function showProjectPicker() {
 
     toolbar.appendChild(input);
     toolbar.appendChild(btn);
+    if (!navigator.maxTouchPoints > 0) input.focus();
 
     var grid = document.createElement("div");
     grid.className = "s2-grid";
@@ -234,7 +323,25 @@ function showProjectPicker() {
                     }
                     done = true;
                 } else {
-                    data.forEach(addCard);
+                    if (!query) {
+                        function seededRandom(seed) {
+                            let x = Math.sin(seed) * 10000
+                            return x - Math.floor(x)
+                        }
+
+                        function shuffleWithSeed(arr, seed) {
+                            let a = [...arr];
+                            for (let i = a.length - 1; i > 0; i--) {
+                                let j = Math.floor(seededRandom(seed + i) * (i + 1));
+                                ;[a[i], a[j]] = [a[j], a[i]];
+                            }
+                            return a;
+                        }
+
+                        shuffleWithSeed(data, 824).forEach(addCard);
+                    } else {
+                        data.forEach(addCard);
+                    }
                     page++;
                 }
                 spinner.style.display = "none";
@@ -268,6 +375,69 @@ function showProjectPicker() {
 
     query = input.value.trim();
     load(true);
+}
+
+async function ShowCard(id) {
+    try {
+        const response = await fetch(`https://scratch.pooiod7.workers.dev/projects/${id}`);
+        const data = await response.json();
+
+        if (!data.title) return;
+
+        const win = document.createElement('div');
+        win.className = 's2-mini-window';
+
+        win.innerHTML = `
+            <div class="s2-mini-header">
+                <span class="s2-mini-title">${data.title}</span>
+                <div class="s2-mini-close-x">&times;</div>
+            </div>
+            <div class="s2-mini-body">
+                <div>
+                    <h2 class="s2-mini-section-head">Instructions</h2>
+                    <p class="s2-mini-text">${data.instructions || ""}</p>
+                </div>
+                <div>
+                    <h2 class="s2-mini-section-head">Notes and Credits</h2>
+                    <p class="s2-mini-text">${data.description || ""}</p>
+                </div>
+                <div class="s2-mini-footer">
+                    <div class="s2-mini-ok">OK</div>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(win);
+
+        const close = () => win.remove();
+        win.querySelector('.s2-mini-close-x').onclick = close;
+        win.querySelector('.s2-mini-ok').onclick = close;
+
+        const header = win.querySelector('.s2-mini-header');
+        let active = false, curX, curY, initX, initY, xOff = 0, yOff = 0;
+
+        header.onmousedown = (e) => {
+            initX = e.clientX - xOff;
+            initY = e.clientY - yOff;
+            if (e.target === header || e.target.classList.contains('s2-mini-title')) active = true;
+        };
+
+        document.onmousemove = (e) => {
+            if (active) {
+                e.preventDefault();
+                curX = e.clientX - initX;
+                curY = e.clientY - initY;
+                xOff = curX;
+                yOff = curY;
+                win.style.transform = `translateX(-50%) translate(${curX}px, ${curY}px)`;
+            }
+        };
+
+        document.onmouseup = () => active = false;
+
+    } catch (err) {
+        console.error(err);
+    }
 }
 
 // var button = document.createElement('button');

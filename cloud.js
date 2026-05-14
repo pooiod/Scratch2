@@ -66,6 +66,8 @@
 
     function getProjectIdFromHash() {
         var hash = location.hash ? location.hash.slice(1) : "";
+        hash = new URLSearchParams(window.location.search).get('id') || hash;
+        hash = new URLSearchParams(window.location.search).get('project_url') || hash;
         if (!hash) return "";
         var prefix = isPlayerPath() ? "" : "editor-";
         return prefix + decodeURIComponent(hash);

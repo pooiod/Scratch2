@@ -25,6 +25,7 @@ window.gotZipBase64 = function(content) {
                 $("#BigLoader").css("opacity", 0);
                 $("#scratchloader").css("opacity", 0);
                 $('#downloader').animate({ height: 0 }, 1000);
+                if (location.hash) ShowCard(location.hash.slice(1));
             }, 500);
         } else if (tries >= 40) {
             clearInterval(openTimeout);
