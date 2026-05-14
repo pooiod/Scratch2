@@ -61,7 +61,7 @@
     }
 
     function isPlayerPath() {
-        return location.pathname === "/player" || location.pathname === "/player.html";
+        return location.pathname === "/player" || location.pathname === "/player.html" || location.pathname === "/embed";
     }
 
     function getProjectIdFromHash() {
