@@ -425,7 +425,7 @@ async function ShowCard(id) {
                     <h2 class="s2-mini-section-head">Notes and Credits</h2>
                     <p class="s2-mini-text">${data.description || ""}</p>
                 </div>
-                <div class="s2-mini-footer" ${window.noswap?'style="display:none;"':"">
+                <div class="s2-mini-footer" ${window.noswap?'style="display:none;"':""}>
                     <div class="s2-mini-ok" id="btnok" style="margin-right: 10px;">OK</div>
                     ${location.pathname.includes("player")?`
                         <div class="s2-mini-ok" id="btnswp" title="ctrl + e">Swap to editor</div>
