@@ -64,12 +64,17 @@
         return location.pathname === "/player" || location.pathname === "/player.html" || location.pathname === "/embed";
     }
 
+    function isScratchXPath() {
+        return location.pathname === "/scratchx";
+    }
+
     function getProjectIdFromHash() {
         var hash = location.hash ? location.hash.slice(1) : "";
         hash = new URLSearchParams(window.location.search).get('id') || hash;
         hash = new URLSearchParams(window.location.search).get('project_url') || hash;
+        hash = new URLSearchParams(window.location.search).get('url') || hash;
         if (!hash) return "";
-        var prefix = isPlayerPath() ? "" : "editor-";
+        var prefix = isPlayerPath() ? "" : (isScratchXPath():"scratchx-":"editor-");
         return prefix + decodeURIComponent(hash);
     }
 
@@ -83,7 +88,7 @@
 
     function lsSet(name, value) {
         try {
-            if (!isPlayerPath() && !name.includes("local")) return;
+            if (!name.includes("local")) return;
             var v = String(value);
             if (v.length > 100000) v = v.slice(0, 100000);
             localStorage.setItem(lsKey(name), v);
