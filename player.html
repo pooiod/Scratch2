@@ -489,7 +489,7 @@
                         allowScriptAccess: true
                     };
                     var s = document.createElement("script");
-                    s.src = "https://unpkg.com/@ruffle-rs/ruffle";
+                    s.src = "https://cdn.jsdelivr.net/npm/@ruffle-rs/ruffle";
                     s.onload = function(){
                         var ruffle=window.RufflePlayer.newest();
                         var player=ruffle.createPlayer();
@@ -497,7 +497,7 @@
                         player.style.height="100%";
                         document.getElementById("flash").innerHTML = "";
                         document.getElementById("flash").appendChild(player);
-                        player.load({url:"Scratch.swf", autoplay:"on", unmuteOverlay:"hidden", maxExecutionDuration: 99999999999});
+                        player.load({url:"Scratch.swf", autoplay:"on", unmuteOverlay:"hidden", "quality": "low", "wmode": "opaque", maxExecutionDuration: 99999999999});
                     };
                     document.head.appendChild(s);
 

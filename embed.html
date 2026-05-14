@@ -498,7 +498,7 @@
                         player.style.height="100%";
                         document.getElementById("flash").innerHTML = "";
                         document.getElementById("flash").appendChild(player);
-                        player.load({url:"player.swf", autoplay:"on", unmuteOverlay:"hidden", maxExecutionDuration: 99999999999});
+                        player.load({url:"player.swf", autoplay:"on", unmuteOverlay:"hidden", "quality": "low", "wmode": "opaque", maxExecutionDuration: 99999999999});
                     };
                     document.head.appendChild(s);
 
