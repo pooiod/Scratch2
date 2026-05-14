@@ -48,7 +48,7 @@
             hideTimer = setTimeout(function () {
                 toast.style.opacity = "0";
                 toast.style.transform = "translateY(4px)";
-            }, 1000);
+            }, 2000);
         }
     }
 
@@ -119,13 +119,13 @@
         ws = null;
         connected = false;
 
-        if (!silent) showStatus("disconnected from cloud var server");
+        if (!silent) showStatus("☁ disconnected");
     }
 
     function connect() {
         if (connected || ws || !currentProjectId) return;
 
-        showStatus("connecting to cloud var server");
+        showStatus("☁ connecting");
 
         ws = new WebSocket("wss://clouddata.turbowarp.org");
 
@@ -133,7 +133,7 @@
             connected = true;
             intentionalClose = false;
 
-            showStatus("connected to cloud");
+            showStatus("☁ connected");
 
             ws.send(JSON.stringify({
                 method: "handshake",
@@ -182,7 +182,7 @@
                 return;
             }
 
-            showStatus("reconnecting to cloud");
+            showStatus("☁ reconnecting");
 
             reconnectTimer = setTimeout(function () {
                 reconnectTimer = null;
