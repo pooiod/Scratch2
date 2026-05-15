@@ -488,7 +488,7 @@ async function ShowCard(id) {
     }
 }
 
-if (window.hasFlash) {
+if (false) {
     var button = document.createElement('button');
     button.style.position = 'absolute';
     button.style.left = '40px';
