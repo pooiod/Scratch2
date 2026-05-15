@@ -10,6 +10,9 @@
     var currentHash = "";
 
     var username = "player" + Math.floor(1000 + Math.random() * 9000);
+    function rename() {
+        username = "player" + Math.floor(1000 + Math.random() * 9000);
+    }
 
     var STORAGE_PREFIX = "cloudvar-";
 
@@ -128,8 +131,13 @@
         if (!silent) showStatus("☁ disconnected");
     }
 
+    var connections = 0;
     function connect() {
         if (connected || ws || !currentProjectId) return;
+        connections += 1;
+        if (connections > 20) {
+            showStatus("Unable to connect to cloud");
+        }
 
         showStatus("☁ connecting");
 
@@ -182,6 +190,7 @@
         ws.onclose = function () {
             ws = null;
             connected = false;
+            rename();
 
             if (intentionalClose) {
                 intentionalClose = false;
