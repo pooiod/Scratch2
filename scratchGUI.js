@@ -9,6 +9,7 @@ style2409.innerHTML = `
 .s2-btn { padding: 5px 12px; background: linear-gradient(#4CB7FF, #2E95DC); border: 1px solid #2080C0; border-radius: 4px; color: white; font-weight: bold; cursor: pointer; }
 .s2-grid { position: relative; flex: 1; overflow-y: auto; padding: 10px; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; background: #F2F2F2; }
 .s2-card { background: #fff; border: 1px solid #C0C0C0; border-radius: 4px; padding: 8px; cursor: pointer; }
+.s2-card.laggy { background: #fffecd; }
 .s2-thumb { width: 100%; aspect-ratio: 4/3; background: #ddd; margin-bottom: 6px; }
 .s2-img { width: 100%; height: 100%; object-fit: cover; }
 .s2-name { font-size: 13px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -206,6 +207,24 @@ function showProjectPicker(willreload) {
             close.click();
             if (window.skipgui2) location.reload();
         };
+
+        var str = p.description.toLowerCase() + p.instructions.toLowerCase();
+        var lagwarn = [
+            "phosphorus",
+            "forkphorus",
+            "turbowarp",
+            "sulfurous",
+            "lag",
+            ["run", "slow"],
+            ["close", "tab"]
+        ].some(rule => {
+            if (Array.isArray(rule)) {
+                return rule.every(word => str.includes(word))
+            }
+            return str.includes(rule)
+        });
+
+        if (lagwarn) card.classList.add("laggy");
 
         var thumb = document.createElement("div");
         thumb.className = "s2-thumb";
