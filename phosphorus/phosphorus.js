@@ -2492,6 +2492,8 @@ P.compile = (function() {
 
     var DIGIT = /\d/;
     var boolval = function(e) {
+      if (e == null) return;
+
       if (e[0] === 'list:contains:') { /* Data */
 
         return 'listContains(' + listRef(e[1]) + ', ' + val(e[2]) + ')';
