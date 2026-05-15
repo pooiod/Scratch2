@@ -80,20 +80,20 @@ P.player = (function() {
     isFullScreen = !isFullScreen;
     if (!e || !e.shiftKey) {
       if (isFullScreen) {
-        // var el = document.documentElement;
-        // if (el.requestFullScreenWithKeys) {
-        //   el.requestFullScreenWithKeys();
-        // } else if (el.webkitRequestFullScreen) {
-        //   el.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
-        // }
+        var el = document.documentElement;
+        if (el.requestFullScreenWithKeys) {
+          el.requestFullScreenWithKeys();
+        } else if (el.webkitRequestFullScreen) {
+          el.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
+        }
       } else {
-        // if (document.exitFullscreen) {
-        //   document.exitFullscreen();
-        // } else if (document.mozCancelFullScreen) {
-        //   document.mozCancelFullScreen();
-        // } else if (document.webkitCancelFullScreen) {
-        //   document.webkitCancelFullScreen();
-        // }
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+          document.mozCancelFullScreen();
+        } else if (document.webkitCancelFullScreen) {
+          document.webkitCancelFullScreen();
+        }
       }
     }
     if (!isFullScreen) {
