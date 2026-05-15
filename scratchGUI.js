@@ -119,7 +119,7 @@ style2409.innerHTML = `
 `;
 document.head.appendChild(style2409);
 
-function showProjectPicker() {
+function showProjectPicker(willreload) {
     var popup = document.createElement("div");
     popup.className = "s2-popup";
 
@@ -287,9 +287,9 @@ function showProjectPicker() {
             } else {
                 window.location.hash = query;
             }
-            startDownload(query);
             close.click();
-            if (window.skipgui2) location.reload();
+            if (window.skipgui2 || willreload) location.reload();
+            startDownload(query);
             return;
         }
 
