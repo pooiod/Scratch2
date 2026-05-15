@@ -62,7 +62,7 @@
     }
 
     function isPlayerPath() {
-        return location.pathname === "/player" || location.pathname === "/player.html" || location.pathname === "/embed";
+        return location.pathname.includes("/phosphorus") || location.pathname === "/player" || location.pathname === "/player.html" || location.pathname === "/embed";
     }
 
     function isScratchXPath() {
