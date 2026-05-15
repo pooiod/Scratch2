@@ -3,7 +3,8 @@ P.player = (function() {
 
   var stage;
   var frameId = null;
-  window.isFullScreen = window.isFullScreen || false;
+  window.isFullScreen = false;
+  window.fillpage = window.fillpage || false;
 
   var progressBar = document.querySelector('.progress-bar');
   var player = document.querySelector('.player');
@@ -116,7 +117,7 @@ P.player = (function() {
 
   function updateFullScreen() {
     if (!stage) return;
-    if (isFullScreen) {
+    if (isFullScreen || window.fillpage) {
       window.scrollTo(0, 0);
       var padding = 8;
       var w = window.innerWidth - padding * 2;
@@ -226,6 +227,7 @@ P.player = (function() {
       stage.handleError = showError;
 
       player.appendChild(stage.root);
+      updateFullScreen();
       stage.focus();
       if (loadCallback) {
         loadCallback(stage);
@@ -241,12 +243,6 @@ P.player = (function() {
       progressBar.style.width = (10 + e.loaded / e.total * 90) + '%';
     };
   }
-
-  updateFullScreen();
-  if (!stage.isRunning) {
-    stage.draw();
-  }
-  stage.focus();
 
   return {
     load: load,
