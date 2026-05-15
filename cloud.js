@@ -80,6 +80,7 @@
     }
 
     function swfReady() {
+        window.swf = document.querySelector('#scratch embed') || document.querySelector('ruffle-player');
         return typeof swf !== "undefined" && swf && swf.ASgetAllVars && swf.ASsetVarValue;
     }
 

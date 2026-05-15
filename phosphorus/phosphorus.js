@@ -898,6 +898,7 @@ var P = (function() {
   };
 
   var Stage = function() {
+    P.activeStage = this;
     this.stage = this;
 
     Stage.parent.call(this);
@@ -4008,3 +4009,44 @@ P.runtime = (function() {
   };
 
 }());
+
+window.swf = {
+  ASgetAllVars: function() {
+    if (!P.activeStage) return [];
+    var result = [];
+    
+    for (var name in P.activeStage.vars) {
+      result.push({
+        name: name,
+        value: P.activeStage.vars[name]
+      });
+    }
+    
+    P.activeStage.children.forEach(function(child) {
+      if (child.vars) {
+        for (var name in child.vars) {
+          result.push({
+            name: name,
+            value: child.vars[name]
+          });
+        }
+      }
+    });
+    
+    return result;
+  },
+
+  ASsetVarValue: function(name, value) {
+    if (!P.activeStage) return;
+
+    if (P.activeStage.vars[name] !== undefined) {
+      P.activeStage.vars[name] = value;
+    }
+
+    P.activeStage.children.forEach(function(child) {
+      if (child.vars && child.vars[name] !== undefined) {
+        child.vars[name] = value;
+      }
+    });
+  }
+};
