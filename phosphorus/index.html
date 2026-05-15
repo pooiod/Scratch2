@@ -91,6 +91,25 @@
 <script src=/scratchGUI.js></script>
 <script src=/cloud.js></script>
 <script>
+window.addEventListener('keydown', function (e) {
+    if (e.ctrlKey || e.metaKey) {
+        const key = e.key.toLowerCase();
+        const url = new URL(window.location.href);
+
+        let id = url.searchParams.get('id') || url.hash.replace('#', '');
+
+        if (key === 'p') {
+            e.preventDefault();
+            window.location.href = '/player' + (id ? '#' + id : '');
+        }
+
+        if (key === 'e') {
+            e.preventDefault();
+            window.location.href = '/' + (id ? '#' + id : '');
+        }
+    }
+});
+
 (function() {
   'use strict';
 
