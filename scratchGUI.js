@@ -214,7 +214,7 @@ function showProjectPicker(willreload) {
             "forkphorus",
             "turbowarp",
             "sulfurous",
-            "lag",
+            " lag",
             ["run", "slow"],
             ["close", "tab"]
         ].some(rule => {
