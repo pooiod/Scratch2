@@ -283,7 +283,9 @@ async function startDownload(projectId) {
             logMessage('Starting conversion...');
             await processSB3(projectData);
         } else if (isSB1) {
-            logMessage('Downloading s1 project...');
+            // Sometimes sb2 projects get downloaded directly like sb1 projects
+            // This is common on scratch 2 projects uploaded after the removal of the legacy api
+            logMessage('Downloading direct project...');
             await processLegacy(projectData);
         } else {
             logMessage('Downloading project...');

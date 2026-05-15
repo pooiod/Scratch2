@@ -35,11 +35,11 @@ window.addEventListener('keydown', function (e) {
         if (key === 'p') {
             e.preventDefault();
           const url = new URL(window.location.href);
-          window.location.href = url.href.replace(/phosphorus\/player\?id=/, '#');
+          window.location.href = url.href.replace(/\/phosphorus\/player\?id=/, '/player#');
         } if (key === 'e') {
           e.preventDefault();
           const url = new URL(window.location.href);
-          window.location.href = url.href.replace(/phosphorus\/player\?id=/, '#');
+          window.location.href = url.href.replace(/\/phosphorus\/player\?id=/, '/#');
         }
     }
 });
@@ -47,7 +47,7 @@ window.addEventListener('keydown', function (e) {
 (function() {
   'use strict';
 
-  var projectId = 17088932;
+  var projectId = 1298706676;
   var autoStart = false;
   var lightContent = false;
   var hasUI = true;

@@ -256,7 +256,7 @@ var P = (function() {
 
     window.gotZipBase64 = function(content) {
       try {
-        var binaryString = window.atob(content);
+        var binaryString = window.atob(content.replace(/^data:application\/octet-stream;base64,/, ''));
         var len = binaryString.length;
         var bytes = new Uint8Array(len);
         for (var i = 0; i < len; i++) {

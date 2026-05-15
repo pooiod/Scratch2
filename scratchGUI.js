@@ -381,16 +381,16 @@ function swap(key) {
     if (window.noswap) return;
     if (location.pathname.includes("player")) {
         const url = new URL(window.location.href);
-        if (key = "p") {
-            window.location.href = url.href.replace(/\/player\/?$/, '/phosphorus/player').replace(/#/g, "?id=");
+        if (key == "p") {
+            window.location.href = url.href.replace(/\/player(\/)?(?=[?#]|$)/, '/phosphorus/player').replace(/#/, "?id=");
         } else {
             url.pathname = url.pathname.replace(/\/player\/?$/, '');
             window.location.href = url.href;
         }
     } else {
         const url = new URL(window.location.href);
-        if (key = "p") {
-            window.location.href = url.href.replace(/\//, '/phosphorus/player').replace(/#/g, "?id=");
+        if (key == "e") {
+            window.location.href = url.href.replace(/^https?:\/\/[^/]+/, '$&/phosphorus/player').replace(/#/, "?id=");
         } else {
             url.pathname = url.pathname.replace(/\/$/, "") + "/player";
             window.location.href = url.href;
