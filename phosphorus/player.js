@@ -242,6 +242,12 @@ P.player = (function() {
     };
   }
 
+  updateFullScreen();
+  if (!stage.isRunning) {
+    stage.draw();
+  }
+  stage.focus();
+
   return {
     load: load,
     showProgress: showProgress
