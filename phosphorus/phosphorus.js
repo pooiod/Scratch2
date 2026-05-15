@@ -285,19 +285,20 @@ var P = (function() {
 
   IO.loadScratchr2ProjectTitle = function(id, callback, self) {
     var request = new CompositeRequest;
+    request.error(new Error('No title'));
 
-    request.defer = true;
-    request.add(P.IO.load('https://scratch.mit.edu/projects/' + id + '/').onLoad(function(data) {
-      var m = /<title>\s*(.+?)(\s+on\s+Scratch)?\s*<\/title>/.exec(data);
-      if (callback) request.onLoad(callback.bind(self));
-      if (m) {
-        var d = document.createElement('div');
-        d.innerHTML = m[1];
-        request.load(d.innerText);
-      } else {
-        request.error(new Error('No title'));
-      }
-    }));
+    // request.defer = true;
+    // request.add(P.IO.load('https://scratch.mit.edu/projects/' + id + '/').onLoad(function(data) {
+    //   var m = /<title>\s*(.+?)(\s+on\s+Scratch)?\s*<\/title>/.exec(data);
+    //   if (callback) request.onLoad(callback.bind(self));
+    //   if (m) {
+    //     var d = document.createElement('div');
+    //     d.innerHTML = m[1];
+    //     request.load(d.innerText);
+    //   } else {
+    //     request.error(new Error('No title'));
+    //   }
+    // }));
 
     return request;
   };
