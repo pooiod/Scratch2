@@ -300,6 +300,7 @@
     function updateHashState() {
         var nextHash = location.hash;
         if (nextHash === currentHash) return;
+        connections = 0;
 
         currentHash = nextHash;
 
