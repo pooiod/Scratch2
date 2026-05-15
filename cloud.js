@@ -199,6 +199,15 @@
                 return;
             }
 
+            if (e.code === 1000 || e.code === 1001) {
+                showStatus("disconnected from cloud");
+                return;
+            }
+
+            if (e.code === 101) {
+                return;
+            }
+
             showStatus("☁ reconnecting");
 
             reconnectTimer = setTimeout(function () {
