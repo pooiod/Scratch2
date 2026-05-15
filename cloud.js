@@ -211,6 +211,7 @@
 
             showStatus("☁ reconnecting");
 
+            if (reconnectTimer) return;
             reconnectTimer = setTimeout(function () {
                 reconnectTimer = null;
                 connect();
