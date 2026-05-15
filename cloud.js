@@ -135,8 +135,9 @@
     function connect() {
         if (connected || ws || !currentProjectId) return;
         connections += 1;
-        if (connections > 5) {
+        if (connections > 10) {
             showStatus("Unable to connect to cloud");
+            return;
         }
 
         showStatus("☁ connecting");
