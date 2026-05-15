@@ -532,7 +532,7 @@ async function ShowCard(id) {
 //     window.addEventListener('mousedown', removeSecondButton, true);
 // }
 
-if (window.skipgui2 && !location.hash && !new URLSearchParams(window.location.search).has("project_url")) showProjectPicker();
+if (window.skipgui2 && !location.hash && !new URLSearchParams(window.location.search).has("project_url") && !new URLSearchParams(window.location.search).has("id")) showProjectPicker();
 
 function checkHash() {
   if (location.hash === "#96659160") {
