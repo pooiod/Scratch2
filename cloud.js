@@ -144,11 +144,9 @@
 
         ws = new WebSocket("wss://clouddata.turbowarp.org");
 
-        ws.onopen = function (e) {
+        ws.onopen = function () {
             connected = true;
             intentionalClose = false;
-
-            console.warn(e);
 
             showStatus("☁ connected");
 
@@ -191,6 +189,8 @@
         };
 
         ws.onclose = function (e) {
+            console.log(e);
+
             if (e.code === 1000 || e.code === 1001) {
                 showStatus("disconnected from cloud");
                 return;
