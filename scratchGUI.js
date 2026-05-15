@@ -390,7 +390,7 @@ function swap(key) {
     } else {
         const url = new URL(window.location.href);
         if (key == "e") {
-            window.location.href = url.href.replace(/^https?:\/\/[^/]+/, '$&/phosphorus/player').replace(/#/, "?id=");
+            window.location.href = url.href.replace(/^https?:\/\/[^/]+/, '$&/phosphorus').replace(/#/, "?id=");
         } else {
             url.pathname = url.pathname.replace(/\/$/, "") + "/player";
             window.location.href = url.href;
