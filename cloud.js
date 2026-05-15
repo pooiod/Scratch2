@@ -191,21 +191,21 @@
         };
 
         ws.onclose = function () {
-            ws = null;
-            connected = false;
-            rename();
-
-            if (intentionalClose) {
-                intentionalClose = false;
-                return;
-            }
-
             if (e.code === 1000 || e.code === 1001) {
                 showStatus("disconnected from cloud");
                 return;
             }
 
             if (e.code === 101) {
+                return;
+            }
+
+            ws = null;
+            connected = false;
+            rename();
+
+            if (intentionalClose) {
+                intentionalClose = false;
                 return;
             }
 
