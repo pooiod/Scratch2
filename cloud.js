@@ -190,7 +190,7 @@
             }
         };
 
-        ws.onclose = function () {
+        ws.onclose = function (e) {
             if (e.code === 1000 || e.code === 1001) {
                 showStatus("disconnected from cloud");
                 return;
