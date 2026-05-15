@@ -37,12 +37,14 @@ window.addEventListener('keydown', function (e) {
 
         if (key === 'p') {
             e.preventDefault();
-          const url = new URL(window.location.href);
-          window.location.href = url.href.replace(/\/phosphorus\/player\?id=/, '\/player#');
-        } if (key === 'e') {
-          e.preventDefault();
-          const url = new URL(window.location.href);
-          window.location.href = url.href.replace(/\/phosphorus\/player\?id=/, '\/#');
+            const url = new URL(window.location.href);
+            window.location.href = url.href.replace(/\/phosphorus\/player\?id=/, '/player#');
+        }
+
+        if (key === 'e') {
+            e.preventDefault();
+            const url = new URL(window.location.href);
+            window.location.href = url.href.replace(/\/phosphorus\/player\?id=/, '/#');
         }
     }
 });
