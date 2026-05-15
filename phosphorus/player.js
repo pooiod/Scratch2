@@ -173,6 +173,8 @@ P.player = (function() {
   });
 
   function load(id, cb, titleCallback) {
+    updateFullScreen();
+
     P.player.projectId = id;
     P.player.projectURL = id ? 'https://scratch.mit.edu/projects/' + id + '/' : '';
 
