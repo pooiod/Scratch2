@@ -2299,6 +2299,11 @@ P.compile = (function() {
 
     var val = function(e, usenum, usebool) {
       var v;
+      if (e == null) {
+        warn('Undefined val: ' + e, usenum, usebool);
+        return;
+      }
+
       if (typeof e === 'number' || typeof e === 'boolean') {
 
         return '' + e;
@@ -2487,12 +2492,6 @@ P.compile = (function() {
 
     var DIGIT = /\d/;
     var boolval = function(e) {
-      console.log(e)
-      if (!e) e = ["", "", "", "", "", "", ""];
-      if (e[0] == null) e[0] == "";
-      if (e[1] == null) e[1] == "";
-      console.log(e)
-
       if (e[0] === 'list:contains:') { /* Data */
 
         return 'listContains(' + listRef(e[1]) + ', ' + val(e[2]) + ')';
