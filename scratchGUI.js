@@ -399,6 +399,7 @@ function swap(key) {
 }
 
 window.addEventListener('keydown', function (e) {
+    if (location.pathname.includes("/phosphorus")) return;
     if (e.ctrlKey || e.metaKey) {
         const key = e.key.toLowerCase();
 
