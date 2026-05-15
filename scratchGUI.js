@@ -453,8 +453,7 @@ async function ShowCard(id) {
         win.querySelector('#btnok').onclick = close;
         win.querySelector('#btnswp').onclick = swap;
         if (win.querySelector('#btnswp3')) win.querySelector('#btnswp3').onclick = () => {
-            const url = new URL(window.location.href);
-            window.location.href = url.href.replace(/\/player\/?$/, '/phosphorus/player').replace(/#/g, "?id=");
+            window.location.href = url.href.replace(/\/player(\/)?(?=[?#]|$)/, '/phosphorus/player').replace(/#/, "?id=");
         };
 
         const header = win.querySelector('.s2-mini-header');
