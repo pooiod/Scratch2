@@ -136,7 +136,7 @@
         if (connected || ws || !currentProjectId) return;
         connections += 1;
         if (connections > 10) {
-            showStatus("Unable to connect to cloud");
+            showStatus("unable to connect to cloud");
             return;
         }
 
@@ -197,6 +197,11 @@
             }
 
             if (e.code === 101) {
+                return;
+            }
+
+            if (e.code === 1008 || e.code === 3000 || e.code === 3003) {
+                showStatus("unable to connect to cloud, you are banned");
                 return;
             }
 
