@@ -445,7 +445,7 @@ async function ShowCard(id) {
         win.querySelector('#btnswp').onclick = swap;
         if (win.querySelector('#btnswp3')) win.querySelector('#btnswp3').onclick = () => {
             const url = new URL(window.location.href);
-            url.pathname = url.pathname = url.pathname.replace(/\/player\/?$/, '/phosphorus/player').replace('#', '?id=');
+            url.pathname = url.pathname = url.pathname.replace(/\/player\/?$/, '/phosphorus/player').replace(/#/g, "?id=");
             window.location.href = url.href;
         };
 
