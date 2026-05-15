@@ -5,6 +5,7 @@
     var intentionalClose = false;
     var reconnectTimer = null;
     var usernameApplied = false;
+    var connections = 0;
 
     var currentProjectId = "";
     var currentHash = "";
@@ -131,11 +132,10 @@
         if (!silent) showStatus("☁ disconnected");
     }
 
-    var connections = 0;
     function connect() {
         if (connected || ws || !currentProjectId) return;
         connections += 1;
-        if (connections > 20) {
+        if (connections > 5) {
             showStatus("Unable to connect to cloud");
         }
 
@@ -143,9 +143,11 @@
 
         ws = new WebSocket("wss://clouddata.turbowarp.org");
 
-        ws.onopen = function () {
+        ws.onopen = function (e) {
             connected = true;
             intentionalClose = false;
+
+            console.warn(e);
 
             showStatus("☁ connected");
 
