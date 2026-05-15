@@ -429,7 +429,7 @@ async function ShowCard(id) {
                     <div class="s2-mini-ok" id="btnok" style="margin-right: 10px;">OK</div>
                     ${location.pathname.includes("player")?`
                         <div class="s2-mini-ok" id="btnswp" title="ctrl + e" style="margin-right: 10px;">Swap to editor</div>
-                        <div class="s2-mini-ok" id="btnswp3" title="ctrl + e">Swap to high performance player</div>
+                        <div class="s2-mini-ok" id="btnswp3" title="a high-performance player">Swap to phosphorus</div>
                     `:`
                         <div class="s2-mini-ok" id="btnswp" title="Do this for better cloud support">Swap to player</div>
                     `}
