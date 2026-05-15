@@ -2491,6 +2491,7 @@ P.compile = (function() {
       if (!e) e = ["", "", "", "", "", "", ""];
       if (e[0] == null) e[0] == "";
       if (e[1] == null) e[1] == "";
+      console.log(e)
 
       if (e[0] === 'list:contains:') { /* Data */
 
