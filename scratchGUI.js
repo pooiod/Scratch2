@@ -436,11 +436,12 @@ async function ShowCard(id) {
                     <p class="s2-mini-text">${data.description || ""}</p>
                 </div>
                 <div class="s2-mini-footer" ${window.noswap?'style="display:none;"':""}>
-                    <div class="s2-mini-ok" id="btnok" style="margin-right: 10px;">OK</div>
+                    <!--<div class="s2-mini-ok" id="btnok" style="margin-right: 10px;">OK</div>-->
                     ${location.pathname.includes("player")?`
                         <div class="s2-mini-ok" id="btnswp" title="ctrl + e" style="margin-right: 10px;">Swap to editor</div>
                         <div class="s2-mini-ok" id="btnswp3" title="a high-performance player">Swap to phosphorus</div>
                     `:`
+                        <div class="s2-mini-ok" id="btnok" style="margin-right: 10px;">OK</div>
                         <div class="s2-mini-ok" id="btnswp" title="Do this for better cloud support">Swap to player</div>
                     `}
                 </div>
@@ -451,7 +452,7 @@ async function ShowCard(id) {
 
         const close = () => win.remove();
         win.querySelector('.s2-mini-close-x').onclick = close;
-        win.querySelector('#btnok').onclick = close;
+        if (win.querySelector('#btnok')) win.querySelector('#btnok').onclick = close;
         win.querySelector('#btnswp').onclick = swap;
         if (win.querySelector('#btnswp3')) win.querySelector('#btnswp3').onclick = () => {
             window.location.href = url.href.replace(/\/player(\/)?(?=[?#]|$)/, '/phosphorus/player').replace(/#/, "?id=");
