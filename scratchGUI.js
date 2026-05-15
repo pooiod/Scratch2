@@ -411,6 +411,7 @@ window.addEventListener('keydown', function (e) {
 });
 
 async function ShowCard(id) {
+    if (location.href.includes("/embed")) return;
     try {
         const response = await fetch(`https://scratch.pooiod7.workers.dev/projects/${id}`);
         const data = await response.json();
