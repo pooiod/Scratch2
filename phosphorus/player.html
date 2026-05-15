@@ -34,17 +34,18 @@ window.skipgui2 = true;
 window.addEventListener('keydown', function (e) {
     if (e.ctrlKey || e.metaKey) {
         const key = e.key.toLowerCase();
+        const url = new URL(window.location.href);
+
+        let id = url.searchParams.get('id') || url.hash.replace('#', '');
 
         if (key === 'p') {
             e.preventDefault();
-            const url = new URL(window.location.href);
-            window.location.href = url.href.replace(/\/phosphorus\/player\?id=/, '/player#');
+            window.location.href = '/player' + (id ? '#' + id : '');
         }
 
         if (key === 'e') {
             e.preventDefault();
-            const url = new URL(window.location.href);
-            window.location.href = url.href.replace(/\/phosphorus\/player\?id=/, '/#');
+            window.location.href = '/' + (id ? '#' + id : '');
         }
     }
 });
