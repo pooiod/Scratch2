@@ -377,16 +377,24 @@ function showProjectPicker(willreload) {
     load(true);
 }
 
-function swap() {
+function swap(key) {
     if (window.noswap) return;
     if (location.pathname.includes("player")) {
         const url = new URL(window.location.href);
-        url.pathname = url.pathname.replace(/\/player\/?$/, '');
-        window.location.href = url.href;
+        if (key = "p") {
+            window.location.href = url.href.replace(/\/player\/?$/, '/phosphorus/player').replace(/#/g, "?id=");
+        } else {
+            url.pathname = url.pathname.replace(/\/player\/?$/, '');
+            window.location.href = url.href;
+        }
     } else {
         const url = new URL(window.location.href);
-        url.pathname = url.pathname.replace(/\/$/, "") + "/player";
-        window.location.href = url.href;
+        if (key = "p") {
+            window.location.href = url.href.replace(/\//, '/phosphorus/player').replace(/#/g, "?id=");
+        } else {
+            url.pathname = url.pathname.replace(/\/$/, "") + "/player";
+            window.location.href = url.href;
+        }
     }
 }
 
@@ -396,7 +404,7 @@ window.addEventListener('keydown', function (e) {
 
         if (key === 'p' || key === 'e') {
             e.preventDefault();
-            swap();
+            swap(key);
         }
     }
 });
@@ -445,8 +453,7 @@ async function ShowCard(id) {
         win.querySelector('#btnswp').onclick = swap;
         if (win.querySelector('#btnswp3')) win.querySelector('#btnswp3').onclick = () => {
             const url = new URL(window.location.href);
-            url.pathname = url.href = url.href.replace(/\/player\/?$/, '/phosphorus/player').replace(/#/g, "?id=");
-            window.location.href = url.href;
+            window.location.href = url.href.replace(/\/player\/?$/, '/phosphorus/player').replace(/#/g, "?id=");
         };
 
         const header = win.querySelector('.s2-mini-header');
