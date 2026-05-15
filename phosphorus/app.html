@@ -34,7 +34,7 @@ window.skipgui2 = true;
   'use strict';
 
   var stage;
-  var projectId = 1320635584;
+  var projectId = location.hash?location.hash.split('#').pop():1320635584;
   var projectTitle = '';
   var turbo = false;
   var fullScreen = true;

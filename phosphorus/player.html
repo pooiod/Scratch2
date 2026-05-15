@@ -50,7 +50,7 @@ window.addEventListener('keydown', function (e) {
 (function() {
   'use strict';
 
-  var projectId = 1320635584;
+  var projectId = location.hash?location.hash.split('#').pop():1320635584;
   var autoStart = true;
   var lightContent = false;
   var hasUI = true;
