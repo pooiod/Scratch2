@@ -2487,7 +2487,8 @@ P.compile = (function() {
 
     var DIGIT = /\d/;
     var boolval = function(e) {
-      if (!e) e=[];
+      console.log(e)
+      if (!e) e = ["", "", "", "", "", "", ""];
 
       if (e[0] === 'list:contains:') { /* Data */
 
