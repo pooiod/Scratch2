@@ -177,8 +177,8 @@
                     Download App
                 </a>
 
-                <a id="browser-link" href="#" class="btn btn-grey" data-tooltip="Uses a IE11 inside your browser (streamed from ieonchrome.com)">
-                    Continue in Internet Explorer 11
+                <a id="browser-link" href="#" class="btn btn-grey" data-tooltip="Open a modded version of phosphorus.github.io">
+                    Continue in Phosphorus
                 </a>
 
                 <a id="download-link" href="#" class="btn btn-white" data-tooltip="Save the project file to your device for use in the actual Scratch 2 offline editor">
@@ -195,7 +195,7 @@
             const browserLink = document.getElementById('browser-link');
             const downloadLink = document.getElementById('download-link');
 
-            browserLink.href = 'https://ie11.ieonchrome.com/#scratchflash.pages.dev' + currentHash;
+            browserLink.href = '/phosphorus' + currentHash;
             downloadLink.href = '/download' + currentHash;
         });
     </script>
