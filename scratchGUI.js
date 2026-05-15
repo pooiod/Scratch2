@@ -428,7 +428,8 @@ async function ShowCard(id) {
                 <div class="s2-mini-footer" ${window.noswap?'style="display:none;"':""}>
                     <div class="s2-mini-ok" id="btnok" style="margin-right: 10px;">OK</div>
                     ${location.pathname.includes("player")?`
-                        <div class="s2-mini-ok" id="btnswp" title="ctrl + e">Swap to editor</div>
+                        <div class="s2-mini-ok" id="btnswp" title="ctrl + e" style="margin-right: 10px;">Swap to editor</div>
+                        <div class="s2-mini-ok" id="btnswp3" title="ctrl + e">Swap to high performance player</div>
                     `:`
                         <div class="s2-mini-ok" id="btnswp" title="Do this for better cloud support">Swap to player</div>
                     `}
@@ -442,6 +443,11 @@ async function ShowCard(id) {
         win.querySelector('.s2-mini-close-x').onclick = close;
         win.querySelector('#btnok').onclick = close;
         win.querySelector('#btnswp').onclick = swap;
+        if (win.querySelector('#btnswp3')) win.querySelector('#btnswp3').onclick = () => {
+            const url = new URL(window.location.href);
+            url.pathname = url.pathname = url.pathname.replace(/\/player\/?$/, '/phosphorus/player').replace('#', '?id=');
+            window.location.href = url.href;
+        };
 
         const header = win.querySelector('.s2-mini-header');
         let active = false, curX, curY, initX, initY, xOff = 0, yOff = 0;
