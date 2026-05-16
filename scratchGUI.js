@@ -454,8 +454,8 @@ async function ShowCard(id) {
                 <div ${data.instructions?"":'style="display:none"'}>
                     <h2 class="s2-mini-section-head">Instructions</h2>
                     <p class="s2-mini-text">${data.instructions || ""}</p>
-                </div ${data.description?"":'style="display:none"'}>
-                <div>
+                </div>
+                <div ${data.description?"":'style="display:none"'}>
                     <h2 class="s2-mini-section-head">Notes and Credits</h2>
                     <p class="s2-mini-text">${data.description || ""}</p>
                 </div>
