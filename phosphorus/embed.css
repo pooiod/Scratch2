@@ -46,5 +46,5 @@ body {
   background: #ccc !important;
 }
 .s2-mini-window {
-  box-shadow: none;
+  box-shadow: none !important;
 }
