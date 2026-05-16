@@ -458,10 +458,10 @@ async function ShowCard(id) {
                     <p class="s2-mini-text">${data.description || ""}</p>
                 </div>
                 <div class="s2-mini-footer" ${window.noswap?'style="display:none;"':""}>
-                    <!--<div class="s2-mini-ok" id="btnok" style="margin-right: 10px;">OK</div>-->
-                    ${location.pathname.includes("player")?`
+                    ${(location.pathname.includes("player") || location.pathname.includes("phosphorus"))?`
                         <div class="s2-mini-ok" id="btnswp" title="ctrl + e" style="margin-right: 10px;">Swap to editor</div>
-                        <div class="s2-mini-ok" id="btnswp3" title="a high-performance player">Swap to phosphorus</div>
+                        <div class="s2-mini-ok" id="btnok" ${location.pathname.includes("phosphorus")?'style="margin-right: 10px;"':'style="display:none;"'}>OK</div>
+                        <div class="s2-mini-ok" id="btnswp3" title="a high-performance player" ${location.pathname.includes("phosphorus")?'style="display:none;"':""}>Swap to phosphorus</div>
                     `:`
                         <div class="s2-mini-ok" id="btnok" style="margin-right: 10px;">OK</div>
                         <div class="s2-mini-ok" id="btnswp" title="Do this for better cloud support">Swap to player</div>
@@ -477,7 +477,7 @@ async function ShowCard(id) {
         if (win.querySelector('#btnok')) win.querySelector('#btnok').onclick = close;
         win.querySelector('#btnswp').onclick = swap;
         if (win.querySelector('#btnswp3')) win.querySelector('#btnswp3').onclick = () => {
-            window.location.href = url.href.replace(/\/player(\/)?(?=[?#]|$)/, '/phosphorus/player').replace(/#/, "?id=");
+            window.location.href = `/phosphorus/player#${id}`;
         };
 
         const header = win.querySelector('.s2-mini-header');
