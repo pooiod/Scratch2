@@ -1,4 +1,4 @@
-# ScratchaFlash
+# ScratchFlash
 General Scratch2 / ScratchX repository <br>
 *Forked from [s2online](https://github.com/s2online/s2online.github.io)*
 
