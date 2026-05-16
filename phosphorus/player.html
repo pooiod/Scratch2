@@ -53,7 +53,7 @@ window.addEventListener('keydown', function (e) {
 (function() {
   'use strict';
 
-  var projectId = location.hash?location.hash.split('#').pop():1320635584;
+  window.projectId = location.hash?location.hash.split('#').pop():1320635584;
   var autoStart = true;
   var lightContent = false;
   var hasUI = true;
@@ -84,7 +84,6 @@ window.addEventListener('keydown', function (e) {
 
   document.title = 'phosphorus';
 
-  ShowCard(projectId);
   P.player.load(projectId, function(stage) {
     if (autoStart || !hasUI) stage.triggerGreenFlag();
   }, function(title) {
@@ -95,7 +94,7 @@ window.addEventListener('keydown', function (e) {
 
 </script>
 
-<script src=/scratchGUI.js></script>
+<script src="/scratchGUI.js" onload="()=>{ if(projectId != 1320635584) ShowCard(projectId); }"></script>
 
 <div id="downloader" style="display: none;">
     <div id="progressWrap">
