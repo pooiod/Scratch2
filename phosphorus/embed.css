@@ -35,3 +35,16 @@ body {
 .hide-ui .player {
   box-shadow: none;
 }
+
+.s2-mini-header {
+  background: white !important;
+}
+.s2-mini-ok {
+  background: rgb(235, 235, 235) !important;
+}
+.s2-mini-ok:active {
+  background: #ccc !important;
+}
+.s2-mini-window {
+  box-shadow: none;
+}
