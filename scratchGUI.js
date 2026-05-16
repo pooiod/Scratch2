@@ -443,6 +443,8 @@ async function ShowCard(id) {
         const win = document.createElement('div');
         win.className = 's2-mini-window';
 
+        document.title = data.title;
+
         win.innerHTML = `
             <div class="s2-mini-header">
                 <span class="s2-mini-title">${data.title}</span>

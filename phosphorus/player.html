@@ -83,10 +83,12 @@ window.addEventListener('keydown', function (e) {
   document.body.className += hasUI ? ' has-ui' : ' hide-ui';
 
   document.title = 'phosphorus';
+
+  ShowCard(projectId);
   P.player.load(projectId, function(stage) {
     if (autoStart || !hasUI) stage.triggerGreenFlag();
   }, function(title) {
-    document.title = title ? title + ' \xb7 phosphorus' : 'phosphorus';
+    // document.title = title ? title + ' \xb7 phosphorus' : 'phosphorus';
   });
 
 }());
