@@ -46,5 +46,6 @@ body {
   background: #ccc !important;
 }
 .s2-mini-window {
+  border-radius: 0px !important;
   box-shadow: none !important;
 }
