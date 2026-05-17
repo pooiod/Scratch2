@@ -5,6 +5,10 @@ function getQueryParam(name) {
     return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
 }
 
+function JSeditorReady() {
+    swf = document.querySelector('#scratch embed') || document.querySelector('ruffle-player');
+}
+
 window.gotZipBase64 = function(content) {
     $("#loadholder").addClass("pulse");
 

@@ -447,6 +447,7 @@ async function ShowCard(id) {
         win.className = 's2-mini-window';
 
         document.title = data.title;
+        if (swf.AScallFlashFunction) swf.AScallFlashFunction("setProjectName", [data.title]);
 
         win.innerHTML = `
             <div class="s2-mini-header">
