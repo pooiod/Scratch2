@@ -356,5 +356,5 @@
 
     window.addEventListener("hashchange", updateHashState);
 
-    setInterval(updateLoop, 100);
+    setInterval(updateLoop, 10);
 })();
