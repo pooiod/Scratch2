@@ -8,6 +8,9 @@
 .controls span {
   background-image: url(icons2.svg);
 }
+canvas {
+  border: 1px solid #c6c6c6;
+}
 </style>
 
 <div class="container" style="border: 1px solid #c6c6c6; background:#f2f2f2; border-radius: 10px 10px 0 0;">
@@ -54,8 +57,8 @@ setInterval(()=>{
         const c=p.querySelector('div');
         if(!c)return;
         const r=c.getBoundingClientRect();
-        p.style.width=r.width+1+'px';
-        p.style.height=r.height+1+'px';
+        p.style.width=r.width+'px';
+        p.style.height=r.height+'px';
     });
 },100);
 
