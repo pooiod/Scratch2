@@ -4,7 +4,7 @@
   left: 0;
   bottom: 0;
   width: 0;
-  background: #cde;
+  background: rgba(0,160,255,0.2);
   -webkit-transition: .3s;
   -moz-transition: .3s;
   -o-transition: .3s;
