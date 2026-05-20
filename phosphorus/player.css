@@ -63,7 +63,7 @@
   padding: 0 8px;
 }
 .player {
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, .4);
+  /* box-shadow: 0 0 0 1px rgba(0, 0, 0, .4); */
   width: 480px;
   height: 360px;
   position: relative;
@@ -74,7 +74,7 @@
   transform-origin: 0 0;
 }
 .light-content .player {
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, .4);
+  /* box-shadow: 0 0 0 1px rgba(255, 255, 255, .4); */
 }
 
 .internal-error {

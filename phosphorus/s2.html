@@ -5,8 +5,8 @@
 <link rel=stylesheet href=player.css>
 <link rel=stylesheet href=embed.css>
 
-<div class="container" style="border: 1px solid #c6c6c6; background:#f2f2f2;">
-  <div class="controls" style="background: linear-gradient(#ffffff, #e6e8e8); border-bottom:1px solid #d0d1d2; border-radius: 7px 7px 0 0;">
+<div class="container" style="border: 1px solid #c6c6c6; background:#f2f2f2; border-radius: 10px 10px 0 0;">
+  <div class="controls" style="background: linear-gradient(#ffffff, #e6e8e8); border-bottom:1px solid #d0d1d2; border-radius: 10px 10px 0 0;">
     
     <div id="loadprogress" class="progress-bar"></div>
 
@@ -44,6 +44,16 @@
 <script>
 window.fillpage = true;
 window.skipgui2 = true;
+
+setInterval(()=>{
+  document.querySelectorAll('.player').forEach(p=>{
+    const c=p.querySelector('div')
+    if(!c)return
+    const r=c.getBoundingClientRect()
+    p.style.width=r.width+'px'
+    p.style.height=r.height+'px'
+  })
+},100)
 
 window.addEventListener('keydown', function (e) {
     if (e.ctrlKey || e.metaKey) {
