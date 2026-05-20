@@ -76,7 +76,7 @@ P.player = (function() {
   function fullScreenClick(e) {
     if (e) e.preventDefault();
     if (!stage) return;
-    // document.documentElement.classList.toggle('fs');
+    document.documentElement.classList.toggle('fs');
     isFullScreen = !isFullScreen;
     if (!e || !e.shiftKey) {
       if (isFullScreen) {
