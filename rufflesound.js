@@ -47,12 +47,12 @@ function hideSpinner() {
 }
 
 function startloadingaudio() {
-    spinner.borderTopColor = "#3498db";
+    getOrCreateSpinner().borderTopColor = "#3498db";
     showSpinner()
 }
 
 function scratchSoundPlay(id, dataUri, volume) {
-    spinner.borderTopColor = "#8adb34";
+    getOrCreateSpinner().borderTopColor = "#8adb34";
     showSpinner();
 
     var audio = new Audio();
