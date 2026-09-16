@@ -6,7 +6,6 @@
         debug: 4
     };
 
-    // this must be used sparingly
     const PROJECT_ID_REPLACEMENTS = {
         "212388708": "1298706676",
         "1298757456": "https://pooiod7.pages.dev/s2/GeometryDash.sb2"
@@ -847,44 +846,56 @@
         }
 
         bufferToWav(buffer) {
-            let numOfChan = Math.min(2, Math.max(1, buffer.numberOfChannels)),
-                length = buffer.length * numOfChan * 2 + 44,
-                bufferArr = new ArrayBuffer(length),
-                view = new DataView(bufferArr),
-                channels = [], i, sample,
-                offset = 0,
-                pos = 0;
+            const sampleRate = 22050;
+            const numChannels = buffer.numberOfChannels;
+            const len = buffer.length;
+            const length = len * 2 + 44;
+            const bufferArr = new ArrayBuffer(length);
+            const view = new DataView(bufferArr);
+            let pos = 0;
+
             const setUint16 = (d) => { view.setUint16(pos, d, true); pos += 2; };
             const setUint32 = (d) => { view.setUint32(pos, d, true); pos += 4; };
+
             setUint32(0x46464952);
             setUint32(length - 8);
             setUint32(0x45564157);
             setUint32(0x20746d66);
             setUint32(16);
             setUint16(1);
-            setUint16(numOfChan);
-            setUint32(buffer.sampleRate);
-            setUint32(buffer.sampleRate * 2 * numOfChan);
-            setUint16(numOfChan * 2);
+            setUint16(1);
+            setUint32(sampleRate);
+            setUint32(sampleRate * 2);
+            setUint16(2);
             setUint16(16);
             setUint32(0x61746164);
-            setUint32(length - pos - 4);
-            for (i = 0; i < numOfChan; i++) channels.push(buffer.getChannelData(i));
-            while (pos < length) {
-                for (i = 0; i < numOfChan; i++) {
-                    sample = channels[i][offset];
-                    if (Number.isNaN(sample)) {
-                        sample = 0;
-                    } else if (sample < -1) {
-                        sample = -1;
-                    } else if (sample > 1) {
-                        sample = 1;
-                    }
+            setUint32(len * 2);
+
+            if (numChannels === 1) {
+                const channelData = buffer.getChannelData(0);
+                for (let i = 0; i < len; i++) {
+                    let sample = channelData[i];
+                    if (Number.isNaN(sample)) sample = 0;
+                    else if (sample < -1) sample = -1;
+                    else if (sample > 1) sample = 1;
                     const s = sample < 0 ? Math.round(sample * 0x8000) : Math.round(sample * 0x7FFF);
                     view.setInt16(pos, s, true);
                     pos += 2;
                 }
-                offset++;
+            } else {
+                const chan0 = buffer.getChannelData(0);
+                const chan1 = buffer.getChannelData(1);
+                for (let i = 0; i < len; i++) {
+                    let s0 = chan0[i] || 0;
+                    let s1 = chan1[i] || 0;
+                    let sample = (s0 + s1) * 0.5;
+                    if (Number.isNaN(sample)) sample = 0;
+                    else if (sample < -1) sample = -1;
+                    else if (sample > 1) sample = 1;
+                    const s = sample < 0 ? Math.round(sample * 0x8000) : Math.round(sample * 0x7FFF);
+                    view.setInt16(pos, s, true);
+                    pos += 2;
+                }
             }
             return bufferArr;
         }
@@ -932,38 +943,35 @@
                 }
 
                 let wavData;
-                let rate = 22050;
+                const targetRate = 22050;
                 let sampleCount = 0;
 
                 if (audioBuffer) {
-                    let targetRate = 44100;
-                    if (audioBuffer.sampleRate <= 11025) {
-                        targetRate = 11025;
-                    } else if (audioBuffer.sampleRate <= 22050) {
-                        targetRate = 22050;
-                    } else {
-                        targetRate = 44100;
-                    }
-
-                    const targetChannels = Math.min(2, Math.max(1, audioBuffer.numberOfChannels));
-                    const needsResample = (audioBuffer.sampleRate !== targetRate) || (audioBuffer.numberOfChannels !== targetChannels);
-
-                    if (needsResample) {
-                        const targetLength = Math.max(1, Math.round(audioBuffer.duration * targetRate));
-                        const offlineCtx = new OfflineAudioContext(targetChannels, targetLength, targetRate);
+                    let renderedBuffer = null;
+                    try {
+                        const duration = (audioBuffer.duration && !Number.isNaN(audioBuffer.duration))
+                            ? audioBuffer.duration
+                            : (audioBuffer.length / audioBuffer.sampleRate);
+                        const targetLength = Math.max(1, Math.round(duration * targetRate));
+                        const offlineCtx = new (window.OfflineAudioContext || window.webkitOfflineAudioContext)(1, targetLength, targetRate);
                         const source = offlineCtx.createBufferSource();
                         source.buffer = audioBuffer;
                         source.connect(offlineCtx.destination);
                         source.start(0);
-                        audioBuffer = await offlineCtx.startRendering();
+                        renderedBuffer = await offlineCtx.startRendering();
+                    } catch (e) {
+                        window.SB3ToSB2.log('debug', 'Offline audio render error, fallback to manual resample', e);
                     }
 
-                    rate = targetRate;
-                    sampleCount = audioBuffer.length;
-                    wavData = this.bufferToWav(audioBuffer);
+                    if (renderedBuffer) {
+                        sampleCount = renderedBuffer.length;
+                        wavData = this.bufferToWav(renderedBuffer);
+                    } else {
+                        sampleCount = audioBuffer.length;
+                        wavData = this.bufferToWav(audioBuffer);
+                    }
                 } else {
                     wavData = SoundManager.getEmptyWav();
-                    rate = 22050;
                     sampleCount = 0;
                 }
 
@@ -971,7 +979,7 @@
                 let outName = `${index}.wav`;
 
                 zipOut.file(outName, wavData);
-                this.soundAssets[s.assetId] = [index, s.name, sampleCount, rate, outName];
+                this.soundAssets[s.assetId] = [index, s.name, sampleCount, targetRate, outName];
             }
 
             let assetData = this.soundAssets[s.assetId];
@@ -1241,8 +1249,9 @@
         _logHandler: null,
 
         logginglevel(lvl) {
+            const logLevels = { task: 1, info: 2, heavy: 3, debug: 4 };
             if (typeof lvl === 'string') {
-                this._level = LOG_LEVELS[lvl.toLowerCase()] || 1;
+                this._level = logLevels[lvl.toLowerCase()] || 1;
             } else if (typeof lvl === 'number') {
                 this._level = lvl;
             }
@@ -1253,7 +1262,8 @@
         },
 
         log(levelName, msg, data) {
-            const req = LOG_LEVELS[levelName] || 1;
+            const logLevels = { task: 1, info: 2, heavy: 3, debug: 4 };
+            const req = logLevels[levelName] || 1;
             if (this._level >= req) {
                 if (this._logHandler) {
                     this._logHandler(msg);
