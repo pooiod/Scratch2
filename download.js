@@ -69,6 +69,9 @@ function perror(err){
 function finish(content) {
     logMessage("Opening project...");
     setProgress(100);
+    if (typeof content === 'string' && content.startsWith('data:')) {
+        content = content.split(',')[1];
+    }
     if (window.gotZipBase64) {
         window.gotZipBase64(content);
         psuccess();
@@ -136,7 +139,7 @@ async function startDownload(projectId) {
             await window.SB3ToSB2.processSB3(projectData, jszip, sourceZip, setProgress);
             finalizeZip(jszip);
         } else if (type === 'legacy') {
-            finish(projectData);
+            finish(base64 || projectData);
         } else {
             await window.SB3ToSB2.processNormal(projectData, jszip, setProgress);
             finalizeZip(jszip);

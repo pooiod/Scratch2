@@ -947,106 +947,68 @@ window.SB3ToSB2 = {
 
         const isDirectSource = projectId && (typeof projectId === 'string' || projectId instanceof String) && (projectId.startsWith('http') || projectId.startsWith('data:'));
 
+        const bufferToBase64 = (buffer) => {
+            const bytes = new Uint8Array(buffer);
+            let binary = '';
+            const chunkSize = 0x8000;
+            for (let i = 0; i < bytes.length; i += chunkSize) {
+                binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+            }
+            return btoa(binary);
+        };
+
+        const arrayBufferToBinaryString = (ab) => {
+            const bytes = new Uint8Array(ab);
+            const CHUNK = 0x8000;
+            let str = '';
+            for (let i = 0; i < bytes.length; i += CHUNK) {
+                str += String.fromCharCode.apply(null, bytes.subarray(i, i + CHUNK));
+            }
+            return str;
+        };
+
+        const getProjectTextFromZip = async (zipInstance) => {
+            if (!zipInstance) return null;
+            let entry = null;
+            if (typeof zipInstance.file === 'function') {
+                entry = zipInstance.file('project.json');
+                if (!entry && zipInstance.files) {
+                    for (const name in zipInstance.files) {
+                        if (name.toLowerCase().endsWith('project.json')) {
+                            entry = zipInstance.file(name);
+                            break;
+                        }
+                    }
+                }
+            }
+            if (!entry && zipInstance.files) {
+                for (const name in zipInstance.files) {
+                    if (name.toLowerCase().endsWith('project.json')) {
+                        entry = zipInstance.files[name];
+                        break;
+                    }
+                }
+            }
+            if (entry) {
+                if (typeof entry.async === 'function') return await entry.async('string');
+                if (typeof entry.asText === 'function') return entry.asText();
+                if (entry._data) {
+                    if (entry._data instanceof Uint8Array) return new TextDecoder().decode(entry._data);
+                    if (typeof entry._data === 'string') return entry._data;
+                }
+            }
+            return null;
+        };
+
+        let buffer;
+
         if (isDirectSource) {
             this.log('task', 'Downloading project...');
             progressCallback(10);
             window.DownloadedTitle = projectId.split('/').pop().split('.').slice(0, -1).join('.') || 'project';
             const resp = await fetch(projectId);
             if (!resp.ok) throw new Error('Failed to download project from URL.');
-            var blob = await resp.blob();
-            let parsed = false;
-
-            try {
-                const arrayBufferToBinaryString = (ab) => {
-                    const bytes = new Uint8Array(ab);
-                    const CHUNK = 0x8000;
-                    let str = '';
-                    for (let i = 0; i < bytes.length; i += CHUNK) { str += String.fromCharCode.apply(null, bytes.subarray(i, i + CHUNK)); }
-                    return str;
-                };
-
-                const getProjectTextFromZip = async (zipInstance) => {
-                    if (zipInstance && typeof zipInstance.file === 'function') {
-                        let entry = zipInstance.file('project.json');
-                        if (!entry && zipInstance.files) {
-                            for (const name in zipInstance.files) {
-                                if (name.toLowerCase().endsWith('project.json')) { entry = zipInstance.file(name); break; }
-                            }
-                        }
-                        if (entry) {
-                            if (typeof entry.async === 'function') return await entry.async('string');
-                            if (typeof entry.asText === 'function') return entry.asText();
-                            if (entry._data) {
-                                if (entry._data instanceof Uint8Array) return new TextDecoder().decode(entry._data);
-                                if (typeof entry._data === 'string') return entry._data;
-                            }
-                        }
-                    }
-                    if (zipInstance && zipInstance.files) {
-                        for (const name in zipInstance.files) {
-                            if (name.toLowerCase().endsWith('project.json')) {
-                                const f = zipInstance.files[name];
-                                if (!f) continue;
-                                if (typeof f.async === 'function') return await f.async('string');
-                                if (typeof f.asText === 'function') return f.asText();
-                                if (f._data) {
-                                    if (f._data instanceof Uint8Array) return new TextDecoder().decode(f._data);
-                                    if (typeof f._data === 'string') return f._data;
-                                }
-                            }
-                        }
-                    }
-                    return null;
-                };
-
-                let zip = null;
-                if (window.JSZip && typeof window.JSZip.loadAsync === 'function') {
-                    zip = await window.JSZip.loadAsync(blob);
-                } else if (window.JSZip) {
-                    const z = new window.JSZip();
-                    const ab = await blob.arrayBuffer();
-                    if (typeof z.loadAsync === 'function') {
-                        zip = await z.loadAsync(ab);
-                    } else if (typeof z.load === 'function') {
-                        z.load(arrayBufferToBinaryString(ab));
-                        zip = z;
-                    } else if (typeof window.JSZip.load === 'function') {
-                        zip = window.JSZip.load(arrayBufferToBinaryString(ab));
-                    }
-                }
-                sourceZip = zip;
-                const projText = await getProjectTextFromZip(zip);
-                if (projText) {
-                    projectData = JSON.parse(projText);
-                    parsed = true;
-                }
-            } catch (err) {
-                this.log('debug', 'Zip parse failure', err);
-            }
-
-            if (!parsed) {
-                const text = await blob.text();
-                try {
-                    projectData = JSON.parse(text);
-                    parsed = true;
-                } catch (e) {
-                    this.log('debug', 'Direct JSON parse error', e);
-                }
-            }
-
-            if (isDirectSource) {
-                const isSB3Check = projectData && projectData.targets && Array.isArray(projectData.targets);
-                if (!isSB3Check) {
-                    const blobToBase64 = (b) => new Promise((res, rej) => {
-                        const reader = new FileReader();
-                        reader.onerror = () => rej(new Error('Failed to read blob as base64'));
-                        reader.onload = () => res(reader.result.split(',')[1]);
-                        reader.readAsDataURL(b);
-                    });
-                    const base64 = await blobToBase64(blob);
-                    return { type: 'base64', base64 };
-                }
-            }
+            buffer = await resp.arrayBuffer();
         } else {
             this.log('task', 'Fetching project token...');
             const metaResponse = await fetch(`https://trampoline.turbowarp.org/api/projects/${projectId}`);
@@ -1058,54 +1020,84 @@ window.SB3ToSB2 = {
             const token = metaData.project_token;
             window.DownloadedTitle = metaData.title;
 
-            this.log('task', 'Downloading project JSON...');
-            var projectResponse = await fetch(`https://projects.scratch.mit.edu/${projectId}?token=${token}`);
+            this.log('task', 'Downloading project...');
+            const projectResponse = await fetch(`https://projects.scratch.mit.edu/${projectId}?token=${token}`);
             if (!projectResponse.ok) throw new Error('Failed to download project.');
+            buffer = await projectResponse.arrayBuffer();
+        }
 
+        const bytes = new Uint8Array(buffer);
+        const isZip = bytes.length >= 4 && bytes[0] === 0x50 && bytes[1] === 0x4B;
+
+        if (isZip) {
+            let zip = null;
             try {
-                projectData = await projectResponse.json();
-            } catch {
-                projectResponse = await fetch(`https://projects.scratch.mit.edu/${projectId}?token=${token}`);
-                if (!projectResponse.ok) throw new Error('Failed to download project.');
-                var raw = await projectResponse.text();
-                try {
-                    projectData = JSON.parse(raw);
-                } catch {
-                    projectResponse = await fetch(`https://projects.scratch.mit.edu/${projectId}?token=${token}`);
-                    if (!projectResponse.ok) throw new Error('Failed to download project.');
-                    const buffer = await projectResponse.arrayBuffer();
-                    const bytes = new Uint8Array(buffer);
-                    let binary = '';
-                    for (let i = 0; i < bytes.length; i += 0x8000) {
-                        binary += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+                if (window.JSZip && typeof window.JSZip.loadAsync === 'function') {
+                    zip = await window.JSZip.loadAsync(buffer);
+                } else if (window.JSZip) {
+                    const z = new window.JSZip();
+                    if (typeof z.loadAsync === 'function') {
+                        zip = await z.loadAsync(buffer);
+                    } else if (typeof z.load === 'function') {
+                        z.load(arrayBufferToBinaryString(buffer));
+                        zip = z;
+                    } else if (typeof window.JSZip.load === 'function') {
+                        zip = window.JSZip.load(arrayBufferToBinaryString(buffer));
                     }
-                    const base64 = btoa(binary);
-                    projectData = 'data:application/octet-stream;base64,' + base64;
                 }
+            } catch (err) {
+                this.log('debug', 'Zip load error', err);
+            }
+
+            if (zip) {
+                sourceZip = zip;
+                const projText = await getProjectTextFromZip(zip);
+                if (projText) {
+                    try {
+                        projectData = JSON.parse(projText);
+                    } catch (e) {
+                        this.log('debug', 'Inner project.json parse error', e);
+                    }
+                }
+            }
+
+            const isSB3 = projectData && projectData.targets && Array.isArray(projectData.targets);
+            if (isSB3) {
+                type = 'sb3';
+                return { projectData, sourceZip, type };
+            } else {
+                const base64 = bufferToBase64(buffer);
+                return { projectData, sourceZip, type: 'base64', base64 };
             }
         }
 
-        this.log('debug', 'Parsed projectData', projectData);
-
-        function isJSON(str) {
-            try {
-                if (str.targets || str.costumes) return true;
-                JSON.parse(str);
-                return true;
-            } catch (e) { return false; }
+        let text = '';
+        try {
+            text = new TextDecoder('utf-8').decode(buffer);
+        } catch (e) {
+            text = '';
         }
 
-        const isSB1 = !isJSON(projectData);
-        var isSB3 = projectData && !isSB1;
-        if (isSB3) isSB3 = projectData.targets && Array.isArray(projectData.targets);
+        let parsedJson = null;
+        try {
+            parsedJson = JSON.parse(text);
+        } catch (e) {
+            this.log('debug', 'JSON parse failure', e);
+        }
 
-        this.log('debug', 'Format detection', { isSB1, isSB3 });
+        if (parsedJson) {
+            projectData = parsedJson;
+            const isSB3 = projectData.targets && Array.isArray(projectData.targets);
+            if (isSB3) {
+                type = 'sb3';
+            } else {
+                type = 'normal';
+            }
+            return { projectData, sourceZip: null, type };
+        }
 
-        if (isSB3) type = 'sb3';
-        else if (isSB1) type = 'legacy';
-        else type = 'normal';
-
-        return { projectData, sourceZip, type };
+        const base64 = bufferToBase64(buffer);
+        return { projectData: null, sourceZip: null, type: 'legacy', base64 };
     },
 
     async processSB3(projectData, jszip, sourceZip, progressCallback = () => {}) {
@@ -1246,6 +1238,7 @@ window.SB3ToSB2 = {
 
         projectData.info = projectData.info || {};
         projectData.info.comment = "Converted sb3 to sb2 by pooiod7's converter (scratchflash.pages.dev/convert)";
+        projectData.comment = "Converted sb3 to sb2 by pooiod7's converter (scratchflash.pages.dev/convert)";
 
         jszip.file("project.json", JSON.stringify(projectData));
     }
