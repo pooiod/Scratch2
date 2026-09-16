@@ -13,8 +13,8 @@ function getOrCreateSpinner() {
                 position: fixed;
                 top: 1px;
                 right: 1px;
-                width: 24px;
-                height: 24px;
+                width: 20px;
+                height: 20px;
                 border: 3px solid rgba(0, 0, 0, 0.1);
                 border-top-color: #3498db;
                 border-radius: 50%;
@@ -24,7 +24,7 @@ function getOrCreateSpinner() {
                 transition: border-color 0.3s ease-in-out;
             }
             @keyframes scratch-spin {
-                to { transform: translate(-50%, -50%) rotate(360deg); }
+                to { transform: rotate(360deg); }
             }
         `;
         document.head.appendChild(style);
