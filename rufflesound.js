@@ -22,6 +22,7 @@ function getOrCreateSpinner() {
                 animation: scratch-spin 0.8s linear infinite;
                 z-index: 99999;
                 display: none;
+                transition: border-color 0.3s ease-in-out;
             }
             @keyframes scratch-spin {
                 to { transform: translate(-50%, -50%) rotate(360deg); }
@@ -46,10 +47,12 @@ function hideSpinner() {
 }
 
 function startloadingaudio() {
+    spinner.borderTopColor: #3498db;
     showSpinner()
 }
 
 function scratchSoundPlay(id, dataUri, volume) {
+    spinner.borderTopColor: #8adb34;
     showSpinner();
 
     var audio = new Audio();
