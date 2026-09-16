@@ -155,7 +155,7 @@
                 const token = metaData.project_token;
                 window.DownloadedTitle = metaData.title;
 
-                window.SB3ToSB2.log('task', 'Downloading project...');
+                window.SB3ToSB2.log('task', 'Downloading project JSON...');
                 const projectResponse = await fetch(`https://projects.scratch.mit.edu/${projectId}?token=${token}`);
                 if (!projectResponse.ok) throw new Error('Failed to download project.');
                 buffer = await projectResponse.arrayBuffer();
@@ -382,7 +382,7 @@
             }
 
             if (this.compat) {
-                if(this.penUpDown) {
+                if (this.penUpDown) {
                     let pen = 'tmp:203:pen';
                     variables.push({name: pen, value: 'up', isPersistent: false});
                     customBlockScripts.push([0, 0, [['procDef', 'pen down', [], [], true],['putPenDown'],['setVar:to:', pen, 'down']]]);
@@ -394,17 +394,23 @@
                         contents: ['0xFF000000', 0, 0, 0, 255, 0, 100, 100, 0, 0, 0, 0, 0, 0, 0, 0, '0123456789ABCDEF'],
                         isPersistent: false
                     });
+
                     const getHexChar = (val, isLow) => ['letter:of:', ['+', isLow ? ['%', val, 16] : ['computeFunction:of:', 'floor', ['/', val, 16]], 1], ['getLine:ofList:', 17, 'tmp:colorlist']];
                     const getHexByte = (val) => ['concatenate:with:', getHexChar(val, false), getHexChar(val, true)];
                     let finalHex = ['concatenate:with:', '0x', ['concatenate:with:', ['concatenate:with:', getHexByte(['getLine:ofList:', 5, 'tmp:colorlist']), getHexByte(['getLine:ofList:', 2, 'tmp:colorlist'])], ['concatenate:with:', getHexByte(['getLine:ofList:', 3, 'tmp:colorlist']), getHexByte(['getLine:ofList:', 4, 'tmp:colorlist'])]]];
-                    customBlockScripts.push([0, 0, [['procDef', 'set pen color %s', ['color'], [''], false],['doIfElse', ['=', ['letter:of:', 1,['getParam', 'color', 'r']], '#'], [
+
+                    customBlockScripts.push([0, 0, [
+                        ['procDef', 'set pen color %s', ['color'], [''], true],
+                        ['doIfElse', ['=', ['letter:of:', 1, ['getParam', 'color', 'r']], '#'], [
                             ['setLine:ofList:to:', 9, 'tmp:colorlist', ['concatenate:with:', '0x', 
                                 ['concatenate:with:', ['letter:of:', 2,['getParam', 'color', 'r']],['concatenate:with:', ['letter:of:', 3,['getParam', 'color', 'r']], 
                                 ['concatenate:with:', ['letter:of:', 4,['getParam', 'color', 'r']], ['concatenate:with:', ['letter:of:', 5,['getParam', 'color', 'r']], 
                                 ['concatenate:with:',['letter:of:', 6,['getParam', 'color', 'r']], ['letter:of:', 7,['getParam', 'color', 'r']]]]]]]]]
-                        ], [['setLine:ofList:to:', 9, 'tmp:colorlist', ['getParam', 'color', 'r']]]],
-                        ['doIf', ['<',['getLine:ofList:', 9, 'tmp:colorlist'], 0], [['setLine:ofList:to:', 9, 'tmp:colorlist', ['+',['getLine:ofList:', 9, 'tmp:colorlist'], 4294967296]]]],
-                        ['setLine:ofList:to:', 4, 'tmp:colorlist', ['%',['getLine:ofList:', 9, 'tmp:colorlist'], 256]],
+                        ], [
+                            ['setLine:ofList:to:', 9, 'tmp:colorlist', ['getParam', 'color', 'r']]
+                        ]],
+                        ['doIf', ['<', ['getLine:ofList:', 9, 'tmp:colorlist'], 0], [['setLine:ofList:to:', 9, 'tmp:colorlist', ['+', ['getLine:ofList:', 9, 'tmp:colorlist'], 4294967296]]]],
+                        ['setLine:ofList:to:', 4, 'tmp:colorlist', ['%', ['getLine:ofList:', 9, 'tmp:colorlist'], 256]],
                         ['setLine:ofList:to:', 3, 'tmp:colorlist', ['%', ['computeFunction:of:', 'floor', ['/', ['getLine:ofList:', 9, 'tmp:colorlist'], 256]], 256]],
                         ['setLine:ofList:to:', 2, 'tmp:colorlist', ['%', ['computeFunction:of:', 'floor', ['/', ['getLine:ofList:', 9, 'tmp:colorlist'], 65536]], 256]],
                         ['setLine:ofList:to:', 5, 'tmp:colorlist', ['computeFunction:of:', 'floor', ['/', ['getLine:ofList:', 9, 'tmp:colorlist'], 16777216]]],
@@ -424,6 +430,50 @@
                             [['setLine:ofList:to:', 6, 'tmp:colorlist', ['*', 16.6666, ['+', ['/', ['-', ['getLine:ofList:', 2, 'tmp:colorlist'], ['getLine:ofList:', 3, 'tmp:colorlist']], ['getLine:ofList:', 12, 'tmp:colorlist']], 4]]]]]]],
                         ['setLine:ofList:to:', 1, 'tmp:colorlist', finalHex],
                         ['penColor:', ['getLine:ofList:', 1, 'tmp:colorlist']]
+                    ]]);
+
+                    customBlockScripts.push([0, 0, [
+                        ['procDef', 'set pen %s to %n', ['param', 'val'], ['', 0], true],
+                        ['doIfElse', ['=', ['getParam', 'param', 'r'], 'color'], [
+                            ['setPenHueTo:', ['*', ['getParam', 'val', 'r'], 2]]
+                        ], [
+                            ['doIfElse', ['=', ['getParam', 'param', 'r'], 'brightness'], [
+                                ['setPenShadeTo:', ['getParam', 'val', 'r']]
+                            ], [
+                                ['doIfElse', ['=', ['getParam', 'param', 'r'], 'transparency'], [
+                                    ['setLine:ofList:to:', 5, 'tmp:colorlist', ['computeFunction:of:', 'round', ['*', ['-', 100, ['getParam', 'val', 'r']], 2.55]]],
+                                    ['setLine:ofList:to:', 1, 'tmp:colorlist', finalHex],
+                                    ['penColor:', ['getLine:ofList:', 1, 'tmp:colorlist']]
+                                ], [
+                                    ['doIf', ['=', ['getParam', 'param', 'r'], 'saturation'], [
+                                        ['setPenShadeTo:', ['/', ['getParam', 'val', 'r'], 2]]
+                                    ]]
+                                ]]
+                            ]]
+                        ]]
+                    ]]);
+
+                    customBlockScripts.push([0, 0, [
+                        ['procDef', 'change pen %s by %n', ['param', 'val'], ['', 0], true],
+                        ['doIfElse', ['=', ['getParam', 'param', 'r'], 'color'], [
+                            ['changePenHueBy:', ['*', ['getParam', 'val', 'r'], 2]]
+                        ], [
+                            ['doIfElse', ['=', ['getParam', 'param', 'r'], 'brightness'], [
+                                ['changePenShadeBy:', ['getParam', 'val', 'r']]
+                            ], [
+                                ['doIfElse', ['=', ['getParam', 'param', 'r'], 'transparency'], [
+                                    ['setLine:ofList:to:', 5, 'tmp:colorlist', ['-', ['getLine:ofList:', 5, 'tmp:colorlist'], ['*', ['getParam', 'val', 'r'], 2.55]]],
+                                    ['doIf', ['<', ['getLine:ofList:', 5, 'tmp:colorlist'], 0], [['setLine:ofList:to:', 5, 'tmp:colorlist', 0]]],
+                                    ['doIf', ['>', ['getLine:ofList:', 5, 'tmp:colorlist'], 255], [['setLine:ofList:to:', 5, 'tmp:colorlist', 255]]],
+                                    ['setLine:ofList:to:', 1, 'tmp:colorlist', finalHex],
+                                    ['penColor:', ['getLine:ofList:', 1, 'tmp:colorlist']]
+                                ], [
+                                    ['doIf', ['=', ['getParam', 'param', 'r'], 'saturation'], [
+                                        ['changePenShadeBy:', ['/', ['getParam', 'val', 'r'], 2]]
+                                    ]]
+                                ]]
+                            ]]
+                        ]]
                     ]]);
                 }
             }
@@ -666,26 +716,61 @@
         pen_clear(b, bs) { return ['clearPenTrails']; }
         pen_stamp(b, bs) { return ['stampCostume']; }
         pen_penDown(b, bs) { 
-            if(this.c.compat) { this.c.penUpDown = true; return ['call', 'pen down']; }
-            return ['putPenDown'];
+            this.c.penUpDown = true;
+            return ['call', 'pen down'];
         }
         pen_penUp(b, bs) { 
-            if(this.c.compat) { this.c.penUpDown = true; return ['call', 'pen up']; }
-            return ['putPenUp'];
+            this.c.penUpDown = true;
+            return ['call', 'pen up'];
         }
         pen_setPenColorToColor(b, bs) {
             let val = this.c.inputVal('COLOR', b, bs);
-            if(this.c.compat) { this.c.penColor = true; return ['call', 'set pen color %s', val]; }
-            return ['penColor:', val];
+            if (typeof val === 'number') {
+                return ['penColor:', val];
+            }
+            if (typeof val === 'string') {
+                let dec = this.c.hexToDec(val);
+                if (typeof dec === 'number' && !isNaN(dec)) {
+                    return ['penColor:', dec];
+                }
+            }
+            this.c.penColor = true;
+            return ['call', 'set pen color %s', val];
         }
-        pen_menu_colorParam(b, bs) { return this.c.fieldVal('colorParam', b); }
+        pen_menu_colorParam(b, bs) {
+            let val = this.c.fieldVal('colorParam', b);
+            if (typeof val === 'string') return val.toLowerCase();
+            return val;
+        }
         pen_setPenColorParamTo(b, bs) {
-            if(this.c.compat) { this.c.penColor = true; return ['call', 'set pen %s to %n', this.c.inputVal('COLOR_PARAM', b, bs), this.c.inputVal('VALUE', b, bs)]; }
-            return null;
+            let param = this.c.inputVal('COLOR_PARAM', b, bs);
+            let val = this.c.inputVal('VALUE', b, bs);
+            if (typeof param === 'string') {
+                const p = param.toLowerCase();
+                if (p === 'color') {
+                    return ['setPenHueTo:', (typeof val === 'number' ? val * 2 : ['*', val, 2])];
+                }
+                if (p === 'brightness') {
+                    return ['setPenShadeTo:', val];
+                }
+            }
+            this.c.penColor = true;
+            return ['call', 'set pen %s to %n', param, val];
         }
         pen_changePenColorParamBy(b, bs) {
-            if(this.c.compat) { this.c.penColor = true; return['call', 'change pen %s by %n', this.c.inputVal('COLOR_PARAM', b, bs), this.c.inputVal('VALUE', b, bs)]; }
-            return null;
+            let param = this.c.inputVal('COLOR_PARAM', b, bs);
+            let val = this.c.inputVal('VALUE', b, bs);
+            if (typeof param === 'string') {
+                const p = param.toLowerCase();
+                if (p === 'color') {
+                    return ['changePenHueBy:', (typeof val === 'number' ? val * 2 : ['*', val, 2])];
+                }
+                if (p === 'brightness') {
+                    return ['changePenShadeBy:', val];
+                }
+            }
+            this.c.penColor = true;
+            return ['call', 'change pen %s by %n', param, val];
         }
         pen_changePenSizeBy(b, bs) { return ['changePenSizeBy:', this.c.inputVal('SIZE', b, bs)]; }
         pen_setPenSizeTo(b, bs) { return ['penSize:', this.c.inputVal('SIZE', b, bs)]; }
@@ -740,7 +825,20 @@
         }
 
         hexToDec(hex) {
-            if (typeof hex === 'string' && hex.startsWith('#')) return parseInt(hex.substring(1), 16);
+            if (typeof hex === 'string') {
+                let str = hex.trim();
+                if (str.startsWith('#')) {
+                    let h = str.substring(1);
+                    if (h.length === 3) {
+                        h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+                    }
+                    const parsed = parseInt(h, 16);
+                    if (!isNaN(parsed)) return parsed;
+                } else if (str.startsWith('0x') || str.startsWith('0X')) {
+                    const parsed = parseInt(str, 16);
+                    if (!isNaN(parsed)) return parsed;
+                }
+            }
             return hex;
         }
 
@@ -1265,13 +1363,18 @@
             const logLevels = { task: 1, info: 2, heavy: 3, debug: 4 };
             const req = logLevels[levelName] || 1;
             if (this._level >= req) {
-                if (this._logHandler) {
-                    this._logHandler(msg);
-                }
-                if (req === 4) {
-                    console.log(`[${levelName}] ${msg}`, data !== undefined ? data : '');
-                } else if (req >= 2) {
-                    console.log(`[${levelName}] ${msg}`);
+                if (levelName === 'task') {
+                    if (this._logHandler) {
+                        this._logHandler(msg);
+                    } else {
+                        console.log(`[task] ${msg}`);
+                    }
+                } else {
+                    if (req === 4) {
+                        console.log(`[${levelName}] ${msg}`, data !== undefined ? data : '');
+                    } else {
+                        console.log(`[${levelName}] ${msg}`);
+                    }
                 }
             }
         },
@@ -1296,7 +1399,6 @@
             projectData.targets.forEach(t => { totalAssets += t.costumes.length + t.sounds.length; });
 
             converter.monitors = projectData.monitors || [];
-            this.log('task', `Converting ${totalAssets} assets...`);
 
             const targets = projectData.targets;
             let stage = null;

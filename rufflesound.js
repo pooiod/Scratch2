@@ -1,6 +1,52 @@
 window.scratchActiveSounds = {};
 
+function getOrCreateSpinner() {
+    var spinner = document.getElementById("scratch-audio-spinner");
+    if (!spinner) {
+        spinner = document.createElement("div");
+        spinner.id = "scratch-audio-spinner";
+        
+        var style = document.createElement("style");
+        style.textContent = `
+            #scratch-audio-spinner {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 24px;
+                height: 24px;
+                border: 3px solid rgba(0, 0, 0, 0.1);
+                border-top-color: #3498db;
+                border-radius: 50%;
+                animation: scratch-spin 0.8s linear infinite;
+                z-index: 99999;
+                display: none;
+            }
+            @keyframes scratch-spin {
+                to { transform: translate(-50%, -50%) rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+        document.body.appendChild(spinner);
+    }
+    return spinner;
+}
+
+function showSpinner() {
+    var spinner = getOrCreateSpinner();
+    spinner.style.display = "block";
+}
+
+function hideSpinner() {
+    var spinner = document.getElementById("scratch-audio-spinner");
+    if (spinner) {
+        spinner.style.display = "none";
+    }
+}
+
 function scratchSoundPlay(id, dataUri, volume) {
+    showSpinner();
+
     var audio = new Audio();
 
     audio.src = dataUri;
@@ -9,6 +55,10 @@ function scratchSoundPlay(id, dataUri, volume) {
     window.scratchActiveSounds[id] = {
         audio: audio,
         playing: true
+    };
+
+    audio.oncanplaythrough = function() {
+        hideSpinner();
     };
 
     audio.onended = function() {
@@ -21,14 +71,20 @@ function scratchSoundPlay(id, dataUri, volume) {
     var playPromise = audio.play();
 
     if (playPromise !== undefined) {
-        playPromise.catch(function(err) {
-            console.error("Audio error:", err.name, err.message);
+        playPromise
+            .then(function() {
+                hideSpinner();
+            })
+            .catch(function(err) {
+                hideSpinner();
+                console.error("Audio error:", err.name, err.message);
 
-            if (window.scratchActiveSounds[id]) {
-                window.scratchActiveSounds[id].playing = false;
-            }
-        });
+                if (window.scratchActiveSounds[id]) {
+                    window.scratchActiveSounds[id].playing = false;
+                }
+            });
     } else {
+        hideSpinner();
         console.warn("play() did not return a promise");
     }
 }
@@ -41,6 +97,7 @@ function scratchSoundStop(id) {
         soundRecord.playing = false;
         delete window.scratchActiveSounds[id];
     }
+    hideSpinner();
 }
 
 function scratchSoundIsPlaying(id) {
