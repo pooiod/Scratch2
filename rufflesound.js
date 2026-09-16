@@ -1,11 +1,12 @@
 window.scratchActiveSounds = {};
 
+// loading spinner to make it more obvious that the page has not crashed
 function getOrCreateSpinner() {
     var spinner = document.getElementById("scratch-audio-spinner");
     if (!spinner) {
         spinner = document.createElement("div");
         spinner.id = "scratch-audio-spinner";
-        
+
         var style = document.createElement("style");
         style.textContent = `
             #scratch-audio-spinner {
@@ -44,8 +45,9 @@ function hideSpinner() {
     }
 }
 
-function scratchSoundPlay(id, dataUri, volume) {
+async function scratchSoundPlay(id, dataUri, volume) {
     showSpinner();
+    await new Promise(requestAnimationFrame);
 
     var audio = new Audio();
 
