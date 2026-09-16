@@ -21,6 +21,7 @@ function getOrCreateSpinner() {
                 animation: scratch-spin 0.8s linear infinite;
                 z-index: 99999;
                 display: none;
+                pointer-events: none;
                 transition: border-color 0.3s ease-in-out;
             }
             @keyframes scratch-spin {
