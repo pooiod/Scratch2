@@ -460,6 +460,13 @@
         motion_gotoxy(b, bs) { return ['gotoX:y:', this.c.inputVal('X', b, bs), this.c.inputVal('Y', b, bs)]; }
         motion_goto(b, bs) { return ['gotoSpriteOrMouse:', this.c.inputVal('TO', b, bs)]; }
         motion_glidesecstoxy(b, bs) { return ['glideSecs:toX:y:elapsed:from:', this.c.inputVal('SECS', b, bs), this.c.inputVal('X', b, bs), this.c.inputVal('Y', b, bs)]; }
+        motion_glideto(b, bs) {
+            let to = this.c.inputVal('TO', b, bs);
+            let secs = this.c.inputVal('SECS', b, bs);
+            if (to === '_mouse_') return ['glideSecs:toX:y:elapsed:from:', secs, ['mouseX'], ['mouseY']];
+            if (to === '_random_') return ['glideSecs:toX:y:elapsed:from:', secs, ['randomFrom:to:', -240, 240], ['randomFrom:to:', -180, 180]];
+            return ['glideSecs:toX:y:elapsed:from:', secs, ['getAttribute:of:', 'x position', to], ['getAttribute:of:', 'y position', to]];
+        }
         motion_changexby(b, bs) { return ['changeXposBy:', this.c.inputVal('DX', b, bs)]; }
         motion_setx(b, bs) { return ['xpos:', this.c.inputVal('X', b, bs)]; }
         motion_changeyby(b, bs) { return ['changeYposBy:', this.c.inputVal('DY', b, bs)]; }
@@ -668,6 +675,14 @@
         }
         pen_changePenSizeBy(b, bs) { return ['changePenSizeBy:', this.c.inputVal('SIZE', b, bs)]; }
         pen_setPenSizeTo(b, bs) { return ['penSize:', this.c.inputVal('SIZE', b, bs)]; }
+
+        music_playDrumForBeats(b, bs) { return ['playDrum', this.c.inputVal('DRUM', b, bs), this.c.inputVal('BEATS', b, bs)]; }
+        music_restForBeats(b, bs) { return ['rest:elapsed:from:', this.c.inputVal('BEATS', b, bs)]; }
+        music_playNoteForBeats(b, bs) { return ['noteOn:duration:elapsed:from:', this.c.inputVal('NOTE', b, bs), this.c.inputVal('BEATS', b, bs)]; }
+        music_setInstrument(b, bs) { return ['instrument:', this.c.inputVal('INSTRUMENT', b, bs)]; }
+        music_setTempo(b, bs) { return ['setTempoTo:', this.c.inputVal('TEMPO', b, bs)]; }
+        music_changeTempo(b, bs) { return ['changeTempoBy:', this.c.inputVal('TEMPO', b, bs)]; }
+        music_getTempo(b, bs) { return ['tempo']; }
     }
 
     class CustomBlockMapper {

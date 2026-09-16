@@ -48,12 +48,12 @@ function hideSpinner() {
 
 function startloadingaudio() {
     getOrCreateSpinner().borderTopColor = "#3498db";
-    showSpinner()
+    showSpinner(false)
 }
 
 function scratchSoundPlay(id, dataUri, volume) {
     getOrCreateSpinner().borderTopColor = "#8adb34";
-    showSpinner();
+    showSpinner(true);
 
     var audio = new Audio();
 
