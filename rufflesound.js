@@ -11,9 +11,8 @@ function getOrCreateSpinner() {
         style.textContent = `
             #scratch-audio-spinner {
                 position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
+                top: 1px;
+                right: 1px;
                 width: 24px;
                 height: 24px;
                 border: 3px solid rgba(0, 0, 0, 0.1);
