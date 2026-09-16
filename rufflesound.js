@@ -45,9 +45,12 @@ function hideSpinner() {
     }
 }
 
-async function scratchSoundPlay(id, dataUri, volume) {
+function startloadingaudio() {
+    showSpinner()
+}
+
+function scratchSoundPlay(id, dataUri, volume) {
     showSpinner();
-    await new Promise(requestAnimationFrame);
 
     var audio = new Audio();
 

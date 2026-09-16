@@ -391,7 +391,7 @@
                 if (this.penColor) {
                     lists.push({
                         listName: 'tmp:colorlist',
-                        contents: ['0xFF000000', 0, 0, 0, 255, 0, 100, 100, 0, 0, 0, 0, 0, 0, 0, 0, '0123456789ABCDEF'],
+                        contents: [0, 0, 0, 0, 255, 0, 100, 100, 0, 0, 0, 0, 0, 0, 0, 0, '0123456789ABCDEF'],
                         isPersistent: false
                     });
 
@@ -400,12 +400,100 @@
                     let finalHex = ['concatenate:with:', '0x', ['concatenate:with:', ['concatenate:with:', getHexByte(['getLine:ofList:', 5, 'tmp:colorlist']), getHexByte(['getLine:ofList:', 2, 'tmp:colorlist'])], ['concatenate:with:', getHexByte(['getLine:ofList:', 3, 'tmp:colorlist']), getHexByte(['getLine:ofList:', 4, 'tmp:colorlist'])]]];
 
                     customBlockScripts.push([0, 0, [
+                        ['procDef', 'update pen color', [], [], true],
+                        ['setLine:ofList:to:', 6, 'tmp:colorlist', ['%', ['+', ['%', ['getLine:ofList:', 6, 'tmp:colorlist'], 100], 100], 100]],
+                        ['doIf', ['<', ['getLine:ofList:', 7, 'tmp:colorlist'], 0], [['setLine:ofList:to:', 7, 'tmp:colorlist', 0]]],
+                        ['doIf', ['>', ['getLine:ofList:', 7, 'tmp:colorlist'], 100], [['setLine:ofList:to:', 7, 'tmp:colorlist', 100]]],
+                        ['doIf', ['<', ['getLine:ofList:', 8, 'tmp:colorlist'], 0], [['setLine:ofList:to:', 8, 'tmp:colorlist', 0]]],
+                        ['doIf', ['>', ['getLine:ofList:', 8, 'tmp:colorlist'], 100], [['setLine:ofList:to:', 8, 'tmp:colorlist', 100]]],
+                        ['doIf', ['<', ['getLine:ofList:', 16, 'tmp:colorlist'], 0], [['setLine:ofList:to:', 16, 'tmp:colorlist', 0]]],
+                        ['doIf', ['>', ['getLine:ofList:', 16, 'tmp:colorlist'], 100], [['setLine:ofList:to:', 16, 'tmp:colorlist', 100]]],
+                        ['setLine:ofList:to:', 5, 'tmp:colorlist', ['computeFunction:of:', 'round', ['*', ['-', 100, ['getLine:ofList:', 16, 'tmp:colorlist']], 2.55]]],
+                        ['doIfElse', ['=', ['getLine:ofList:', 7, 'tmp:colorlist'], 0], [
+                            ['setLine:ofList:to:', 2, 'tmp:colorlist', ['computeFunction:of:', 'round', ['*', ['getLine:ofList:', 8, 'tmp:colorlist'], 2.55]]],
+                            ['setLine:ofList:to:', 3, 'tmp:colorlist', ['getLine:ofList:', 2, 'tmp:colorlist']],
+                            ['setLine:ofList:to:', 4, 'tmp:colorlist', ['getLine:ofList:', 2, 'tmp:colorlist']]
+                        ], [
+                            ['setLine:ofList:to:', 15, 'tmp:colorlist', ['*', ['getLine:ofList:', 8, 'tmp:colorlist'], 2.55]],
+                            ['setLine:ofList:to:', 9, 'tmp:colorlist', ['/', ['getLine:ofList:', 7, 'tmp:colorlist'], 100]],
+                            ['setLine:ofList:to:', 10, 'tmp:colorlist', ['*', ['getLine:ofList:', 6, 'tmp:colorlist'], 0.06]],
+                            ['setLine:ofList:to:', 11, 'tmp:colorlist', ['%', ['computeFunction:of:', 'floor', ['getLine:ofList:', 10, 'tmp:colorlist']], 6]],
+                            ['setLine:ofList:to:', 12, 'tmp:colorlist', ['-', ['getLine:ofList:', 10, 'tmp:colorlist'], ['computeFunction:of:', 'floor', ['getLine:ofList:', 10, 'tmp:colorlist']]]],
+                            ['setLine:ofList:to:', 13, 'tmp:colorlist', ['*', ['getLine:ofList:', 15, 'tmp:colorlist'], ['-', 1, ['getLine:ofList:', 9, 'tmp:colorlist']]]],
+                            ['setLine:ofList:to:', 14, 'tmp:colorlist', ['*', ['getLine:ofList:', 15, 'tmp:colorlist'], ['-', 1, ['*', ['getLine:ofList:', 9, 'tmp:colorlist'], ['getLine:ofList:', 12, 'tmp:colorlist']]]]],
+                            ['setLine:ofList:to:', 10, 'tmp:colorlist', ['*', ['getLine:ofList:', 15, 'tmp:colorlist'], ['-', 1, ['*', ['getLine:ofList:', 9, 'tmp:colorlist'], ['-', 1, ['getLine:ofList:', 12, 'tmp:colorlist']]]]]],
+                            ['doIfElse', ['=', ['getLine:ofList:', 11, 'tmp:colorlist'], 0], [
+                                ['setLine:ofList:to:', 2, 'tmp:colorlist', ['getLine:ofList:', 15, 'tmp:colorlist']],
+                                ['setLine:ofList:to:', 3, 'tmp:colorlist', ['getLine:ofList:', 10, 'tmp:colorlist']],
+                                ['setLine:ofList:to:', 4, 'tmp:colorlist', ['getLine:ofList:', 13, 'tmp:colorlist']]
+                            ], [
+                                ['doIfElse', ['=', ['getLine:ofList:', 11, 'tmp:colorlist'], 1], [
+                                    ['setLine:ofList:to:', 2, 'tmp:colorlist', ['getLine:ofList:', 14, 'tmp:colorlist']],
+                                    ['setLine:ofList:to:', 3, 'tmp:colorlist', ['getLine:ofList:', 15, 'tmp:colorlist']],
+                                    ['setLine:ofList:to:', 4, 'tmp:colorlist', ['getLine:ofList:', 13, 'tmp:colorlist']]
+                                ], [
+                                    ['doIfElse', ['=', ['getLine:ofList:', 11, 'tmp:colorlist'], 2], [
+                                        ['setLine:ofList:to:', 2, 'tmp:colorlist', ['getLine:ofList:', 13, 'tmp:colorlist']],
+                                        ['setLine:ofList:to:', 3, 'tmp:colorlist', ['getLine:ofList:', 15, 'tmp:colorlist']],
+                                        ['setLine:ofList:to:', 4, 'tmp:colorlist', ['getLine:ofList:', 10, 'tmp:colorlist']]
+                                    ], [
+                                        ['doIfElse', ['=', ['getLine:ofList:', 11, 'tmp:colorlist'], 3], [
+                                            ['setLine:ofList:to:', 2, 'tmp:colorlist', ['getLine:ofList:', 13, 'tmp:colorlist']],
+                                            ['setLine:ofList:to:', 3, 'tmp:colorlist', ['getLine:ofList:', 14, 'tmp:colorlist']],
+                                            ['setLine:ofList:to:', 4, 'tmp:colorlist', ['getLine:ofList:', 15, 'tmp:colorlist']]
+                                        ], [
+                                            ['doIfElse', ['=', ['getLine:ofList:', 11, 'tmp:colorlist'], 4], [
+                                                ['setLine:ofList:to:', 2, 'tmp:colorlist', ['getLine:ofList:', 10, 'tmp:colorlist']],
+                                                ['setLine:ofList:to:', 3, 'tmp:colorlist', ['getLine:ofList:', 13, 'tmp:colorlist']],
+                                                ['setLine:ofList:to:', 4, 'tmp:colorlist', ['getLine:ofList:', 15, 'tmp:colorlist']]
+                                            ], [
+                                                ['setLine:ofList:to:', 2, 'tmp:colorlist', ['getLine:ofList:', 15, 'tmp:colorlist']],
+                                                ['setLine:ofList:to:', 3, 'tmp:colorlist', ['getLine:ofList:', 13, 'tmp:colorlist']],
+                                                ['setLine:ofList:to:', 4, 'tmp:colorlist', ['getLine:ofList:', 14, 'tmp:colorlist']]
+                                            ]]
+                                        ]]
+                                    ]]
+                                ]]
+                            ]]
+                        ]],
+                        ['setLine:ofList:to:', 2, 'tmp:colorlist', ['computeFunction:of:', 'round', ['getLine:ofList:', 2, 'tmp:colorlist']]],
+                        ['setLine:ofList:to:', 3, 'tmp:colorlist', ['computeFunction:of:', 'round', ['getLine:ofList:', 3, 'tmp:colorlist']]],
+                        ['setLine:ofList:to:', 4, 'tmp:colorlist', ['computeFunction:of:', 'round', ['getLine:ofList:', 4, 'tmp:colorlist']]],
+                        ['doIf', ['<', ['getLine:ofList:', 2, 'tmp:colorlist'], 0], [['setLine:ofList:to:', 2, 'tmp:colorlist', 0]]],
+                        ['doIf', ['>', ['getLine:ofList:', 2, 'tmp:colorlist'], 255], [['setLine:ofList:to:', 2, 'tmp:colorlist', 255]]],
+                        ['doIf', ['<', ['getLine:ofList:', 3, 'tmp:colorlist'], 0], [['setLine:ofList:to:', 3, 'tmp:colorlist', 0]]],
+                        ['doIf', ['>', ['getLine:ofList:', 3, 'tmp:colorlist'], 255], [['setLine:ofList:to:', 3, 'tmp:colorlist', 255]]],
+                        ['doIf', ['<', ['getLine:ofList:', 4, 'tmp:colorlist'], 0], [['setLine:ofList:to:', 4, 'tmp:colorlist', 0]]],
+                        ['doIf', ['>', ['getLine:ofList:', 4, 'tmp:colorlist'], 255], [['setLine:ofList:to:', 4, 'tmp:colorlist', 255]]],
+                        ['doIfElse', ['=', ['getLine:ofList:', 16, 'tmp:colorlist'], 0], [
+                            ['setLine:ofList:to:', 1, 'tmp:colorlist', ['+', ['+', ['*', ['getLine:ofList:', 2, 'tmp:colorlist'], 65536], ['*', ['getLine:ofList:', 3, 'tmp:colorlist'], 256]], ['getLine:ofList:', 4, 'tmp:colorlist']]],
+                            ['penColor:', ['getLine:ofList:', 1, 'tmp:colorlist']]
+                        ], [
+                            ['setLine:ofList:to:', 1, 'tmp:colorlist', finalHex],
+                            ['penColor:', ['getLine:ofList:', 1, 'tmp:colorlist']]
+                        ]]
+                    ]]);
+
+                    customBlockScripts.push([0, 0, [
                         ['procDef', 'set pen color %s', ['color'], [''], true],
                         ['doIfElse', ['=', ['letter:of:', 1, ['getParam', 'color', 'r']], '#'], [
-                            ['setLine:ofList:to:', 9, 'tmp:colorlist', ['concatenate:with:', '0x', 
-                                ['concatenate:with:', ['letter:of:', 2,['getParam', 'color', 'r']],['concatenate:with:', ['letter:of:', 3,['getParam', 'color', 'r']], 
-                                ['concatenate:with:', ['letter:of:', 4,['getParam', 'color', 'r']], ['concatenate:with:', ['letter:of:', 5,['getParam', 'color', 'r']], 
-                                ['concatenate:with:',['letter:of:', 6,['getParam', 'color', 'r']], ['letter:of:', 7,['getParam', 'color', 'r']]]]]]]]]
+                            ['doIfElse', ['=', ['stringLength:', ['getParam', 'color', 'r']], 4], [
+                                ['setLine:ofList:to:', 9, 'tmp:colorlist', ['concatenate:with:', '0x',
+                                    ['concatenate:with:', ['letter:of:', 2, ['getParam', 'color', 'r']],
+                                    ['concatenate:with:', ['letter:of:', 2, ['getParam', 'color', 'r']],
+                                    ['concatenate:with:', ['letter:of:', 3, ['getParam', 'color', 'r']],
+                                    ['concatenate:with:', ['letter:of:', 3, ['getParam', 'color', 'r']],
+                                    ['concatenate:with:', ['letter:of:', 4, ['getParam', 'color', 'r']],
+                                    ['letter:of:', 4, ['getParam', 'color', 'r']]]]]]]]]
+                            ], [
+                                ['setLine:ofList:to:', 9, 'tmp:colorlist', ['concatenate:with:', '0x',
+                                    ['concatenate:with:', ['letter:of:', 2, ['getParam', 'color', 'r']],
+                                    ['concatenate:with:', ['letter:of:', 3, ['getParam', 'color', 'r']],
+                                    ['concatenate:with:', ['letter:of:', 4, ['getParam', 'color', 'r']],
+                                    ['concatenate:with:', ['letter:of:', 5, ['getParam', 'color', 'r']],
+                                    ['concatenate:with:', ['letter:of:', 6, ['getParam', 'color', 'r']],
+                                    ['letter:of:', 7, ['getParam', 'color', 'r']]]]]]]]]
+                            ]]
                         ], [
                             ['setLine:ofList:to:', 9, 'tmp:colorlist', ['getParam', 'color', 'r']]
                         ]],
@@ -413,8 +501,6 @@
                         ['setLine:ofList:to:', 4, 'tmp:colorlist', ['%', ['getLine:ofList:', 9, 'tmp:colorlist'], 256]],
                         ['setLine:ofList:to:', 3, 'tmp:colorlist', ['%', ['computeFunction:of:', 'floor', ['/', ['getLine:ofList:', 9, 'tmp:colorlist'], 256]], 256]],
                         ['setLine:ofList:to:', 2, 'tmp:colorlist', ['%', ['computeFunction:of:', 'floor', ['/', ['getLine:ofList:', 9, 'tmp:colorlist'], 65536]], 256]],
-                        ['setLine:ofList:to:', 5, 'tmp:colorlist', ['computeFunction:of:', 'floor', ['/', ['getLine:ofList:', 9, 'tmp:colorlist'], 16777216]]],
-                        ['doIf', ['=', ['getLine:ofList:', 5, 'tmp:colorlist'], 0], [['setLine:ofList:to:', 5, 'tmp:colorlist', 255]]],
                         ['setLine:ofList:to:', 10, 'tmp:colorlist', ['getLine:ofList:', 2, 'tmp:colorlist']],
                         ['doIf', ['<', ['getLine:ofList:', 3, 'tmp:colorlist'], ['getLine:ofList:', 10, 'tmp:colorlist']], [['setLine:ofList:to:', 10, 'tmp:colorlist', ['getLine:ofList:', 3, 'tmp:colorlist']]]],
                         ['doIf', ['<', ['getLine:ofList:', 4, 'tmp:colorlist'], ['getLine:ofList:', 10, 'tmp:colorlist']], [['setLine:ofList:to:', 10, 'tmp:colorlist', ['getLine:ofList:', 4, 'tmp:colorlist']]]],
@@ -423,57 +509,65 @@
                         ['doIf', ['>', ['getLine:ofList:', 4, 'tmp:colorlist'], ['getLine:ofList:', 11, 'tmp:colorlist']], [['setLine:ofList:to:', 11, 'tmp:colorlist', ['getLine:ofList:', 4, 'tmp:colorlist']]]],
                         ['setLine:ofList:to:', 12, 'tmp:colorlist', ['-', ['getLine:ofList:', 11, 'tmp:colorlist'], ['getLine:ofList:', 10, 'tmp:colorlist']]],
                         ['setLine:ofList:to:', 8, 'tmp:colorlist', ['/', ['getLine:ofList:', 11, 'tmp:colorlist'], 2.55]],
-                        ['doIfElse', ['=', ['getLine:ofList:', 11, 'tmp:colorlist'], 0], [['setLine:ofList:to:', 7, 'tmp:colorlist', 0]], [['setLine:ofList:to:', 7, 'tmp:colorlist', ['*',['/', ['getLine:ofList:', 12, 'tmp:colorlist'], ['getLine:ofList:', 11, 'tmp:colorlist']], 100]]]],
-                        ['doIfElse', ['=', ['getLine:ofList:', 12, 'tmp:colorlist'], 0], [['setLine:ofList:to:', 6, 'tmp:colorlist', 0]],
-                            ['doIfElse', ['=', ['getLine:ofList:', 11, 'tmp:colorlist'], ['getLine:ofList:', 2, 'tmp:colorlist']], [['setLine:ofList:to:', 6, 'tmp:colorlist', ['*', 16.6666, ['%', ['+', ['/', ['-', ['getLine:ofList:', 3, 'tmp:colorlist'], ['getLine:ofList:', 4, 'tmp:colorlist']], ['getLine:ofList:', 12, 'tmp:colorlist']], 6], 6]]]],
-                            ['doIfElse', ['=', ['getLine:ofList:', 11, 'tmp:colorlist'], ['getLine:ofList:', 3, 'tmp:colorlist']], [['setLine:ofList:to:', 6, 'tmp:colorlist', ['*', 16.6666, ['+', ['/', ['-', ['getLine:ofList:', 4, 'tmp:colorlist'], ['getLine:ofList:', 2, 'tmp:colorlist']], ['getLine:ofList:', 12, 'tmp:colorlist']], 2]]]],
-                            [['setLine:ofList:to:', 6, 'tmp:colorlist', ['*', 16.6666, ['+', ['/', ['-', ['getLine:ofList:', 2, 'tmp:colorlist'], ['getLine:ofList:', 3, 'tmp:colorlist']], ['getLine:ofList:', 12, 'tmp:colorlist']], 4]]]]]]],
-                        ['setLine:ofList:to:', 1, 'tmp:colorlist', finalHex],
-                        ['penColor:', ['getLine:ofList:', 1, 'tmp:colorlist']]
+                        ['doIfElse', ['=', ['getLine:ofList:', 11, 'tmp:colorlist'], 0], [
+                            ['setLine:ofList:to:', 7, 'tmp:colorlist', 0]
+                        ], [
+                            ['setLine:ofList:to:', 7, 'tmp:colorlist', ['*', ['/', ['getLine:ofList:', 12, 'tmp:colorlist'], ['getLine:ofList:', 11, 'tmp:colorlist']], 100]]
+                        ]],
+                        ['doIfElse', ['=', ['getLine:ofList:', 12, 'tmp:colorlist'], 0], [
+                            ['setLine:ofList:to:', 6, 'tmp:colorlist', 0]
+                        ], [
+                            ['doIfElse', ['=', ['getLine:ofList:', 11, 'tmp:colorlist'], ['getLine:ofList:', 2, 'tmp:colorlist']], [
+                                ['setLine:ofList:to:', 6, 'tmp:colorlist', ['*', 16.6666, ['%', ['+', ['/', ['-', ['getLine:ofList:', 3, 'tmp:colorlist'], ['getLine:ofList:', 4, 'tmp:colorlist']], ['getLine:ofList:', 12, 'tmp:colorlist']], 6], 6]]]
+                            ], [
+                                ['doIfElse', ['=', ['getLine:ofList:', 11, 'tmp:colorlist'], ['getLine:ofList:', 3, 'tmp:colorlist']], [
+                                    ['setLine:ofList:to:', 6, 'tmp:colorlist', ['*', 16.6666, ['+', ['/', ['-', ['getLine:ofList:', 4, 'tmp:colorlist'], ['getLine:ofList:', 2, 'tmp:colorlist']], ['getLine:ofList:', 12, 'tmp:colorlist']], 2]]]
+                                ], [
+                                    ['setLine:ofList:to:', 6, 'tmp:colorlist', ['*', 16.6666, ['+', ['/', ['-', ['getLine:ofList:', 2, 'tmp:colorlist'], ['getLine:ofList:', 3, 'tmp:colorlist']], ['getLine:ofList:', 12, 'tmp:colorlist']], 4]]]
+                                ]]
+                            ]]
+                        ]],
+                        ['call', 'update pen color']
                     ]]);
 
                     customBlockScripts.push([0, 0, [
                         ['procDef', 'set pen %s to %n', ['param', 'val'], ['', 0], true],
                         ['doIfElse', ['=', ['getParam', 'param', 'r'], 'color'], [
-                            ['setPenHueTo:', ['*', ['getParam', 'val', 'r'], 2]]
+                            ['setLine:ofList:to:', 6, 'tmp:colorlist', ['getParam', 'val', 'r']]
                         ], [
-                            ['doIfElse', ['=', ['getParam', 'param', 'r'], 'brightness'], [
-                                ['setPenShadeTo:', ['getParam', 'val', 'r']]
+                            ['doIfElse', ['=', ['getParam', 'param', 'r'], 'saturation'], [
+                                ['setLine:ofList:to:', 7, 'tmp:colorlist', ['getParam', 'val', 'r']]
                             ], [
-                                ['doIfElse', ['=', ['getParam', 'param', 'r'], 'transparency'], [
-                                    ['setLine:ofList:to:', 5, 'tmp:colorlist', ['computeFunction:of:', 'round', ['*', ['-', 100, ['getParam', 'val', 'r']], 2.55]]],
-                                    ['setLine:ofList:to:', 1, 'tmp:colorlist', finalHex],
-                                    ['penColor:', ['getLine:ofList:', 1, 'tmp:colorlist']]
+                                ['doIfElse', ['=', ['getParam', 'param', 'r'], 'brightness'], [
+                                    ['setLine:ofList:to:', 8, 'tmp:colorlist', ['getParam', 'val', 'r']]
                                 ], [
-                                    ['doIf', ['=', ['getParam', 'param', 'r'], 'saturation'], [
-                                        ['setPenShadeTo:', ['/', ['getParam', 'val', 'r'], 2]]
+                                    ['doIf', ['=', ['getParam', 'param', 'r'], 'transparency'], [
+                                        ['setLine:ofList:to:', 16, 'tmp:colorlist', ['getParam', 'val', 'r']]
                                     ]]
                                 ]]
                             ]]
-                        ]]
+                        ]],
+                        ['call', 'update pen color']
                     ]]);
 
                     customBlockScripts.push([0, 0, [
                         ['procDef', 'change pen %s by %n', ['param', 'val'], ['', 0], true],
                         ['doIfElse', ['=', ['getParam', 'param', 'r'], 'color'], [
-                            ['changePenHueBy:', ['*', ['getParam', 'val', 'r'], 2]]
+                            ['setLine:ofList:to:', 6, 'tmp:colorlist', ['+', ['getLine:ofList:', 6, 'tmp:colorlist'], ['getParam', 'val', 'r']]]
                         ], [
-                            ['doIfElse', ['=', ['getParam', 'param', 'r'], 'brightness'], [
-                                ['changePenShadeBy:', ['getParam', 'val', 'r']]
+                            ['doIfElse', ['=', ['getParam', 'param', 'r'], 'saturation'], [
+                                ['setLine:ofList:to:', 7, 'tmp:colorlist', ['+', ['getLine:ofList:', 7, 'tmp:colorlist'], ['getParam', 'val', 'r']]]
                             ], [
-                                ['doIfElse', ['=', ['getParam', 'param', 'r'], 'transparency'], [
-                                    ['setLine:ofList:to:', 5, 'tmp:colorlist', ['-', ['getLine:ofList:', 5, 'tmp:colorlist'], ['*', ['getParam', 'val', 'r'], 2.55]]],
-                                    ['doIf', ['<', ['getLine:ofList:', 5, 'tmp:colorlist'], 0], [['setLine:ofList:to:', 5, 'tmp:colorlist', 0]]],
-                                    ['doIf', ['>', ['getLine:ofList:', 5, 'tmp:colorlist'], 255], [['setLine:ofList:to:', 5, 'tmp:colorlist', 255]]],
-                                    ['setLine:ofList:to:', 1, 'tmp:colorlist', finalHex],
-                                    ['penColor:', ['getLine:ofList:', 1, 'tmp:colorlist']]
+                                ['doIfElse', ['=', ['getParam', 'param', 'r'], 'brightness'], [
+                                    ['setLine:ofList:to:', 8, 'tmp:colorlist', ['+', ['getLine:ofList:', 8, 'tmp:colorlist'], ['getParam', 'val', 'r']]]
                                 ], [
-                                    ['doIf', ['=', ['getParam', 'param', 'r'], 'saturation'], [
-                                        ['changePenShadeBy:', ['/', ['getParam', 'val', 'r'], 2]]
+                                    ['doIf', ['=', ['getParam', 'param', 'r'], 'transparency'], [
+                                        ['setLine:ofList:to:', 16, 'tmp:colorlist', ['+', ['getLine:ofList:', 16, 'tmp:colorlist'], ['getParam', 'val', 'r']]]
                                     ]]
                                 ]]
                             ]]
-                        ]]
+                        ]],
+                        ['call', 'update pen color']
                     ]]);
                 }
             }
@@ -615,7 +709,7 @@
         event_whenbackdropswitchesto(b, bs) { return ['whenSceneStarts', this.c.fieldVal('BACKDROP', b)]; }
         event_whengreaterthan(b, bs) { 
             let f = this.c.fieldVal('WHENGREATERTHANMENU', b);
-            if(typeof f === 'string') f = f.toLowerCase();
+            if (typeof f === 'string') f = f.toLowerCase();
             return ['whenSensorGreaterThan', f, this.c.inputVal('VALUE', b, bs)];
         }
         event_whenbroadcastreceived(b, bs) { return ['whenIReceive', this.c.fieldVal('BROADCAST_OPTION', b)]; }
@@ -725,15 +819,6 @@
         }
         pen_setPenColorToColor(b, bs) {
             let val = this.c.inputVal('COLOR', b, bs);
-            if (typeof val === 'number') {
-                return ['penColor:', val];
-            }
-            if (typeof val === 'string') {
-                let dec = this.c.hexToDec(val);
-                if (typeof dec === 'number' && !isNaN(dec)) {
-                    return ['penColor:', dec];
-                }
-            }
             this.c.penColor = true;
             return ['call', 'set pen color %s', val];
         }
@@ -744,31 +829,17 @@
         }
         pen_setPenColorParamTo(b, bs) {
             let param = this.c.inputVal('COLOR_PARAM', b, bs);
+            if (!param) param = this.c.fieldVal('COLOR_PARAM', b);
+            if (!param) param = this.c.fieldVal('colorParam', b);
             let val = this.c.inputVal('VALUE', b, bs);
-            if (typeof param === 'string') {
-                const p = param.toLowerCase();
-                if (p === 'color') {
-                    return ['setPenHueTo:', (typeof val === 'number' ? val * 2 : ['*', val, 2])];
-                }
-                if (p === 'brightness') {
-                    return ['setPenShadeTo:', val];
-                }
-            }
             this.c.penColor = true;
             return ['call', 'set pen %s to %n', param, val];
         }
         pen_changePenColorParamBy(b, bs) {
             let param = this.c.inputVal('COLOR_PARAM', b, bs);
+            if (!param) param = this.c.fieldVal('COLOR_PARAM', b);
+            if (!param) param = this.c.fieldVal('colorParam', b);
             let val = this.c.inputVal('VALUE', b, bs);
-            if (typeof param === 'string') {
-                const p = param.toLowerCase();
-                if (p === 'color') {
-                    return ['changePenHueBy:', (typeof val === 'number' ? val * 2 : ['*', val, 2])];
-                }
-                if (p === 'brightness') {
-                    return ['changePenShadeBy:', val];
-                }
-            }
             this.c.penColor = true;
             return ['call', 'change pen %s by %n', param, val];
         }

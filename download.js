@@ -150,3 +150,15 @@ async function startDownload(projectId) {
         perror(err);
     }
 }
+
+var currentHash = window.location.hash;
+window.addEventListener('hashchange', () => {
+  var oldHash = currentHash;
+  currentHash = window.location.hash;
+
+  if (oldHash.length < 3) {
+    return;
+  }
+
+  window.location.reload();
+});
