@@ -107,6 +107,11 @@ async function startDownload(projectId) {
         return;
     }
 
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('type') === 'debug') {
+        window.SB3ToSB2.logginglevel('debug');
+    }
+
     window.SB3ToSB2.setLogHandler(logMessage);
 
     logMessage("Starting download for " + projectId);
