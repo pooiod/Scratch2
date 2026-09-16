@@ -3,10 +3,12 @@ SVGs now rasterize because the Scratch2 renderer does not like SVGs from Scratch
 Added support for Scratch3 fonts (when rasterized)
 Added support for (costume [name v]) block
 Audio speed is fixed
-music block support
-{glide (seconds) secs to [random pos / mouse pos v]} support
+Added music block support
+Added {glide (seconds) secs to [random pos / mouse pos v]} support
+Added (# of [thing] in [list v]) support
+Added <[text] contains [thing]> support
 
 Issues:
-No <[text] contains [thing]> support
-No (# of [thing] in [list v]) support
+Audio lagging (flash issue)
+Large audio files not playing (flash issue)
 No Scratch3 pen support
