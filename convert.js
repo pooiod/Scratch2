@@ -1,3 +1,6 @@
+// Sb3 to sb2 converter
+// https://scratchflash.pages.dev/convert.js
+
 (() => {
     const COMPAT_PREFIX = 'compat:';
 
@@ -1206,6 +1209,93 @@
             });
         }
 
+        _parseAndNormalizeSvg(svgText) {
+            let width = 480;
+            let height = 360;
+            let minX = 0;
+            let minY = 0;
+            let hasViewBox = false;
+
+            try {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(svgText, 'image/svg+xml');
+                const svgEl = doc.querySelector('svg');
+                if (svgEl && !doc.querySelector('parsererror')) {
+                    const vbAttr = svgEl.getAttribute('viewBox');
+                    if (vbAttr) {
+                        const parts = vbAttr.trim().split(/[\s,]+/).map(parseFloat);
+                        if (parts.length === 4 && parts.every(n => !isNaN(n)) && parts[2] > 0 && parts[3] > 0) {
+                            minX = parts[0];
+                            minY = parts[1];
+                            width = parts[2];
+                            height = parts[3];
+                            hasViewBox = true;
+                        }
+                    }
+
+                    if (!hasViewBox) {
+                        const wAttr = svgEl.getAttribute('width');
+                        const hAttr = svgEl.getAttribute('height');
+                        const wVal = parseFloat(wAttr);
+                        const hVal = parseFloat(hAttr);
+                        if (!isNaN(wVal) && !isNaN(hVal) && wVal > 0 && hVal > 0 &&
+                            (!wAttr || !wAttr.includes('%')) && (!hAttr || !hAttr.includes('%'))) {
+                            width = wVal;
+                            height = hVal;
+                        }
+                    }
+
+                    svgEl.setAttribute('width', `${width}`);
+                    svgEl.setAttribute('height', `${height}`);
+                    svgEl.setAttribute('viewBox', `${minX} ${minY} ${width} ${height}`);
+                    svgEl.removeAttribute('preserveAspectRatio');
+
+                    const normalizedSvg = new XMLSerializer().serializeToString(doc);
+                    return { width, height, minX, minY, normalizedSvg };
+                }
+            } catch (e) {}
+
+            const vbMatch = svgText.match(/viewBox\s*=\s*['"]\s*([0-9.eE+-]+)[\s,]+([0-9.eE+-]+)[\s,]+([0-9.eE+-]+)[\s,]+([0-9.eE+-]+)\s*['"]/i);
+            if (vbMatch) {
+                const vx = parseFloat(vbMatch[1]);
+                const vy = parseFloat(vbMatch[2]);
+                const vw = parseFloat(vbMatch[3]);
+                const vh = parseFloat(vbMatch[4]);
+                if (!isNaN(vw) && !isNaN(vh) && vw > 0 && vh > 0) {
+                    minX = isNaN(vx) ? 0 : vx;
+                    minY = isNaN(vy) ? 0 : vy;
+                    width = vw;
+                    height = vh;
+                    hasViewBox = true;
+                }
+            }
+
+            if (!hasViewBox) {
+                const wMatch = svgText.match(/\bwidth\s*=\s*['"]\s*([0-9.eE+-]+)(?:px)?\s*['"]/i);
+                const hMatch = svgText.match(/\bheight\s*=\s*['"]\s*([0-9.eE+-]+)(?:px)?\s*['"]/i);
+                if (wMatch && hMatch) {
+                    const wVal = parseFloat(wMatch[1]);
+                    const hVal = parseFloat(hMatch[1]);
+                    if (!isNaN(wVal) && !isNaN(hVal) && wVal > 0 && hVal > 0) {
+                        width = wVal;
+                        height = hVal;
+                    }
+                }
+            }
+
+            let normalizedSvg = svgText;
+            if (normalizedSvg.includes('<svg')) {
+                normalizedSvg = normalizedSvg.replace(/<svg\b([^>]*)>/i, (match, attrs) => {
+                    let newAttrs = attrs
+                        .replace(/\b(width|height|viewBox)\s*=\s*['"][^'"]*['"]/gi, '')
+                        .trim();
+                    return `<svg ${newAttrs} width="${width}" height="${height}" viewBox="${minX} ${minY} ${width} ${height}">`;
+                });
+            }
+
+            return { width, height, minX, minY, normalizedSvg };
+        }
+
         async _rasterizeSvgToPng(svgText, scale) {
             const fontMap = {
                 'Sans Serif': 'Noto Sans',
@@ -1226,23 +1316,8 @@
                 svgText = await this._embedFontsInSvg(svgText);
             } catch (e) {}
 
-            function parseSvgSize(svg) {
-                const wMatch = svg.match(/\bwidth\s*=\s*"([0-9.]+)(px)?"/i);
-                const hMatch = svg.match(/\bheight\s*=\s*"([0-9.]+)(px)?"/i);
-                const vbMatch = svg.match(/viewBox\s*=\s*"([0-9.\-]+)\s+([0-9.\-]+)\s+([0-9.\-]+)\s+([0-9.\-]+)"/i);
-                let width = 480;
-                let height = 360;
-                if (wMatch && hMatch) {
-                    width = parseFloat(wMatch[1]);
-                    height = parseFloat(hMatch[1]);
-                } else if (vbMatch) {
-                    width = parseFloat(vbMatch[3]);
-                    height = parseFloat(vbMatch[4]);
-                }
-                return { width, height };
-            }
-
-            const size = parseSvgSize(svgText);
+            const { width, height, normalizedSvg } = this._parseAndNormalizeSvg(svgText);
+            const size = { width, height };
             const outW = Math.max(1, Math.round(size.width * scale));
             const outH = Math.max(1, Math.round(size.height * scale));
 
@@ -1250,8 +1325,8 @@
                 await document.fonts.ready;
             }
 
-            const getPngDataUrl = async (originalSvg) => {
-                const svgBlob = new Blob([originalSvg], {type: 'image/svg+xml;charset=utf-8'});
+            const getPngDataUrl = async (svgContent) => {
+                const svgBlob = new Blob([svgContent], {type: 'image/svg+xml;charset=utf-8'});
                 const url = URL.createObjectURL(svgBlob);
                 const img = new Image();
                 img.crossOrigin = 'Anonymous';
@@ -1275,7 +1350,7 @@
                 return canvas.toDataURL('image/png');
             };
 
-            const pngDataUrl = await getPngDataUrl(svgText);
+            const pngDataUrl = await getPngDataUrl(normalizedSvg);
             const finalSvgWrapper = `
                 <svg 
                     version="1.1" 
