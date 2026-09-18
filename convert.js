@@ -1607,3 +1607,168 @@
         }
     };
 })();
+
+(() => {
+    let _onProgress = () => {};
+
+    async function loadJSZip() {
+        if (window.JSZip) return;
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+            script.onload = () => resolve();
+            script.onerror = () => reject(new Error('Failed to load JSZip dependency.'));
+            document.head.appendChild(script);
+        });
+    }
+
+    function isDataUri(input) {
+        return typeof input === 'string' && input.trim().startsWith('data:');
+    }
+
+    function parseDataUri(dataUri) {
+        const [, base64] = dataUri.split(',');
+        const binaryStr = atob(base64);
+        const len = binaryStr.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
+            bytes[i] = binaryStr.charCodeAt(i);
+        }
+        return {
+            buffer: bytes.buffer,
+            text: () => new TextDecoder().decode(bytes),
+            base64
+        };
+    }
+
+    async function download(input, progressCallback) {
+        await loadJSZip();
+        const progress = progressCallback || _onProgress;
+        progress(0);
+
+        const target = typeof input === 'string' ? input.trim() : `${input}`;
+
+        if (isDataUri(target)) {
+            window.SB3ToSB2.log('task', 'Parsing project...');
+            const parsed = parseDataUri(target);
+            const bytes = new Uint8Array(parsed.buffer);
+            const isZip = bytes.length >= 4 && bytes[0] === 0x50 && bytes[1] === 0x4B;
+
+            let projectData = null;
+            let sourceZip = null;
+            let type = 'unknown';
+
+            if (isZip) {
+                sourceZip = await window.JSZip.loadAsync(parsed.buffer);
+                const projJsonEntry = sourceZip.file('project.json') || 
+                    Object.values(sourceZip.files).find(f => f.name.toLowerCase().endsWith('project.json'));
+
+                if (projJsonEntry) {
+                    try {
+                        const txt = await projJsonEntry.async('string');
+                        projectData = JSON.parse(txt);
+                    } catch (e) {
+                        window.SB3ToSB2.log('debug', 'Failed parsing project.json', e);
+                    }
+                }
+                type = (projectData && Array.isArray(projectData.targets)) ? 'sb3' : 'base64';
+            } else {
+                try {
+                    projectData = JSON.parse(parsed.text());
+                    type = (projectData && Array.isArray(projectData.targets)) ? 'sb3' : 'normal';
+                } catch (e) {
+                    type = 'legacy';
+                }
+            }
+
+            progress(100);
+            return {
+                projectData,
+                sourceZip,
+                type,
+                base64: parsed.base64,
+                title: window.DownloadedTitle || 'project'
+            };
+        }
+
+        const downloaded = await window.SB3ToSB2.downloadProject(target, progress);
+        progress(100);
+        return {
+            ...downloaded,
+            title: window.DownloadedTitle || 'project'
+        };
+    }
+
+    async function convert(input, options = {}) {
+        await loadJSZip();
+        const outputType = options.outputType || 'blob';
+        const progress = options.progressCallback || _onProgress;
+
+        let downloadedResult;
+
+        if (input && typeof input === 'object' && input.type) {
+            downloadedResult = input;
+        } else {
+            downloadedResult = await download(input, (pct) => progress(pct * 0.4));
+        }
+
+        const title = downloadedResult.title || window.DownloadedTitle || 'project';
+        const zipOut = new window.JSZip();
+
+        if (downloadedResult.type === 'sb3') {
+            await window.SB3ToSB2.processSB3(
+                downloadedResult.projectData,
+                zipOut,
+                downloadedResult.sourceZip,
+                (pct) => progress(40 + (pct * 0.55))
+            );
+        } else if (downloadedResult.type === 'normal') {
+            await window.SB3ToSB2.processNormal(
+                downloadedResult.projectData,
+                zipOut,
+                (pct) => progress(40 + (pct * 0.55))
+            );
+        } else if (downloadedResult.type === 'base64' || downloadedResult.type === 'legacy') {
+            window.SB3ToSB2.log('task', 'Packaging...');
+            const binaryStr = atob(downloadedResult.base64);
+            const len = binaryStr.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) bytes[i] = binaryStr.charCodeAt(i);
+
+            progress(100);
+
+            if (outputType === 'base64') return { data: downloadedResult.base64, title };
+            if (outputType === 'arraybuffer') return { data: bytes.buffer, title };
+            return { data: new Blob([bytes], { type: 'application/x.scratch.sb2' }), title };
+        } else {
+            throw new Error(`Unknown project type: ${downloadedResult.type}`);
+        }
+
+        window.SB3ToSB2.log('task', 'Packing project...');
+        const zipType = outputType === 'base64' ? 'base64' : (outputType === 'arraybuffer' ? 'arraybuffer' : 'blob');
+        const finalData = await zipOut.generateAsync({
+            type: zipType,
+            compression: 'DEFLATE',
+            compressionOptions: { level: 6 }
+        }, (meta) => {
+            progress(95 + (meta.percent * 0.05));
+        });
+
+        progress(100);
+        return { data: finalData, title };
+    }
+
+    window.sb2convert = {
+        download,
+        convert,
+        setLogLevel(level) {
+            window.SB3ToSB2.logginglevel(level);
+        },
+        setLogHandler(fn) {
+            window.SB3ToSB2.setLogHandler(fn);
+        },
+        setProgressHandler(fn) {
+            _onProgress = fn || (() => {});
+        }
+    };
+})();
