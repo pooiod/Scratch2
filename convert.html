@@ -5,10 +5,7 @@
     <meta charset="utf-8">
     <title>SB3 to SB2 Converter</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
-    <script src="json.js"></script>
-    <script src="download.js"></script>
+    <script src="https://scratchflash.pages.dev/convert.js"></script>
     <style>
         :root {
             --bg-color: #f9fafb;
@@ -175,6 +172,7 @@
             border-radius: 10px;
             overflow: hidden;
             margin-bottom: 12px;
+            background: var(--border-color);
         }
 
         #progressBar {
@@ -191,6 +189,8 @@
             white-space: pre-wrap;
             max-height: 100px;
             overflow-y: auto;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
         }
 
         @media (max-width: 480px) {
@@ -221,7 +221,6 @@
                 </div>
             </div>
 
-            <div id="loadholder"></div>
             <div id="downloader">
                 <div class="progress-wrapper">
                     <div id="progressBar"></div>
@@ -232,84 +231,143 @@
     </div>
 
     <script>
-        var progressTimer;
-        var DownloadedTitle = "";
+        const downloader = document.getElementById("downloader");
+        const progressBar = document.getElementById("progressBar");
+        const logEl = document.getElementById("log");
+        const projectIdInput = document.getElementById("projectId");
+        const goBtn = document.getElementById("go");
+        const fileInput = document.getElementById("fileInput");
 
-        function startProgress() {
-            $("#downloader").fadeIn(200);
-            $("#progressBar").css("width", "0%");
-            $("#log").text("");
-            var p = 0;
-            clearInterval(progressTimer);
-            progressTimer = setInterval(function () {
-                p = Math.min(p + Math.random() * 8, 90);
-                $("#progressBar").css("width", p + "%");
-            }, 200);
+        function appendLog(msg) {
+            logEl.textContent += msg;
+            logEl.scrollTop = logEl.scrollHeight;
         }
 
-        window.gotZipBase64 = function (content) {
-            clearInterval(progressTimer);
-            $("#progressBar").css("width", "100%");
-            $("#log").append("Done! Saving file...");
-            JSdownloadSB2(content, (DownloadedTitle || "project") + ".sb2");
-        };
+        function setLog(msg) {
+            logEl.textContent = msg;
+            logEl.scrollTop = logEl.scrollHeight;
+        }
 
-        function JSdownloadSB2(data, filename) {
+        function showDownloader() {
+            downloader.style.display = "block";
+        }
+
+        function updateProgress(pct) {
+            progressBar.style.width = Math.min(100, Math.max(0, Math.round(pct))) + "%";
+        }
+
+        if (window.sb2convert && typeof window.sb2convert.setLogHandler === "function") {
+            window.sb2convert.setLogHandler(function () {
+                var args = Array.prototype.slice.call(arguments);
+                var text = args.map(function (arg) {
+                    return typeof arg === "object" ? JSON.stringify(arg) : String(arg);
+                }).join(" ");
+                appendLog(text + "\n");
+            });
+        }
+
+        function saveFile(data, filename) {
             var a = document.createElement("a");
-            a.href = "data:application/octet-stream;base64," + data;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            if (data instanceof Blob) {
+                var url = URL.createObjectURL(data);
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+            } else {
+                a.href = "data:application/octet-stream;base64," + data;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
         }
 
         function extractId(v) {
             if (!v) return "";
-            if (v.includes("#")) return v.split("#").pop();
-            if (v.startsWith("http")) {
+            v = decodeURIComponent(v.trim());
+            if (v.startsWith("#")) v = v.slice(1);
+            if (v.includes("#")) v = v.split("#").pop();
+            if (v.startsWith("http") || v.includes("/")) {
                 var p = v.split("/");
                 for (var i = 0; i < p.length; i++) {
                     if (/^\d+$/.test(p[i])) return p[i];
                 }
             }
-            return v;
+            return v.trim();
         }
 
-        $("#go").on("click", function () {
-            var v = extractId($("#projectId").val().trim());
-            if (!v) return;
-            $("#log").text("Fetching project " + v + "...\n");
-            startProgress();
-            if (typeof startDownload === "function") startDownload(v);
+        async function processProjectId(rawInput) {
+            var id = extractId(rawInput);
+            if (!id) return;
+
+            showDownloader();
+            updateProgress(0);
+            setLog("Fetching project " + id + "...\n");
+
+            try {
+                var result = await window.sb2convert.convert(id, {
+                    progressCallback: updateProgress
+                });
+                var filename = (result.title || id || "project") + ".sb2";
+                saveFile(result.data, filename);
+                appendLog("Done! Saved as " + filename + "\n");
+            } catch (err) {
+                appendLog("Error: " + err.message + "\n");
+            }
+        }
+
+        goBtn.addEventListener("click", function () {
+            processProjectId(projectIdInput.value);
         });
 
-        $("#fileInput").on("change", function (e) {
+        projectIdInput.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+                processProjectId(projectIdInput.value);
+            }
+        });
+
+        fileInput.addEventListener("change", function (e) {
             var file = e.target.files[0];
             if (!file) return;
 
-            DownloadedTitle = file.name.replace(".sb3", "");
-            startProgress();
-            $("#log").text("Reading: " + file.name + "\n");
+            window.DownloadedTitle = file.name.replace(/\.sb3$/i, "");
+            showDownloader();
+            updateProgress(0);
+            setLog("Reading: " + file.name + "\n");
 
             var reader = new FileReader();
-            reader.onload = function (event) {
-                var fullDataUri = event.target.result;
-
-                $("#log").append("Processing conversion...\n");
-
+            reader.onload = async function (event) {
                 try {
-                    if (typeof startDownload === "function") {
-                        startDownload(fullDataUri);
-                    } else {
-                        $("#log").append("Error: startDownload function not found.");
-                    }
+                    appendLog("Processing conversion...\n");
+                    var result = await window.sb2convert.convert(event.target.result, {
+                        progressCallback: updateProgress
+                    });
+                    var filename = (result.title || window.DownloadedTitle || "project") + ".sb2";
+                    saveFile(result.data, filename);
+                    appendLog("Done! Saved as " + filename + "\n");
                 } catch (err) {
-                    $("#log").append("Error: " + err.message);
-                    clearInterval(progressTimer);
+                    appendLog("Error: " + err.message + "\n");
                 }
             };
             reader.readAsDataURL(file);
         });
+
+        function checkHash() {
+            var hash = window.location.hash;
+            if (hash && hash.length > 1) {
+                var id = extractId(hash.slice(1));
+                if (id) {
+                    projectIdInput.value = id;
+                    processProjectId(id);
+                }
+            }
+        }
+
+        window.addEventListener("hashchange", checkHash);
+        checkHash();
     </script>
 </body>
 </html>
