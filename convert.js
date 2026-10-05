@@ -11,10 +11,22 @@
         debug: 4
     };
 
-    const PROJECT_ID_REPLACEMENTS = {
+    var PROJECT_ID_REPLACEMENTS = {
         "212388708": "1298706676",
         "1298757456": "https://pooiod7.pages.dev/s2/GeometryDash.sb2"
     };
+
+    var ranges = [[1,18],21,[24,30],[32,33],[35,61],[63,89]];
+    for (var i = 0; i < ranges.length; i++) {
+        var item = ranges[i];
+        var startId = Array.isArray(item) ? item[0] : item;
+        var endId = Array.isArray(item) ? item[1] : item;
+
+        for (var idNum = startId; idNum <= endId; idNum++) {
+            var idStr = String(idNum);
+            PROJECT_ID_REPLACEMENTS[idStr] = "https://archive.org/download/scratch-projects/Projects%20%5B1-10000%5D.zip/Projects%20%5B1-10000%5D%2F" + idStr + ".sb3";
+        }
+    }
 
     class ProjectDownloader {
         static bufferToBase64(buffer) {
