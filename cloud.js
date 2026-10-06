@@ -1,3 +1,35 @@
+const charset = [
+    "a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z",
+    "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z",
+    "0","1","2","3","4","5","6","7","8","9",
+    " ", "\n", "\t",
+    ".", ",", "!", "?", ":", ";", "-", "_", "+", "=", "/", "\\", "|", "@", "#", "$", "%", "^", "&", "*", "(", ")", "[", "]", "{", "}", "<", ">", "'", "\""
+];
+
+function encode(text) {
+    let result = "";
+    for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const index = charset.indexOf(char) + 1;
+        if (index > 0) {
+            result += index < 10 ? "0" + index : index.toString();
+        }
+    }
+    return result;
+}
+
+function decode(encodedNum) {
+    let result = "";
+    for (let i = 0; i < encodedNum.length; i += 2) {
+        const pair = encodedNum.substring(i, i + 2);
+        const index = parseInt(pair, 10) - 1;
+        if (index >= 0 && index < charset.length) {
+            result += charset[index];
+        }
+    }
+    return result;
+}
+
 (function () {
     var ws = null;
     var connected = false;
@@ -6,6 +38,7 @@
     var reconnectTimer = null;
     var usernameApplied = false;
     var connections = 0;
+    var isFetching = false;
 
     var currentProjectId = "";
     var currentHash = "";
@@ -65,6 +98,12 @@
         return n && n.toLowerCase().indexOf("local") !== -1;
     }
 
+    function isFetchVar(n) {
+        if (!n) return false;
+        var cleanName = n.replace(/^☁\s*/, "").replace(/^cloud:\s*/, "").trim();
+        return cleanName.toLowerCase() === "fetch";
+    }
+
     function isPlayerPath() {
         return location.pathname.includes("/phosphorus") || location.pathname === "/player" || location.pathname === "/player.html" || location.pathname === "/embed";
     }
@@ -114,6 +153,53 @@
         } catch (e) { }
     }
 
+    function getFetchVar() {
+        if (!swfReady()) return null;
+        var vars = swf.ASgetAllVars();
+        for (var i = 0; i < vars.length; i++) {
+            if (isCloudName(vars[i].name) && isFetchVar(vars[i].name)) {
+                return vars[i];
+            }
+        }
+        return null;
+    }
+
+    function handleFetchVariable(fetchVar) {
+        var rawVal = String(fetchVar.value).trim();
+        if (!rawVal || isFetching || lastValues[fetchVar.name] === rawVal) return;
+
+        lastValues[fetchVar.name] = rawVal;
+
+        var decodedUrl = decode(rawVal);
+        if (!decodedUrl.startsWith("http://") && !decodedUrl.startsWith("https://")) {
+            return;
+        }
+
+        console.log("Project fetching web content", decodedUrl);
+
+        isFetching = true;
+
+        fetch(decodedUrl)
+            .then(function (res) {
+                if (!res.ok) throw new Error("HTTP error " + res.status);
+                return res.text();
+            })
+            .then(function (text) {
+                var encodedResponse = encode(text);
+                lastValues[fetchVar.name] = encodedResponse;
+                console.log("Project fetched web content", text);
+                swf.ASsetVarValue(fetchVar.name, encodedResponse);
+            })
+            .catch(function (err) {
+                console.error("Fetch error:", err);
+                showStatus("☁ url fetch failed");
+                swf.ASsetVarValue(fetchVar.name, 0);
+            })
+            .finally(function () {
+                isFetching = false;
+            });
+    }
+
     function disconnect(silent) {
         if (reconnectTimer) {
             clearTimeout(reconnectTimer);
@@ -147,6 +233,7 @@
         ws.onopen = function () {
             connected = true;
             intentionalClose = false;
+            connections = 0;
 
             showStatus("☁ connected");
 
@@ -155,9 +242,6 @@
                 user: username,
                 project_id: currentProjectId
             }) + "\n");
-
-            syncFromLocal();
-            syncAll();
         };
 
         ws.onmessage = function (e) {
@@ -175,7 +259,7 @@
 
                 if (msg.method === "set") {
                     var raw = msg.name;
-                    if (!isCloudName(raw)) continue;
+                    if (!isCloudName(raw) || isFetchVar(raw)) continue;
 
                     var value = String(msg.value);
                     lastValues[raw] = value;
@@ -193,10 +277,6 @@
 
             if (e.code === 1000 || e.code === 1001) {
                 showStatus("disconnected from cloud");
-                return;
-            }
-
-            if (e.code === 101) {
                 return;
             }
 
@@ -225,6 +305,8 @@
     }
 
     function setCloud(name, value) {
+        if (isFetchVar(name)) return;
+
         value = String(value);
 
         if (value === "0") {
@@ -246,51 +328,13 @@
         }) + "\n");
     }
 
-    function syncAll() {
-        if (!swfReady()) return;
-
-        var vars = swf.ASgetAllVars();
-
-        for (var i = 0; i < vars.length; i++) {
-            var v = vars[i];
-            if (!isCloudName(v.name)) continue;
-
-            if (v.value === "" || v.value === 0 || v.value === "0") {
-                var stored = lsGet(v.name);
-                if (stored !== null) {
-                    swf.ASsetVarValue(v.name, stored);
-                    setCloud(v.name, stored);
-                }
-            } else {
-                setCloud(v.name, v.value);
-            }
-        }
-    }
-
-    function syncFromLocal() {
-        if (!swfReady()) return;
-
-        var vars = swf.ASgetAllVars();
-
-        for (var i = 0; i < vars.length; i++) {
-            var v = vars[i];
-            if (!isCloudName(v.name)) continue;
-
-            var stored = lsGet(v.name);
-            if (stored !== null) {
-                swf.ASsetVarValue(v.name, stored);
-                setCloud(v.name, stored);
-            }
-        }
-    }
-
     function watchForCloudVar() {
         if (!swfReady()) return false;
 
         var vars = swf.ASgetAllVars();
 
         for (var i = 0; i < vars.length; i++) {
-            if (isCloudName(vars[i].name)) return true;
+            if (isCloudName(vars[i].name) && !isFetchVar(vars[i].name)) return true;
         }
 
         return false;
@@ -317,13 +361,16 @@
         currentProjectId = nextProjectId;
 
         disconnect(true);
-
-        // if (currentProjectId) showStatus("swapping cloud servers");
     }
 
     function updateLoop() {
         updateHashState();
         applyUsername();
+
+        var fetchVar = getFetchVar();
+        if (fetchVar) {
+            handleFetchVariable(fetchVar);
+        }
 
         if (!currentProjectId) {
             disconnect(true);
@@ -331,7 +378,10 @@
         }
 
         if (!swfReady()) return;
-        if (!watchForCloudVar()) return;
+        if (!watchForCloudVar()) {
+            if (connected || ws) disconnect(true);
+            return;
+        }
 
         if (!connected && !ws) connect();
 
@@ -341,7 +391,7 @@
 
         for (var i = 0; i < vars.length; i++) {
             var v = vars[i];
-            if (!isCloudName(v.name)) continue;
+            if (!isCloudName(v.name) || isFetchVar(v.name)) continue;
 
             var value = String(v.value);
 
@@ -356,5 +406,5 @@
 
     window.addEventListener("hashchange", updateHashState);
 
-    setInterval(updateLoop, 10);
+    setInterval(updateLoop, 100);
 })();
