@@ -7,6 +7,7 @@ General Scratch2 / ScratchX repository <br>
 - [ScratchX in modern browsers](https://scratchflash.pages.dev/scratchx/)
 - Cloud variable support
 - Controller support for Scratch2
+- [Web fetch support](https://scratchflash.pages.dev/#1379521299)
 - [Phosphorus](https://scratchflash.pages.dev/phosphorus/)
 
 See the swf source [here](https://github.com/pooiod/s2online-mod).

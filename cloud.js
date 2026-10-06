@@ -30,6 +30,67 @@ function decode(encodedNum) {
     return result;
 }
 
+function isImageUrl(url) {
+    const cleanUrl = url.split("?")[0].split("#")[0].toLowerCase();
+    return (
+        cleanUrl.endsWith(".png") ||
+        cleanUrl.endsWith(".jpg") ||
+        cleanUrl.endsWith(".jpeg") ||
+        cleanUrl.endsWith(".gif") ||
+        cleanUrl.endsWith(".webp")
+    );
+}
+
+function processImageToPixelData(blob) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        const url = URL.createObjectURL(blob);
+
+        img.onload = function () {
+            URL.revokeObjectURL(url);
+
+            let width = img.naturalWidth || img.width;
+            let height = img.naturalHeight || img.height;
+
+            if (width > 100) {
+                const ratio = 100 / width;
+                width = 100;
+                height = Math.round(height * ratio);
+            }
+
+            const canvas = document.createElement("canvas");
+            canvas.width = width;
+            canvas.height = height;
+
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, width, height);
+
+            const imageData = ctx.getImageData(0, 0, width, height);
+            const data = imageData.data;
+
+            let pixelString = width.toString().padStart(3, "0");
+
+            for (let i = 0; i < data.length; i += 4) {
+                const r = Math.round((data[i] / 255) * 9);
+                const g = Math.round((data[i + 1] / 255) * 9);
+                const b = Math.round((data[i + 2] / 255) * 9);
+                const a = Math.round((data[i + 3] / 255) * 9);
+
+                pixelString += `${r}${g}${b}${a}`;
+            }
+
+            resolve(pixelString);
+        };
+
+        img.onerror = function (err) {
+            URL.revokeObjectURL(url);
+            reject(err);
+        };
+
+        img.src = url;
+    });
+}
+
 (function () {
     var ws = null;
     var connected = false;
@@ -175,24 +236,30 @@ function decode(encodedNum) {
             return;
         }
 
-        console.log("Project fetching web content", decodedUrl);
-
         isFetching = true;
+        console.log("Project fetching content:", decodedUrl);
 
         fetch(decodedUrl)
             .then(function (res) {
                 if (!res.ok) throw new Error("HTTP error " + res.status);
-                return res.text();
+                var contentType = res.headers.get("content-type") || "";
+                
+                if (contentType.includes("image") || isImageUrl(decodedUrl)) {
+                    console.log("Project fetched image content");
+                    return res.blob().then(processImageToPixelData);
+                } else {
+                    var text = res.text();
+                    console.log("Project fetched web content:", text);
+                    return text.then(encode);
+                }
             })
-            .then(function (text) {
-                var encodedResponse = encode(text);
+            .then(function (encodedResponse) {
                 lastValues[fetchVar.name] = encodedResponse;
-                console.log("Project fetched web content", text);
                 swf.ASsetVarValue(fetchVar.name, encodedResponse);
             })
             .catch(function (err) {
                 console.error("Fetch error:", err);
-                showStatus("☁ url fetch failed");
+                showStatus("☁ web fetch failed");
                 swf.ASsetVarValue(fetchVar.name, 0);
             })
             .finally(function () {
