@@ -161,8 +161,9 @@ function processImageToPixelData(blob) {
 
     function isFetchVar(n) {
         if (!n) return false;
-        var cleanName = n.replace(/^☁\s*/, "").replace(/^cloud:\s*/, "").trim();
-        return cleanName.toLowerCase() === "fetch";
+        var clean = String(n).replace(/\u00A0/g, " ").trim();
+        clean = clean.replace(/^(☁|cloud:)\s*/i, "").trim();
+        return clean.toLowerCase() === "fetch";
     }
 
     function isPlayerPath() {
@@ -243,24 +244,29 @@ function processImageToPixelData(blob) {
             .then(function (res) {
                 if (!res.ok) throw new Error("HTTP error " + res.status);
                 var contentType = res.headers.get("content-type") || "";
-                
+
                 if (contentType.includes("image") || isImageUrl(decodedUrl)) {
                     console.log("Project fetched image content");
                     return res.blob().then(processImageToPixelData);
                 } else {
-                    var text = res.text();
-                    console.log("Project fetched web content:", text);
-                    return text.then(encode);
+                    return res.text().then(function (text) {
+                        console.log("Project fetched web content:", text);
+                        return encode(text);
+                    });
                 }
             })
             .then(function (encodedResponse) {
                 lastValues[fetchVar.name] = encodedResponse;
-                swf.ASsetVarValue(fetchVar.name, encodedResponse);
+                if (swfReady()) {
+                    swf.ASsetVarValue(fetchVar.name, encodedResponse);
+                }
             })
             .catch(function (err) {
                 console.error("Fetch error:", err);
                 showStatus("☁ web fetch failed");
-                swf.ASsetVarValue(fetchVar.name, 0);
+                if (swfReady()) {
+                    swf.ASsetVarValue(fetchVar.name, 0);
+                }
             })
             .finally(function () {
                 isFetching = false;
