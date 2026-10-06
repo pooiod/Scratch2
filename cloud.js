@@ -102,7 +102,6 @@ function processImageToPixelData(blob) {
     var isFetching = false;
 
     var currentProjectId = "";
-    var currentHash = "";
 
     var username = "player" + Math.floor(1000 + Math.random() * 9000);
     function rename() {
@@ -166,9 +165,22 @@ function processImageToPixelData(blob) {
         return clean.toLowerCase() === "fetch";
     }
 
+    function isInsideIframe() {
+        try {
+            return window.self !== window.top;
+        } catch (e) {
+            return true;
+        }
+    }
+
     function isPlayerPath() {
         var path = location.pathname.toLowerCase();
-        return path.includes("phosphorus") || path.includes("player") || path.includes("embed");
+        return (
+            isInsideIframe() ||
+            path.includes("phosphorus") ||
+            path.includes("player") ||
+            path.includes("embed")
+        );
     }
 
     function isScratchXPath() {
@@ -176,13 +188,33 @@ function processImageToPixelData(blob) {
     }
 
     function getProjectIdFromHash() {
-        var hash = location.hash ? location.hash.slice(1) : "";
-        hash = new URLSearchParams(window.location.search).get('id') || hash;
-        hash = new URLSearchParams(window.location.search).get('project_url') || hash;
-        hash = new URLSearchParams(window.location.search).get('url') || hash;
-        if (!hash) return "";
+        var searchParams = new URLSearchParams(window.location.search);
+        var hash = location.hash ? location.hash.replace(/^#\/?/, "") : "";
+
+        var id = searchParams.get('id') ||
+                 searchParams.get('project_url') ||
+                 searchParams.get('url') ||
+                 hash;
+
+        if (!id) {
+            var pathMatches = window.location.pathname.match(/(?:projects|embed|player)\/(\d+)/i) ||
+                              window.location.pathname.match(/\/(\d+)/);
+            if (pathMatches && pathMatches[1]) {
+                id = pathMatches[1];
+            }
+        }
+
+        if (!id) return "";
+
+        id = decodeURIComponent(String(id)).trim().replace(/\/$/, "");
+
+        if (id.includes("scratch.mit.edu/projects/")) {
+            var m = id.match(/projects\/(\d+)/);
+            if (m) id = m[1];
+        }
+
         var prefix = isPlayerPath() ? "" : (isScratchXPath() ? "scratchx-" : "editor-");
-        return prefix + decodeURIComponent(hash);
+        return prefix + id;
     }
 
     function swfReady() {
@@ -219,6 +251,7 @@ function processImageToPixelData(blob) {
     function getFetchVar() {
         if (!swfReady()) return null;
         var vars = swf.ASgetAllVars();
+        if (!vars || !vars.length) return null;
         for (var i = 0; i < vars.length; i++) {
             if (isCloudName(vars[i].name) && isFetchVar(vars[i].name)) {
                 return vars[i];
@@ -283,7 +316,13 @@ function processImageToPixelData(blob) {
         intentionalClose = true;
 
         if (ws) {
-            try { ws.close(); } catch (e) { }
+            try {
+                ws.onopen = null;
+                ws.onmessage = null;
+                ws.onerror = null;
+                ws.onclose = null;
+                ws.close();
+            } catch (e) { }
         }
 
         ws = null;
@@ -293,8 +332,8 @@ function processImageToPixelData(blob) {
     }
 
     function connect() {
-        if (connected || ws || !currentProjectId) return;
-        
+        if (connected || ws || reconnectTimer || !currentProjectId) return;
+
         if (connections >= 30) {
             if (connections === 30) {
                 showStatus("unable to connect to cloud");
@@ -306,7 +345,13 @@ function processImageToPixelData(blob) {
         connections += 1;
         showStatus("☁ connecting");
 
-        ws = new WebSocket("wss://clouddata.turbowarp.org");
+        try {
+            ws = new WebSocket("wss://clouddata.turbowarp.org");
+        } catch (e) {
+            console.error("WebSocket creation failed:", e);
+            scheduleReconnect();
+            return;
+        }
 
         ws.onopen = function () {
             connected = true;
@@ -350,8 +395,20 @@ function processImageToPixelData(blob) {
             }
         };
 
+        ws.onerror = function (e) {
+            console.error("WebSocket error:", e);
+        };
+
         ws.onclose = function (e) {
-            console.log(e);
+            console.log("WebSocket closed:", e);
+
+            ws = null;
+            connected = false;
+
+            if (intentionalClose) {
+                intentionalClose = false;
+                return;
+            }
 
             if (e.code === 1000 || e.code === 1001) {
                 showStatus("disconnected from cloud");
@@ -363,28 +420,24 @@ function processImageToPixelData(blob) {
                 return;
             }
 
-            ws = null;
-            connected = false;
             rename();
-
-            if (intentionalClose) {
-                intentionalClose = false;
-                return;
-            }
-
-            if (connections >= 30) {
-                showStatus("unable to connect to cloud");
-                return;
-            }
-
-            showStatus("☁ reconnecting");
-
-            if (reconnectTimer) return;
-            reconnectTimer = setTimeout(function () {
-                reconnectTimer = null;
-                connect();
-            }, 1000);
+            scheduleReconnect();
         };
+    }
+
+    function scheduleReconnect() {
+        if (connections >= 30) {
+            showStatus("unable to connect to cloud");
+            return;
+        }
+
+        showStatus("☁ reconnecting");
+
+        if (reconnectTimer) return;
+        reconnectTimer = setTimeout(function () {
+            reconnectTimer = null;
+            connect();
+        }, 1000);
     }
 
     function setCloud(name, value) {
@@ -400,8 +453,7 @@ function processImageToPixelData(blob) {
 
         lastValues[name] = value;
 
-        if (!connected || !ws) return;
-
+        if (!connected || !ws || ws.readyState !== WebSocket.OPEN) return;
         if (isLocalVar(name)) return;
 
         ws.send(JSON.stringify({
@@ -415,6 +467,7 @@ function processImageToPixelData(blob) {
         if (!swfReady()) return false;
 
         var vars = swf.ASgetAllVars();
+        if (!vars || !vars.length) return false;
 
         for (var i = 0; i < vars.length; i++) {
             if (isCloudName(vars[i].name) && !isFetchVar(vars[i].name)) return true;
@@ -430,24 +483,17 @@ function processImageToPixelData(blob) {
         }
     }
 
-    function updateHashState() {
-        var nextHash = location.hash;
-        if (nextHash === currentHash) return;
-        connections = 0;
-
-        currentHash = nextHash;
-
+    function updateState() {
         var nextProjectId = getProjectIdFromHash();
-
         if (nextProjectId === currentProjectId) return;
 
+        connections = 0;
         currentProjectId = nextProjectId;
-
         disconnect(true);
     }
 
     function updateLoop() {
-        updateHashState();
+        updateState();
         applyUsername();
 
         var fetchVar = getFetchVar();
@@ -456,38 +502,38 @@ function processImageToPixelData(blob) {
         }
 
         if (!currentProjectId) {
-            disconnect(true);
-            return;
-        }
-
-        if (!swfReady()) return;
-        if (!watchForCloudVar()) {
             if (connected || ws) disconnect(true);
             return;
         }
 
-        if (!connected && !ws) connect();
+        if (!swfReady()) return;
 
-        if (!connected || !ws) return;
+        if (watchForCloudVar()) {
+            if (!connected && !ws && !reconnectTimer) {
+                connect();
+            }
+        }
+
+        if (!connected || !ws || ws.readyState !== WebSocket.OPEN) return;
 
         var vars = swf.ASgetAllVars();
+        if (!vars) return;
 
         for (var i = 0; i < vars.length; i++) {
             var v = vars[i];
             if (!isCloudName(v.name) || isFetchVar(v.name)) continue;
 
             var value = String(v.value);
-
             if (lastValues[v.name] !== value) {
                 setCloud(v.name, value);
             }
         }
     }
 
-    if (location.hash) currentHash = location.hash;
     currentProjectId = getProjectIdFromHash();
 
-    window.addEventListener("hashchange", updateHashState);
+    window.addEventListener("hashchange", updateState);
+    window.addEventListener("popstate", updateState);
 
     setInterval(updateLoop, 100);
 })();
