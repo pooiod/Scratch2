@@ -167,11 +167,12 @@ function processImageToPixelData(blob) {
     }
 
     function isPlayerPath() {
-        return location.pathname.includes("/phosphorus") || location.pathname === "/player" || location.pathname === "/player.html" || location.pathname === "/embed";
+        var path = location.pathname.toLowerCase();
+        return path.includes("phosphorus") || path.includes("player") || path.includes("embed");
     }
 
     function isScratchXPath() {
-        return location.pathname === "/scratchx";
+        return location.pathname.toLowerCase().includes("scratchx");
     }
 
     function getProjectIdFromHash() {
@@ -180,7 +181,7 @@ function processImageToPixelData(blob) {
         hash = new URLSearchParams(window.location.search).get('project_url') || hash;
         hash = new URLSearchParams(window.location.search).get('url') || hash;
         if (!hash) return "";
-        var prefix = isPlayerPath() ? "" : (isScratchXPath()?"scratchx-":"editor-");
+        var prefix = isPlayerPath() ? "" : (isScratchXPath() ? "scratchx-" : "editor-");
         return prefix + decodeURIComponent(hash);
     }
 
@@ -293,12 +294,16 @@ function processImageToPixelData(blob) {
 
     function connect() {
         if (connected || ws || !currentProjectId) return;
-        connections += 1;
-        if (connections > 10) {
-            showStatus("unable to connect to cloud");
+        
+        if (connections >= 30) {
+            if (connections === 30) {
+                showStatus("unable to connect to cloud");
+                connections++;
+            }
             return;
         }
 
+        connections += 1;
         showStatus("☁ connecting");
 
         ws = new WebSocket("wss://clouddata.turbowarp.org");
@@ -364,6 +369,11 @@ function processImageToPixelData(blob) {
 
             if (intentionalClose) {
                 intentionalClose = false;
+                return;
+            }
+
+            if (connections >= 30) {
+                showStatus("unable to connect to cloud");
                 return;
             }
 
