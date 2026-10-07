@@ -196,12 +196,14 @@
             }
 
             #BigLoader .progress-container {
-                width: 250px;
-                height: 10px;
+                top: 0px;
+                left: 0px;
+                width: 100%;
+                height: 4px;
                 background: rgba(255, 255, 255, 0.2);
-                border-radius: 20px;
+                border-radius: 0px;
                 overflow: hidden;
-                position: relative;
+                position: fixed;
                 box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
                 opacity: 0;
             }
@@ -209,17 +211,9 @@
             #BigLoader .progress-bar {
                 height: 100%;
                 background-color: #fff;
-                border-radius: 20px;
+                border-radius: 0px;
                 transition: width 0.4s ease;
                 box-shadow: 0 0 10px rgba(255,255,255,0.5);
-            }
-
-            .scratch-loader-overlay::after {
-                content: '';
-                position: absolute;
-                width: 200%;
-                height: 200%;
-                background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
             }
         </style>
         <script>

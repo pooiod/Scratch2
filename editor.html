@@ -2,7 +2,7 @@
 
 <html>
     <head>
-        <title>Scratch2 Player</title>
+        <title>Scratch2 Editor</title>
         <meta name="viewport" content="width=device-width, initial-scale=0.5" />
         <style>
             body, html {
@@ -217,8 +217,6 @@
             }
         </style>
         <script>
-            window.ShouldUseFlashForCurrent = true;
-
             window.JSloadID = function(id) {
                 location.hash = id;
                 location.reload();
@@ -351,8 +349,6 @@
                 };
                 xhr.send(fd);
             };
-
-            window.skipgui2 = true;
         </script>
     </head>
     <body onload=''>
@@ -386,90 +382,6 @@
         </div>
 
         <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const wrapper = document.createElement("div");
-                const box = document.createElement("div");
-                const topBar = document.createElement("div");
-                const redButton = document.createElement("div");
-
-                function sizeBox() {
-                    const pad = window.innerWidth < 550 ? 0 : 10;
-                    const maxW = window.innerWidth - pad * 2;
-                    const maxH = window.innerHeight - pad * 2 - 40;
-                    let w = maxW;
-                    let h = w * 3 / 4;
-                    if (h > maxH) {
-                        h = maxH;
-                        w = h * 4 / 3;
-                    }
-                    box.style.width = w + "px";
-                    box.style.height = h + "px";
-                    wrapper.style.width = w + "px";
-                    wrapper.style.height = h + 40 + "px";
-                }
-
-                Object.assign(wrapper.style, {
-                    position: "fixed",
-                    top: "50%",
-                    left: "50%",
-                    transform: "translate(-50%, -50%)",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    pointerEvents: "none",
-                    opacity: "0"
-                });
-
-                Object.assign(topBar.style, {
-                    height: "40px",
-                    width: "100%",
-                    background: "rgba(153,153,153,0.5)",
-                    display: "flex",
-                    alignItems: "center"
-                });
-
-                Object.assign(redButton.style, {
-                    width: "60px",
-                    height: "100%",
-                    background: "red",
-                    pointerEvents: "auto"
-                });
-
-                Object.assign(box.style, {
-                    padding: "5px",
-                    boxSizing: "border-box",
-                    background: "rgba(204,204,204,0.5)"
-                });
-
-                topBar.appendChild(redButton);
-                wrapper.appendChild(topBar);
-                wrapper.appendChild(box);
-                document.body.appendChild(wrapper);
-
-                window.addEventListener("resize", sizeBox);
-                sizeBox();
-
-                function toggleFullscreen() {
-                    if (!document.fullscreenElement) {
-                        document.documentElement.requestFullscreen();
-                    } else {
-                        document.exitFullscreen();
-                    }
-                }
-
-                function handleClick(e) {
-                    const rect = redButton.getBoundingClientRect();
-                    if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
-                        toggleFullscreen();
-                    }
-                }
-
-                window.addEventListener("mousedown", handleClick);
-                window.addEventListener("touchstart", e => {
-                    handleClick(e.touches[0]);
-                });
-            });
-
             (function(){
                 window.hasFlash = false;
                 try {
@@ -480,10 +392,10 @@
                 if (!hasFlash) {
                     window.RufflePlayer = window.RufflePlayer || {};
                     window.RufflePlayer.config = {
-                        allowScriptAccess: true
+                        allowScriptAccess: true 
                     };
-                    var s = document.createElement("script");
-                    s.src = "https://cdn.jsdelivr.net/npm/@ruffle-rs/ruffle";
+                    var s = document.createElement("script"); // https://unpkg.com/@ruffle-rs/ruffle
+                    s.src = "https://unpkg.com/@ruffle-rs/ruffle";
                     s.onload = function(){
                         var ruffle=window.RufflePlayer.newest();
                         var player=ruffle.createPlayer();
@@ -505,6 +417,12 @@
                     document.head.appendChild(s3);
                 }
             })();
+
+            document.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+                    window.location.reload();
+                }
+            });
         </script>
 
         <div id="container">

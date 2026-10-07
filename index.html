@@ -1,458 +1,617 @@
 <!DOCTYPE html>
 
-<html>
-    <head>
-        <title>Scratch2 Editor</title>
-        <meta name="viewport" content="width=device-width, initial-scale=0.5" />
-        <style>
-            body, html {
-                width: 100%;
-                height: 100%;
-                padding: 0;
-                margin: 0;
-            }
-            body {
-                background-color: #EEE;
-                overflow-y: hidden;
-            }
-            #container {
-                width: 100%;
-                height: 100%;
-                display: flex;
-                flex-direction: column;
-            }
-            #downloader {
-                height: 0px;
-                position: relative;
-            }
-            body:not(.download) #downloader { display: none; }
-            #progress {
-                background: rgba(0, 0, 255, 0.5);
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 0;
-                height: 100%;
-                z-index: 0;
-            }
-            #output {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                overflow-y: scroll;
-                margin: 0;
-            }
-            #flash {
-                flex-grow: 1;
-                height: 100%;
-            }
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ScratchFlash - Scratch 2 in your browser</title>
+    <meta name="description" content="ScratchFlash is a project created by pooiod7 to run Scratch 2.0 and ScratchX to modern browsers using Ruffle, with cloud variables, controller support, and the ability to load Scratch 3.0 projects." />
+    <meta name="author" content="pooiod7" />
+    <meta name="keywords" content="ScratchFlash, Scratch 2, Scratch 2.0, ScratchX, pooiod7, s2online, Ruffle, Flash, SB3 to SB2, SB2, SB3, conversion, convert" />
+    <meta name="theme-color" content="#4d97ff" />
+    <meta name="color-scheme" content="light" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="rating" content="general" />
 
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://scratchflash.pages.dev/" />
+    <meta property="og:title" content="ScratchFlash - Scratch 2 in modern browsers" />
+    <meta property="og:description" content="A collection of projects by pooiod7 to bring Scratch 2 to modern browsers with support for Scratch 3 project loading." />
+    <meta property="og:site_name" content="ScratchFlash" />
+    <meta property="og:locale" content="en_US" />
 
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="ScratchFlash - Scratch 2 in your browser" />
+    <meta name="twitter:description" content="Run Scratch 2 and ScratchX projects in modern browsers with Ruffle." />
+    <meta name="twitter:creator" content="pooiod7" />
 
-            .scratch-mini-loader {
-                position: fixed;
-                bottom: 30px;
-                right: 30px;
-                z-index: 99999;
-                display: flex;
-                flex-direction: column;
-                align-items: flex-end;
-                pointer-events: none;
-                transition: opacity ease-in-out 0.5s;
+    <link rel="canonical" href="https://scratchflash.pages.dev/" />
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+    <script>
+        if (window.location.hash) {
+            window.location.href = '/editor' + window.location.hash;
+        }
+    </script>
+
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body, h1, h2, h3, p, a {
+            margin: 0;
+            padding: 0;
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #ebeef2;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c2cad4;
+            border-radius: 5px;
+            border: 2px solid #ebeef2;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a3adb9;
+        }
+
+        body {
+            font-family: 'Work Sans', 'Helvetica Neue', Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background: #ebeef2 repeating-linear-gradient(45deg, #e5e8ee, #e5e8ee 2px, #ebeef2 2px, #ebeef2 8px);
+            color: #333333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.5;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+        .main-content {
+            flex: 1;
+            padding-top: 24px;
+            padding-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .panel {
+            background-color: #ffffff;
+            border: 1px solid #cfd6df;
+            border-radius: 8px 8px 4px 4px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            transition: border-color 0.35s ease, box-shadow 0.35s ease, opacity 0.35s ease, transform 0.35s ease;
+        }
+
+        .panel:nth-of-type(1) {
+            animation: fadeInDown 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        .panel:nth-of-type(2) {
+            animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.18s both;
+        }
+
+        .panel-header {
+            padding: 10px 20px;
+            border-bottom: 1px solid #d8dde5;
+            background: linear-gradient(180deg, #fbfcfd 0%, #eef1f5 100%);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top-left-radius: 7px;
+            border-top-right-radius: 7px;
+            transition: border-color 0.35s ease, background 0.35s ease;
+        }
+
+        .panel-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #29303d;
+            text-shadow: 0 1px 0 #ffffff;
+        }
+
+        .panel-title.small {
+            font-size: 1rem;
+        }
+
+        .panel-body {
+            padding: 24px;
+        }
+
+        .intro-text {
+            font-size: 0.875rem;
+            color: #3a414e;
+        }
+
+        .intro-text p {
+            margin-bottom: 12px;
+        }
+
+        .intro-text p:last-child {
+            margin-bottom: 0;
+        }
+
+        .action-bar {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #e8ecf1;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease, background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+            will-change: transform;
+        }
+
+        .action-bar .btn:nth-child(1) {
+            animation: btnEntrance 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both;
+        }
+
+        .action-bar .btn:nth-child(2) {
+            animation: btnEntrance 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.18s both;
+        }
+
+        .action-bar .btn:nth-child(3) {
+            animation: btnEntrance 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.24s both;
+        }
+
+        .action-bar .btn:nth-child(4) {
+            animation: btnEntrance 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+        }
+
+        .action-bar .btn:nth-child(5) {
+            animation: btnEntrance 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.36s both;
+        }
+
+        .btn-primary {
+            font-weight: 700;
+            color: #ffffff;
+            padding: 8px 16px;
+            background: linear-gradient(180deg, #6baaff 0%, #4d97ff 100%);
+            border: 1px solid #337fe6;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.12);
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.06);
+            transform: translateY(-1px);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 3px 6px rgba(77, 151, 255, 0.35);
+        }
+
+        .btn-primary:active {
+            filter: brightness(0.95);
+            transform: translateY(1px);
+            box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.25);
+        }
+
+        .btn-scratchx {
+            font-weight: 700;
+            color: #ffffff;
+            padding: 8px 16px;
+            background: linear-gradient(180deg, #3d5b77 0%, #30485f 100%);
+            border: 1px solid #223445;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 1px 2px rgba(0, 0, 0, 0.12);
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);
+        }
+
+        .btn-scratchx:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 3px 6px rgba(48, 72, 95, 0.35);
+        }
+
+        .btn-scratchx:active {
+            filter: brightness(0.92);
+            transform: translateY(1px);
+            box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-secondary {
+            font-weight: 600;
+            color: #333e4d;
+            padding: 8px 14px;
+            background: linear-gradient(180deg, #ffffff 0%, #eceff3 100%);
+            border: 1px solid #c2cad4;
+            box-shadow: inset 0 1px 0 #ffffff, 0 1px 2px rgba(0, 0, 0, 0.06);
+        }
+
+        .btn-secondary:hover {
+            color: #1e5bb8;
+            border-color: #adb7c3;
+            transform: translateY(-1px);
+            box-shadow: inset 0 1px 0 #ffffff, 0 3px 6px rgba(0, 0, 0, 0.08);
+        }
+
+        .btn-secondary:active {
+            background: #e2e6eb;
+            transform: translateY(1px);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .features-grid .feature-card:first-child {
+            grid-column: 1 / -1;
+        }
+
+        .feature-card {
+            padding: 14px 16px;
+            border-radius: 4px;
+            border: 1px solid #d8dde5;
+            background-color: #ffffff;
+            will-change: transform, opacity;
+            transition: border-color 0.35s ease, background 0.35s ease;
+        }
+
+        .feature-card:nth-child(1) {
+            animation: cardEntrance 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.28s both;
+        }
+
+        .feature-card:nth-child(2) {
+            animation: cardEntrance 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.34s both;
+        }
+
+        .feature-card:nth-child(3) {
+            animation: cardEntrance 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
+        }
+
+        .feature-content h3 {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: #1f2833;
+            margin-bottom: 6px;
+        }
+
+        .feature-content p {
+            font-size: 0.75rem;
+            color: #4e5866;
+        }
+
+        .feature-content p + p,
+        .feature-content p + ul,
+        .feature-content ul + p {
+            margin-top: 8px;
+        }
+
+        .feature-content ul {
+            margin: 4px 0 0 18px;
+            padding: 0;
+            font-size: 0.75rem;
+            color: #4e5866;
+        }
+
+        .feature-content li {
+            margin-bottom: 2px;
+        }
+
+        .feature-content a {
+            color: #1e5bb8;
+            text-decoration: underline;
+        }
+
+        .feature-content a:hover {
+            color: #15468f;
+        }
+
+        .footer {
+            border-top: 1px solid #bcc4ce;
+            padding: 24px 16px;
+            margin-top: auto;
+            background: #edf1f3;
+            box-shadow: inset 0 6px 8px -3px rgba(0, 0, 0, 0.092);
+            text-align: center;
+            animation: fadeIn 0.5s ease 0.65s both;
+            transition: border-color 0.35s ease, box-shadow 0.35s ease, opacity 0.35s ease;
+        }
+
+        .footer-inner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .footer-disclaimer {
+            color: #8b94a0;
+            font-size: 11px;
+            max-width: 760px;
+        }
+
+        .page-transition-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+            clip-path: circle(0px at 50% 50%);
+        }
+
+        body.leaving .panel {
+            border-color: transparent !important;
+            box-shadow: none !important;
+            opacity: 0;
+            transform: scale(0.97);
+        }
+
+        body.leaving .panel-header {
+            border-color: transparent !important;
+            background: transparent !important;
+        }
+
+        body.leaving .feature-card {
+            border-color: transparent !important;
+        }
+
+        body.leaving .footer {
+            border-color: transparent !important;
+            box-shadow: none !important;
+            opacity: 0;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-14px);
             }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-            .hiddenblocks {
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes cardEntrance {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes btnEntrance {
+            from {
+                opacity: 0;
+                transform: translateY(8px) scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
                 opacity: 0;
             }
-
-            .block-stack {
-                display: flex;
-                flex-direction: column;
-                align-items: flex-start;
-                margin-bottom: 12px;
-                filter:invert(100%);
-                margin-bottom: 30px;
-                margin-right: 10px;
-                /* backdrop-filter: blur(10px);
-                -webkit-backdrop-filter: blur(10px); */
+            to {
+                opacity: 1;
             }
+        }
+    </style>
+</head>
+<body>
+    <main class="container main-content">
+        <section class="panel">
+            <div class="panel-header">
+                <h1 class="panel-title">What is this</h1>
+            </div>
 
-            .loader-block {
-                display: block;
-                margin-top: -4px;
-                opacity: 0;
-                transform: translateY(20px);
-                animation: blockSlideIn 1.8s infinite ease-in-out;
-            }
-
-            .block-top { animation-delay: 0s; }
-            .block-mid { animation-delay: 0.2s; }
-            .block-bottom { animation-delay: 0.4s; }
-
-            @keyframes blockSlideIn {
-                0%, 10% { opacity: 0; transform: translateY(20px); }
-                30%, 70% { opacity: 1; transform: translateY(0px); }
-                90%, 100% { opacity: 0; transform: translateY(-10px); }
-            }
-
-            .progress-container {
-                width: 100px;
-                height: 6px;
-                background: rgba(0, 0, 0, 0.1);
-                border-radius: 10px;
-                overflow: hidden;
-                backdrop-filter: blur(10px);
-                -webkit-backdrop-filter: blur(10px);
-                position: fixed;
-                top:11px;
-                right: 11px;
-            }
-
-            .progress-bar {
-                height: 100%;
-                background-color: #ffffff;
-                border-radius: 10px;
-                transition: width 0.3s ease;
-            }
-
-            .pulse {
-                animation: barPulse 2s infinite ease-in-out;
-            }
-
-            @keyframes barPulse {
-                0%, 100% { opacity: 1; }
-                50% { opacity: 0.5; }
-            }
-
-
-            .scratch-loader-overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100vw;
-                height: 100vh;
-                background-color: #4d97ff;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                z-index: 99999999;
-                font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-                color: #fff;
-                overflow: hidden;
-                pointer-events: none;
-                transition: opacity ease-in-out 0.5s;
-            }
-
-            #BigLoader .loader-content {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                width: 100%;
-                max-width: 400px;
-                text-align: center;
-            }
-
-            #BigLoader .block-stack {
-                display: flex;
-                flex-direction: column;
-                align-items: flex-start;
-                margin-bottom: 20px;
-                filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
-            }
-
-            #BigLoader .loader-block {
-                display: block;
-                height: 45px;
-                margin-top: -5px;
-                opacity: 0;
-                transform: translateY(20px);
-                animation: blockSlideIn 1.8s infinite ease-in-out;
-            }
-
-            #BigLoader .block-top { animation-delay: 0s; }
-            #BigLoader .block-mid { animation-delay: 0.2s; }
-            #BigLoader .block-bottom { animation-delay: 0.4s; }
-
-            @keyframes blockSlideIn {
-                0%, 10% { opacity: 0; transform: translateY(20px); }
-                30%, 70% { opacity: 1; transform: translateY(0px); }
-                90%, 100% { opacity: 0; transform: translateY(-10px); }
-            }
-
-            #BigLoader .loader-title {
-                font-size: 28px;
-                font-weight: bold;
-                margin: 10px 0 5px 0;
-                letter-spacing: -0.5px;
-            }
-
-            #BigLoader .loader-status {
-                font-size: 14px;
-                opacity: 0.8;
-                margin-bottom: 25px;
-                font-weight: 300;
-            }
-
-            #BigLoader .progress-container {
-                width: 250px;
-                height: 10px;
-                background: rgba(255, 255, 255, 0.2);
-                border-radius: 20px;
-                overflow: hidden;
-                position: relative;
-                box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
-                opacity: 0;
-            }
-
-            #BigLoader .progress-bar {
-                height: 100%;
-                background-color: #fff;
-                border-radius: 20px;
-                transition: width 0.4s ease;
-                box-shadow: 0 0 10px rgba(255,255,255,0.5);
-            }
-
-            .scratch-loader-overlay::after {
-                content: '';
-                position: absolute;
-                width: 200%;
-                height: 200%;
-                background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-            }
-        </style>
-        <script>
-            window.JSloadID = function(id) {
-                location.hash = id;
-                location.reload();
-            };
-            window.JSwillDownload = function() {
-                return true || location.hash.length > 1;
-            };
-
-            window.JSdownloadSB2 = function(data, filename) {
-                var flash = document.getElementById('flash');
-                if (flash) flash.style.display = 'none';
-
-                var isIE = /MSIE|Trident/.test(navigator.userAgent);
-
-                if (!isIE) {
-                    var a = document.createElement('a');
-                    a.href = 'data:application/octet-stream;charset=utf-16le;base64,' + data;
-                    a.download = filename;
-                    document.body.appendChild(a);
-                    a.click();
-                    a.remove();
-                    if (flash) flash.style.display = '';
-                    return;
-                }
-
-                var overlay = document.createElement('div');
-                overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#f9f9f9;z-index:9999';
-
-                var box = document.createElement('div');
-                box.style.cssText = 'width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:Arial;text-align:center';
-
-                var inner = document.createElement('div');
-
-                var style = document.createElement('style');
-                style.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
-
-                function showLoader() {
-                    inner.innerHTML = '';
-                    var title = document.createElement('div');
-                    title.textContent = 'Preparing download…';
-                    title.style.cssText = 'font-size:22px;font-weight:bold;color:#ff9900;margin-bottom:16px';
-
-                    var loader = document.createElement('div');
-                    loader.style.cssText = 'width:48px;height:48px;border:6px solid #ddd;border-top-color:#ff9900;border-radius:50%;margin:0 auto;animation:spin 1s linear infinite';
-
-                    inner.appendChild(title);
-                    inner.appendChild(loader);
-                }
-
-                function showError() {
-                    inner.innerHTML = '';
-                    var title = document.createElement('div');
-                    title.textContent = 'Something went wrong';
-                    title.style.cssText = 'font-size:22px;font-weight:bold;color:#e74c3c;margin-bottom:12px';
-
-                    var text = document.createElement('div');
-                    text.textContent = 'The project could not be uploaded. Please try again.';
-                    text.style.cssText = 'font-size:15px;margin-bottom:18px';
-
-                    var btn = document.createElement('button');
-                    btn.textContent = 'Back';
-                    btn.style.cssText = 'background:#e74c3c;color:#fff;border:0;border-radius:10px;padding:10px 22px;font-size:15px;cursor:pointer';
-                    btn.onclick = function () {
-                        document.body.removeChild(overlay);
-                        if (flash) flash.style.display = '';
-                    };
-
-                    inner.appendChild(title);
-                    inner.appendChild(text);
-                    inner.appendChild(btn);
-                }
-
-                function showResult(url) {
-                    inner.innerHTML = '';
-                    var title = document.createElement('div');
-                    title.textContent = 'Download your project';
-                    title.style.cssText = 'font-size:22px;font-weight:bold;color:#ff9900;margin-bottom:12px';
-
-                    var text = document.createElement('div');
-                    text.textContent = 'Go to this link to download this project:';
-                    text.style.cssText = 'font-size:15px;margin-bottom:12px';
-
-                    var link = document.createElement('a');
-                    link.href = url;
-                    link.target = '_blank';
-                    link.textContent = url;
-                    link.style.cssText = 'display:block;background:#eee;border-radius:10px;padding:12px;color:#0066cc;text-decoration:none;word-break:break-all;margin-bottom:18px';
-
-                    var btn = document.createElement('button');
-                    btn.textContent = 'Back';
-                    btn.style.cssText = 'background:#ff9900;color:#fff;border:0;border-radius:10px;padding:10px 22px;font-size:15px;cursor:pointer';
-                    btn.onclick = function () {
-                        document.body.removeChild(overlay);
-                        if (flash) flash.style.display = '';
-                    };
-
-                    inner.appendChild(title);
-                    inner.appendChild(text);
-                    inner.appendChild(link);
-                    inner.appendChild(btn);
-                }
-
-                showLoader();
-                box.appendChild(inner);
-                overlay.appendChild(box);
-                document.body.appendChild(style);
-                document.body.appendChild(overlay);
-
-                var bytes = atob(data);
-                var arr = new Array(bytes.length);
-                for (var i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
-                var blob = new Blob([new Uint8Array(arr)], { type: 'application/octet-stream' });
-
-                var fd = new FormData();
-                fd.append('reqtype', 'fileupload');
-                fd.append('time', '1h');
-                fd.append('fileToUpload', blob, filename);
-
-                var xhr = new XMLHttpRequest();
-                xhr.open('POST', 'https://litterbox.catbox.moe/resources/internals/api.php', true);
-                xhr.onerror = showError;
-                xhr.onreadystatechange = function () {
-                    if (xhr.readyState !== 4) return;
-                    if (xhr.status !== 200 || !xhr.responseText) {
-                        showError();
-                        return;
-                    }
-                    var url = xhr.responseText.replace(/\s+/g, '');
-                    showResult(url);
-                };
-                xhr.send(fd);
-            };
-        </script>
-    </head>
-    <body onload=''>
-        <div class="scratch-loader-overlay" id="BigLoader">
-            <div class="loader-content">
-                <div class="block-stack">
-                    <img class="loader-block block-top" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+Cjxzdmcgd2lkdGg9Ijk2cHgiIGhlaWdodD0iMzVweCIgdmlld0JveD0iMCAwIDk2IDM1IiB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPgogICAgPCEtLSBHZW5lcmF0b3I6IFNrZXRjaCA0OC4xICg0NzI1MCkgLSBodHRwOi8vd3d3LmJvaGVtaWFuY29kaW5nLmNvbS9za2V0Y2ggLS0+CiAgICA8dGl0bGU+dG9wLWJsb2NrPC90aXRsZT4KICAgIDxkZXNjPkNyZWF0ZWQgd2l0aCBTa2V0Y2guPC9kZXNjPgogICAgPGRlZnM+CiAgICAgICAgPHBhdGggZD0iTTAsMi40NjA2MzQ2MiBDMCwxLjEwMTYyNzIyIDEuMSwwIDIuNDU3LDAgTDguODEsMCBDOS40NjIsMCAxMC4wODcsMC4yNTkzODMxMzYgMTAuNTQ4LDAuNzIxMDY1MDg5IEwxNC4wMjIsNC4yMDAyMDQxNCBDMTQuNDgzLDQuNjYxODg2MDkgMTUuMTA4LDQuOTIxMjY5MjMgMTUuNzYsNC45MjEyNjkyMyBMMjMuNTUyLDQuOTIxMjY5MjMgQzI0LjIwNCw0LjkyMTI2OTIzIDI0LjgyOSw0LjY2MTg4NjA5IDI1LjI5LDQuMjAwMjA0MTQgTDI4Ljc2NCwwLjcyMTA2NTA4OSBDMjkuMjI1LDAuMjU5MzgzMTM2IDI5Ljg1LDAgMzAuNTAyLDAgTDkzLjM2NCwwIEM5NC43MjEsMCA5NS44MjEsMS4xMDE2MjcyMiA5NS44MjEsMi40NjA2MzQ2MiBMOTUuODIxLDI3LjA2Njk4MDggQzk1LjgyMSwyOC40MjU5ODgyIDk0LjcyMSwyOS41Mjc2MTU0IDkzLjM2NCwyOS41Mjc2MTU0IEwzMC41MDIsMjkuNTI3NjE1NCBDMjkuODUsMjkuNTI3NjE1NCAyOS4yMjUsMjkuNzg2OTk4NSAyOC43NjQsMzAuMjQ4NjgwNSBMMjUuMjksMzMuNzI3ODE5NSBDMjQuODI5LDM0LjE4OTUwMTUgMjQuMjA0LDM0LjQ0ODg4NDYgMjMuNTUyLDM0LjQ0ODg4NDYgTDE1Ljc2LDM0LjQ0ODg4NDYgQzE1LjEwOCwzNC40NDg4ODQ2IDE0LjQ4MywzNC4xODk1MDE1IDE0LjAyMiwzMy43Mjc4MTk1IEwxMC41NDgsMzAuMjQ4NjgwNSBDMTAuMDg3LDI5Ljc4Njk5ODUgOS40NjIsMjkuNTI3NjE1NCA4LjgxLDI5LjUyNzYxNTQgTDIuNDU3LDI5LjUyNzYxNTQgQzEuMSwyOS41Mjc2MTU0IDAsMjguNDI1OTg4MiAwLDI3LjA2Njk4MDggTDAsMi40NjA2MzQ2MiBaIiBpZD0icGF0aC0xIj48L3BhdGg+CiAgICA8L2RlZnM+CiAgICA8ZyBpZD0iTG9hZGluZy1TdGF0ZSIgc3Ryb2tlPSJub25lIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiIGZpbGwtcnVsZT0iZXZlbm9kZCIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTU4OS4wMDAwMDAsIC0xOTIuMDAwMDAwKSI+CiAgICAgICAgPGcgaWQ9IkFuaW1hdGlvbiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNTg5LjAwMDAwMCwgMTkyLjAwMDAwMCkiPgogICAgICAgICAgICA8ZyBpZD0idG9wLWJsb2NrIj4KICAgICAgICAgICAgICAgIDx1c2UgZmlsbC1vcGFjaXR5PSIwLjIiIGZpbGw9IiNGRkZGRkYiIGZpbGwtcnVsZT0iZXZlbm9kZCIgeGxpbms6aHJlZj0iI3BhdGgtMSI+PC91c2U+CiAgICAgICAgICAgICAgICA8cGF0aCBzdHJva2Utb3BhY2l0eT0iMC4xIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iMSIgZD0iTTAuNSwyLjQ2MDYzNDYyIEwwLjUsMjcuMDY2OTgwOCBDMC41LDI4LjE1MDAxMTEgMS4zNzYzMDc5NiwyOS4wMjc2MTU0IDIuNDU3LDI5LjAyNzYxNTQgTDguODEsMjkuMDI3NjE1NCBDOS41OTQ3MDUyNywyOS4wMjc2MTU0IDEwLjM0NzAwMzIsMjkuMzM5NzU2NCAxMC45MDE4MTQ2LDI5Ljg5NTM4ODUgTDE0LjM3NTgxNDYsMzMuMzc0NTI3NSBDMTQuNzQzMTA1OCwzMy43NDIzNjIxIDE1LjI0MDg1MDMsMzMuOTQ4ODg0NiAxNS43NiwzMy45NDg4ODQ2IEwyMy41NTIsMzMuOTQ4ODg0NiBDMjQuMDcxMTQ5NywzMy45NDg4ODQ2IDI0LjU2ODg5NDIsMzMuNzQyMzYyMSAyNC45MzYxODU0LDMzLjM3NDUyNzUgTDI4LjQxMDE4NTQsMjkuODk1Mzg4NSBDMjguOTY0OTk2OCwyOS4zMzk3NTY0IDI5LjcxNzI5NDcsMjkuMDI3NjE1NCAzMC41MDIsMjkuMDI3NjE1NCBMOTMuMzY0LDI5LjAyNzYxNTQgQzk0LjQ0NDY5MiwyOS4wMjc2MTU0IDk1LjMyMSwyOC4xNTAwMTExIDk1LjMyMSwyNy4wNjY5ODA4IEw5NS4zMjEsMi40NjA2MzQ2MiBDOTUuMzIxLDEuMzc3NjA0MjggOTQuNDQ0NjkyLDAuNSA5My4zNjQsMC41IEwzMC41MDIsMC41IEMyOS45ODI4NTAzLDAuNSAyOS40ODUxMDU4LDAuNzA2NTIyNTA4IDI5LjExNzgxNDYsMS4wNzQzNTcwNyBMMjUuNjQzODE0Niw0LjU1MzQ5NjEzIEMyNS4wODkwMDMyLDUuMTA5MTI4MjIgMjQuMzM2NzA1Myw1LjQyMTI2OTIzIDIzLjU1Miw1LjQyMTI2OTIzIEwxNS43Niw1LjQyMTI2OTIzIEMxNC45NzUyOTQ3LDUuNDIxMjY5MjMgMTQuMjIyOTk2OCw1LjEwOTEyODIyIDEzLjY2ODE4NTQsNC41NTM0OTYxMyBMMTAuMTk0MTg1NCwxLjA3NDM1NzA3IEM5LjgyNjg5NDE2LDAuNzA2NTIyNTA4IDkuMzI5MTQ5NjksMC41IDguODEsMC41IEwyLjQ1NywwLjUgQzEuMzc2MzA3OTYsMC41IDAuNSwxLjM3NzYwNDI4IDAuNSwyLjQ2MDYzNDYyIFoiPjwvcGF0aD4KICAgICAgICAgICAgPC9nPgogICAgICAgIDwvZz4KICAgIDwvZz4KPC9zdmc+">
-                    <img class="loader-block block-mid" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+Cjxzdmcgd2lkdGg9IjY4cHgiIGhlaWdodD0iMzVweCIgdmlld0JveD0iMCAwIDY4IDM1IiB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPgogICAgPCEtLSBHZW5lcmF0b3I6IFNrZXRjaCA0OC4xICg0NzI1MCkgLSBodHRwOi8vd3d3LmJvaGVtaWFuY29kaW5nLmNvbS9za2V0Y2ggLS0+CiAgICA8dGl0bGU+bWlkZGxlLWJsb2NrPC90aXRsZT4KICAgIDxkZXNjPkNyZWF0ZWQgd2l0aCBTa2V0Y2guPC9kZXNjPgogICAgPGRlZnM+CiAgICAgICAgPHBhdGggZD0iTTAsMzQuNDYwNjM0NiBDMCwzMy4xMDE2MjcyIDEuMSwzMiAyLjQ1NywzMiBMOC44MSwzMiBDOS40NjIsMzIgMTAuMDg3LDMyLjI1OTM4MzEgMTAuNTQ4LDMyLjcyMTA2NTEgTDE0LjAyMiwzNi4yMDAyMDQxIEMxNC40ODMsMzYuNjYxODg2MSAxNS4xMDgsMzYuOTIxMjY5MiAxNS43NiwzNi45MjEyNjkyIEwyMy41NTIsMzYuOTIxMjY5MiBDMjQuMjA0LDM2LjkyMTI2OTIgMjQuODI5LDM2LjY2MTg4NjEgMjUuMjksMzYuMjAwMjA0MSBMMjguNzY0LDMyLjcyMTA2NTEgQzI5LjIyNSwzMi4yNTkzODMxIDI5Ljg1LDMyIDMwLjUwMiwzMiBMNjUuMzY0LDMyIEM2Ni43MjEsMzIgNjcuODIxLDMzLjEwMTYyNzIgNjcuODIxLDM0LjQ2MDYzNDYgTDY3LjgyMSw1OS4wNjY5ODA4IEM2Ny44MjEsNjAuNDI1OTg4MiA2Ni43MjEsNjEuNTI3NjE1NCA2NS4zNjQsNjEuNTI3NjE1NCBMMzAuNTAyLDYxLjUyNzYxNTQgQzI5Ljg1LDYxLjUyNzYxNTQgMjkuMjI1LDYxLjc4Njk5ODUgMjguNzY0LDYyLjI0ODY4MDUgTDI1LjI5LDY1LjcyNzgxOTUgQzI0LjgyOSw2Ni4xODk1MDE1IDI0LjIwNCw2Ni40NDg4ODQ2IDIzLjU1Miw2Ni40NDg4ODQ2IEwxNS43Niw2Ni40NDg4ODQ2IEMxNS4xMDgsNjYuNDQ4ODg0NiAxNC40ODMsNjYuMTg5NTAxNSAxNC4wMjIsNjUuNzI3ODE5NSBMMTAuNTQ4LDYyLjI0ODY4MDUgQzEwLjA4Nyw2MS43ODY5OTg1IDkuNDYyLDYxLjUyNzYxNTQgOC44MSw2MS41Mjc2MTU0IEwyLjQ1Nyw2MS41Mjc2MTU0IEMxLjEsNjEuNTI3NjE1NCAwLDYwLjQyNTk4ODIgMCw1OS4wNjY5ODA4IEwwLDM0LjQ2MDYzNDYgWiIgaWQ9InBhdGgtMSI+PC9wYXRoPgogICAgPC9kZWZzPgogICAgPGcgaWQ9IkxvYWRpbmctU3RhdGUiIHN0cm9rZT0ibm9uZSIgc3Ryb2tlLXdpZHRoPSIxIiBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC01ODkuMDAwMDAwLCAtMjI0LjAwMDAwMCkiPgogICAgICAgIDxnIGlkPSJBbmltYXRpb24iIHRyYW5zZm9ybT0idHJhbnNsYXRlKDU4OS4wMDAwMDAsIDE5Mi4wMDAwMDApIj4KICAgICAgICAgICAgPGcgaWQ9Im1pZGRsZS1ibG9jayI+CiAgICAgICAgICAgICAgICA8dXNlIGZpbGwtb3BhY2l0eT0iMC4yIiBmaWxsPSIjRkZGRkZGIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIHhsaW5rOmhyZWY9IiNwYXRoLTEiPjwvdXNlPgogICAgICAgICAgICAgICAgPHBhdGggc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utd2lkdGg9IjEiIGQ9Ik0wLjUsMzQuNDYwNjM0NiBMMC41LDU5LjA2Njk4MDggQzAuNSw2MC4xNTAwMTExIDEuMzc2MzA3OTYsNjEuMDI3NjE1NCAyLjQ1Nyw2MS4wMjc2MTU0IEw4LjgxLDYxLjAyNzYxNTQgQzkuNTk0NzA1MjcsNjEuMDI3NjE1NCAxMC4zNDcwMDMyLDYxLjMzOTc1NjQgMTAuOTAxODE0Niw2MS44OTUzODg1IEwxNC4zNzU4MTQ2LDY1LjM3NDUyNzUgQzE0Ljc0MzEwNTgsNjUuNzQyMzYyMSAxNS4yNDA4NTAzLDY1Ljk0ODg4NDYgMTUuNzYsNjUuOTQ4ODg0NiBMMjMuNTUyLDY1Ljk0ODg4NDYgQzI0LjA3MTE0OTcsNjUuOTQ4ODg0NiAyNC41Njg4OTQyLDY1Ljc0MjM2MjEgMjQuOTM2MTg1NCw2NS4zNzQ1Mjc1IEwyOC40MTAxODU0LDYxLjg5NTM4ODUgQzI4Ljk2NDk5NjgsNjEuMzM5NzU2NCAyOS43MTcyOTQ3LDYxLjAyNzYxNTQgMzAuNTAyLDYxLjAyNzYxNTQgTDY1LjM2NCw2MS4wMjc2MTU0IEM2Ni40NDQ2OTIsNjEuMDI3NjE1NCA2Ny4zMjEsNjAuMTUwMDExMSA2Ny4zMjEsNTkuMDY2OTgwOCBMNjcuMzIxLDM0LjQ2MDYzNDYgQzY3LjMyMSwzMy4zNzc2MDQzIDY2LjQ0NDY5MiwzMi41IDY1LjM2NCwzMi41IEwzMC41MDIsMzIuNSBDMjkuOTgyODUwMywzMi41IDI5LjQ4NTEwNTgsMzIuNzA2NTIyNSAyOS4xMTc4MTQ2LDMzLjA3NDM1NzEgTDI1LjY0MzgxNDYsMzYuNTUzNDk2MSBDMjUuMDg5MDAzMiwzNy4xMDkxMjgyIDI0LjMzNjcwNTMsMzcuNDIxMjY5MiAyMy41NTIsMzcuNDIxMjY5MiBMMTUuNzYsMzcuNDIxMjY5MiBDMTQuOTc1Mjk0NywzNy40MjEyNjkyIDE0LjIyMjk5NjgsMzcuMTA5MTI4MiAxMy42NjgxODU0LDM2LjU1MzQ5NjEgTDEwLjE5NDE4NTQsMzMuMDc0MzU3MSBDOS44MjY4OTQxNiwzMi43MDY1MjI1IDkuMzI5MTQ5NjksMzIuNSA4LjgxLDMyLjUgTDIuNDU3LDMyLjUgQzEuMzc2MzA3OTYsMzIuNSAwLjUsMzMuMzc3NjA0MyAwLjUsMzQuNDYwNjM0NiBaIj48L3BhdGg+CiAgICAgICAgICAgIDwvZz4KICAgICAgICA8L2c+CiAgICA8L2c+Cjwvc3ZnPg==">
-                    <img class="loader-block block-bottom" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+Cjxzdmcgd2lkdGg9Ijg1cHgiIGhlaWdodD0iMzVweCIgdmlld0JveD0iMCAwIDg1IDM1IiB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPgogICAgPCEtLSBHZW5lcmF0b3I6IFNrZXRjaCA0OC4xICg0NzI1MCkgLSBodHRwOi8vd3d3LmJvaGVtaWFuY29kaW5nLmNvbS9za2V0Y2ggLS0+CiAgICA8dGl0bGU+Ym90dG9tLWJsb2NrPC90aXRsZT4KICAgIDxkZXNjPkNyZWF0ZWQgd2l0aCBTa2V0Y2guPC9kZXNjPgogICAgPGRlZnM+CiAgICAgICAgPHBhdGggZD0iTTAsNjYuNDYwNjM0NiBDMCw2NS4xMDE2MjcyIDEuMSw2NCAyLjQ1Nyw2NCBMOC44MSw2NCBDOS40NjIsNjQgMTAuMDg3LDY0LjI1OTM4MzEgMTAuNTQ4LDY0LjcyMTA2NTEgTDE0LjAyMiw2OC4yMDAyMDQxIEMxNC40ODMsNjguNjYxODg2MSAxNS4xMDgsNjguOTIxMjY5MiAxNS43Niw2OC45MjEyNjkyIEwyMy41NTIsNjguOTIxMjY5MiBDMjQuMjA0LDY4LjkyMTI2OTIgMjQuODI5LDY4LjY2MTg4NjEgMjUuMjksNjguMjAwMjA0MSBMMjguNzY0LDY0LjcyMTA2NTEgQzI5LjIyNSw2NC4yNTkzODMxIDI5Ljg1LDY0IDMwLjUwMiw2NCBMODIuMzY0LDY0IEM4My43MjEsNjQgODQuODIxLDY1LjEwMTYyNzIgODQuODIxLDY2LjQ2MDYzNDYgTDg0LjgyMSw5MS4wNjY5ODA4IEM4NC44MjEsOTIuNDI1OTg4MiA4My43MjEsOTMuNTI3NjE1NCA4Mi4zNjQsOTMuNTI3NjE1NCBMMzAuNTAyLDkzLjUyNzYxNTQgQzI5Ljg1LDkzLjUyNzYxNTQgMjkuMjI1LDkzLjc4Njk5ODUgMjguNzY0LDk0LjI0ODY4MDUgTDI1LjI5LDk3LjcyNzgxOTUgQzI0LjgyOSw5OC4xODk1MDE1IDI0LjIwNCw5OC40NDg4ODQ2IDIzLjU1Miw5OC40NDg4ODQ2IEwxNS43Niw5OC40NDg4ODQ2IEMxNS4xMDgsOTguNDQ4ODg0NiAxNC40ODMsOTguMTg5NTAxNSAxNC4wMjIsOTcuNzI3ODE5NSBMMTAuNTQ4LDk0LjI0ODY4MDUgQzEwLjA4Nyw5My43ODY5OTg1IDkuNDYyLDkzLjUyNzYxNTQgOC44MSw5My41Mjc2MTU0IEwyLjQ1Nyw5My41Mjc2MTU0IEMxLjEsOTMuNTI3NjE1NCAwLDkyLjQyNTk4ODIgMCw5MS4wNjY5ODA4IEwwLDY2LjQ2MDYzNDYgWiIgaWQ9InBhdGgtMSI+PC9wYXRoPgogICAgPC9kZWZzPgogICAgPGcgaWQ9IkxvYWRpbmctU3RhdGUiIHN0cm9rZT0ibm9uZSIgc3Ryb2tlLXdpZHRoPSIxIiBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC01ODkuMDAwMDAwLCAtMjU2LjAwMDAwMCkiPgogICAgICAgIDxnIGlkPSJBbmltYXRpb24iIHRyYW5zZm9ybT0idHJhbnNsYXRlKDU4OS4wMDAwMDAsIDE5Mi4wMDAwMDApIj4KICAgICAgICAgICAgPGcgaWQ9ImJvdHRvbS1ibG9jayI+CiAgICAgICAgICAgICAgICA8dXNlIGZpbGwtb3BhY2l0eT0iMC4yIiBmaWxsPSIjRkZGRkZGIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIHhsaW5rOmhyZWY9IiNwYXRoLTEiPjwvdXNlPgogICAgICAgICAgICAgICAgPHBhdGggc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utd2lkdGg9IjEiIGQ9Ik0wLjUsNjYuNDYwNjM0NiBMMC41LDkxLjA2Njk4MDggQzAuNSw5Mi4xNTAwMTExIDEuMzc2MzA3OTYsOTMuMDI3NjE1NCAyLjQ1Nyw5My4wMjc2MTU0IEw4LjgxLDkzLjAyNzYxNTQgQzkuNTk0NzA1MjcsOTMuMDI3NjE1NCAxMC4zNDcwMDMyLDkzLjMzOTc1NjQgMTAuOTAxODE0Niw5My44OTUzODg1IEwxNC4zNzU4MTQ2LDk3LjM3NDUyNzUgQzE0Ljc0MzEwNTgsOTcuNzQyMzYyMSAxNS4yNDA4NTAzLDk3Ljk0ODg4NDYgMTUuNzYsOTcuOTQ4ODg0NiBMMjMuNTUyLDk3Ljk0ODg4NDYgQzI0LjA3MTE0OTcsOTcuOTQ4ODg0NiAyNC41Njg4OTQyLDk3Ljc0MjM2MjEgMjQuOTM2MTg1NCw5Ny4zNzQ1Mjc1IEwyOC40MTAxODU0LDkzLjg5NTM4ODUgQzI4Ljk2NDk5NjgsOTMuMzM5NzU2NCAyOS43MTcyOTQ3LDkzLjAyNzYxNTQgMzAuNTAyLDkzLjAyNzYxNTQgTDgyLjM2NCw5My4wMjc2MTU0IEM4My40NDQ2OTIsOTMuMDI3NjE1NCA4NC4zMjEsOTIuMTUwMDExMSA4NC4zMjEsOTEuMDY2OTgwOCBMODQuMzIxLDY2LjQ2MDYzNDYgQzg0LjMyMSw2NS4zNzc2MDQzIDgzLjQ0NDY5Miw2NC41IDgyLjM2NCw2NC41IEwzMC41MDIsNjQuNSBDMjkuOTgyODUwMyw2NC41IDI5LjQ4NTEwNTgsNjQuNzA2NTIyNSAyOS4xMTc4MTQ2LDY1LjA3NDM1NzEgTDI1LjY0MzgxNDYsNjguNTUzNDk2MSBDMjUuMDg5MDAzMiw2OS4xMDkxMjgyIDI0LjMzNjcwNTMsNjkuNDIxMjY5MiAyMy41NTIsNjkuNDIxMjY5MiBMMTUuNzYsNjkuNDIxMjY5MiBDMTQuOTc1Mjk0Nyw2OS40MjEyNjkyIDE0LjIyMjk5NjgsNjkuMTA5MTI4MiAxMy42NjgxODU0LDY4LjU1MzQ5NjEgTDEwLjE5NDE4NTQsNjUuMDc0MzU3MSBDOS44MjY4OTQxNiw2NC43MDY1MjI1IDkuMzI5MTQ5NjksNjQuNSA4LjgxLDY0LjUgTDIuNDU3LDY0LjUgQzEuMzc2MzA3OTYsNjQuNSAwLjUsNjUuMzc3NjA0MyAwLjUsNjYuNDYwNjM0NiBaIj48L3BhdGg+CiAgICAgICAgICAgIDwvZz4KICAgICAgICA8L2c+CiAgICA8L2c+Cjwvc3ZnPg==">
+            <div class="panel-body">
+                <div class="intro-text">
+                    <p>This is a collection of projects created by pooiod7 to make Scratch 2 functional in modern browsers.</p>
                 </div>
 
-                <h1 class="loader-title">Loading Project</h1>
-                <p class="loader-status" id="LoaderStatus">Preparing to download...</p>
-
-                <div class="progress-container" id="loadholder2">
-                    <div class="progress-bar" id="loadprogress2" style="width: 0%;"></div>
+                <div class="action-bar">
+                    <a href="https://scratchflash.pages.dev/editor" class="btn btn-primary">Open Scratch 2</a>
+                    <a href="https://scratchflash.pages.dev/scratchx" class="btn btn-scratchx">Open ScratchX</a>
+                    <a href="https://scratchflash.pages.dev/convert" class="btn btn-secondary">Convert a project</a>
+                    <a href="https://scratchflash.pages.dev/phosphorus" class="btn btn-secondary">Phosphorus</a>
+                    <a href="https://github.com/pooiod/Scratch2" class="btn btn-secondary">View on GitHub</a>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <div class="scratch-mini-loader" id="scratchloader">
-                <div class="block-stack">
-                <img class="loader-block block-top" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+Cjxzdmcgd2lkdGg9Ijk2cHgiIGhlaWdodD0iMzVweCIgdmlld0JveD0iMCAwIDk2IDM1IiB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPgogICAgPCEtLSBHZW5lcmF0b3I6IFNrZXRjaCA0OC4xICg0NzI1MCkgLSBodHRwOi8vd3d3LmJvaGVtaWFuY29kaW5nLmNvbS9za2V0Y2ggLS0+CiAgICA8dGl0bGU+dG9wLWJsb2NrPC90aXRsZT4KICAgIDxkZXNjPkNyZWF0ZWQgd2l0aCBTa2V0Y2guPC9kZXNjPgogICAgPGRlZnM+CiAgICAgICAgPHBhdGggZD0iTTAsMi40NjA2MzQ2MiBDMCwxLjEwMTYyNzIyIDEuMSwwIDIuNDU3LDAgTDguODEsMCBDOS40NjIsMCAxMC4wODcsMC4yNTkzODMxMzYgMTAuNTQ4LDAuNzIxMDY1MDg5IEwxNC4wMjIsNC4yMDAyMDQxNCBDMTQuNDgzLDQuNjYxODg2MDkgMTUuMTA4LDQuOTIxMjY5MjMgMTUuNzYsNC45MjEyNjkyMyBMMjMuNTUyLDQuOTIxMjY5MjMgQzI0LjIwNCw0LjkyMTI2OTIzIDI0LjgyOSw0LjY2MTg4NjA5IDI1LjI5LDQuMjAwMjA0MTQgTDI4Ljc2NCwwLjcyMTA2NTA4OSBDMjkuMjI1LDAuMjU5MzgzMTM2IDI5Ljg1LDAgMzAuNTAyLDAgTDkzLjM2NCwwIEM5NC43MjEsMCA5NS44MjEsMS4xMDE2MjcyMiA5NS44MjEsMi40NjA2MzQ2MiBMOTUuODIxLDI3LjA2Njk4MDggQzk1LjgyMSwyOC40MjU5ODgyIDk0LjcyMSwyOS41Mjc2MTU0IDkzLjM2NCwyOS41Mjc2MTU0IEwzMC41MDIsMjkuNTI3NjE1NCBDMjkuODUsMjkuNTI3NjE1NCAyOS4yMjUsMjkuNzg2OTk4NSAyOC43NjQsMzAuMjQ4NjgwNSBMMjUuMjksMzMuNzI3ODE5NSBDMjQuODI5LDM0LjE4OTUwMTUgMjQuMjA0LDM0LjQ0ODg4NDYgMjMuNTUyLDM0LjQ0ODg4NDYgTDE1Ljc2LDM0LjQ0ODg4NDYgQzE1LjEwOCwzNC40NDg4ODQ2IDE0LjQ4MywzNC4xODk1MDE1IDE0LjAyMiwzMy43Mjc4MTk1IEwxMC41NDgsMzAuMjQ4NjgwNSBDMTAuMDg3LDI5Ljc4Njk5ODUgOS40NjIsMjkuNTI3NjE1NCA4LjgxLDI5LjUyNzYxNTQgTDIuNDU3LDI5LjUyNzYxNTQgQzEuMSwyOS41Mjc2MTU0IDAsMjguNDI1OTg4MiAwLDI3LjA2Njk4MDggTDAsMi40NjA2MzQ2MiBaIiBpZD0icGF0aC0xIj48L3BhdGg+CiAgICA8L2RlZnM+CiAgICA8ZyBpZD0iTG9hZGluZy1TdGF0ZSIgc3Ryb2tlPSJub25lIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiIGZpbGwtcnVsZT0iZXZlbm9kZCIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTU4OS4wMDAwMDAsIC0xOTIuMDAwMDAwKSI+CiAgICAgICAgPGcgaWQ9IkFuaW1hdGlvbiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNTg5LjAwMDAwMCwgMTkyLjAwMDAwMCkiPgogICAgICAgICAgICA8ZyBpZD0idG9wLWJsb2NrIj4KICAgICAgICAgICAgICAgIDx1c2UgZmlsbC1vcGFjaXR5PSIwLjIiIGZpbGw9IiNGRkZGRkYiIGZpbGwtcnVsZT0iZXZlbm9kZCIgeGxpbms6aHJlZj0iI3BhdGgtMSI+PC91c2U+CiAgICAgICAgICAgICAgICA8cGF0aCBzdHJva2Utb3BhY2l0eT0iMC4xIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iMSIgZD0iTTAuNSwyLjQ2MDYzNDYyIEwwLjUsMjcuMDY2OTgwOCBDMC41LDI4LjE1MDAxMTEgMS4zNzYzMDc5NiwyOS4wMjc2MTU0IDIuNDU3LDI5LjAyNzYxNTQgTDguODEsMjkuMDI3NjE1NCBDOS41OTQ3MDUyNywyOS4wMjc2MTU0IDEwLjM0NzAwMzIsMjkuMzM5NzU2NCAxMC45MDE4MTQ2LDI5Ljg5NTM4ODUgTDE0LjM3NTgxNDYsMzMuMzc0NTI3NSBDMTQuNzQzMTA1OCwzMy43NDIzNjIxIDE1LjI0MDg1MDMsMzMuOTQ4ODg0NiAxNS43NiwzMy45NDg4ODQ2IEwyMy41NTIsMzMuOTQ4ODg0NiBDMjQuMDcxMTQ5NywzMy45NDg4ODQ2IDI0LjU2ODg5NDIsMzMuNzQyMzYyMSAyNC45MzYxODU0LDMzLjM3NDUyNzUgTDI4LjQxMDE4NTQsMjkuODk1Mzg4NSBDMjguOTY0OTk2OCwyOS4zMzk3NTY0IDI5LjcxNzI5NDcsMjkuMDI3NjE1NCAzMC41MDIsMjkuMDI3NjE1NCBMOTMuMzY0LDI5LjAyNzYxNTQgQzk0LjQ0NDY5MiwyOS4wMjc2MTU0IDk1LjMyMSwyOC4xNTAwMTExIDk1LjMyMSwyNy4wNjY5ODA4IEw5NS4zMjEsMi40NjA2MzQ2MiBDOTUuMzIxLDEuMzc3NjA0MjggOTQuNDQ0NjkyLDAuNSA5My4zNjQsMC41IEwzMC41MDIsMC41IEMyOS45ODI4NTAzLDAuNSAyOS40ODUxMDU4LDAuNzA2NTIyNTA4IDI5LjExNzgxNDYsMS4wNzQzNTcwNyBMMjUuNjQzODE0Niw0LjU1MzQ5NjEzIEMyNS4wODkwMDMyLDUuMTA5MTI4MjIgMjQuMzM2NzA1Myw1LjQyMTI2OTIzIDIzLjU1Miw1LjQyMTI2OTIzIEwxNS43Niw1LjQyMTI2OTIzIEMxNC45NzUyOTQ3LDUuNDIxMjY5MjMgMTQuMjIyOTk2OCw1LjEwOTEyODIyIDEzLjY2ODE4NTQsNC41NTM0OTYxMyBMMTAuMTk0MTg1NCwxLjA3NDM1NzA3IEM5LjgyNjg5NDE2LDAuNzA2NTIyNTA4IDkuMzI5MTQ5NjksMC41IDguODEsMC41IEwyLjQ1NywwLjUgQzEuMzc2MzA3OTYsMC41IDAuNSwxLjM3NzYwNDI4IDAuNSwyLjQ2MDYzNDYyIFoiPjwvcGF0aD4KICAgICAgICAgICAgPC9nPgogICAgICAgIDwvZz4KICAgIDwvZz4KPC9zdmc+">
-                <img class="loader-block block-mid" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+Cjxzdmcgd2lkdGg9IjY4cHgiIGhlaWdodD0iMzVweCIgdmlld0JveD0iMCAwIDY4IDM1IiB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPgogICAgPCEtLSBHZW5lcmF0b3I6IFNrZXRjaCA0OC4xICg0NzI1MCkgLSBodHRwOi8vd3d3LmJvaGVtaWFuY29kaW5nLmNvbS9za2V0Y2ggLS0+CiAgICA8dGl0bGU+bWlkZGxlLWJsb2NrPC90aXRsZT4KICAgIDxkZXNjPkNyZWF0ZWQgd2l0aCBTa2V0Y2guPC9kZXNjPgogICAgPGRlZnM+CiAgICAgICAgPHBhdGggZD0iTTAsMzQuNDYwNjM0NiBDMCwzMy4xMDE2MjcyIDEuMSwzMiAyLjQ1NywzMiBMOC44MSwzMiBDOS40NjIsMzIgMTAuMDg3LDMyLjI1OTM4MzEgMTAuNTQ4LDMyLjcyMTA2NTEgTDE0LjAyMiwzNi4yMDAyMDQxIEMxNC40ODMsMzYuNjYxODg2MSAxNS4xMDgsMzYuOTIxMjY5MiAxNS43NiwzNi45MjEyNjkyIEwyMy41NTIsMzYuOTIxMjY5MiBDMjQuMjA0LDM2LjkyMTI2OTIgMjQuODI5LDM2LjY2MTg4NjEgMjUuMjksMzYuMjAwMjA0MSBMMjguNzY0LDMyLjcyMTA2NTEgQzI5LjIyNSwzMi4yNTkzODMxIDI5Ljg1LDMyIDMwLjUwMiwzMiBMNjUuMzY0LDMyIEM2Ni43MjEsMzIgNjcuODIxLDMzLjEwMTYyNzIgNjcuODIxLDM0LjQ2MDYzNDYgTDY3LjgyMSw1OS4wNjY5ODA4IEM2Ny44MjEsNjAuNDI1OTg4MiA2Ni43MjEsNjEuNTI3NjE1NCA2NS4zNjQsNjEuNTI3NjE1NCBMMzAuNTAyLDYxLjUyNzYxNTQgQzI5Ljg1LDYxLjUyNzYxNTQgMjkuMjI1LDYxLjc4Njk5ODUgMjguNzY0LDYyLjI0ODY4MDUgTDI1LjI5LDY1LjcyNzgxOTUgQzI0LjgyOSw2Ni4xODk1MDE1IDI0LjIwNCw2Ni40NDg4ODQ2IDIzLjU1Miw2Ni40NDg4ODQ2IEwxNS43Niw2Ni40NDg4ODQ2IEMxNS4xMDgsNjYuNDQ4ODg0NiAxNC40ODMsNjYuMTg5NTAxNSAxNC4wMjIsNjUuNzI3ODE5NSBMMTAuNTQ4LDYyLjI0ODY4MDUgQzEwLjA4Nyw2MS43ODY5OTg1IDkuNDYyLDYxLjUyNzYxNTQgOC44MSw2MS41Mjc2MTU0IEwyLjQ1Nyw2MS41Mjc2MTU0IEMxLjEsNjEuNTI3NjE1NCAwLDYwLjQyNTk4ODIgMCw1OS4wNjY5ODA4IEwwLDM0LjQ2MDYzNDYgWiIgaWQ9InBhdGgtMSI+PC9wYXRoPgogICAgPC9kZWZzPgogICAgPGcgaWQ9IkxvYWRpbmctU3RhdGUiIHN0cm9rZT0ibm9uZSIgc3Ryb2tlLXdpZHRoPSIxIiBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC01ODkuMDAwMDAwLCAtMjI0LjAwMDAwMCkiPgogICAgICAgIDxnIGlkPSJBbmltYXRpb24iIHRyYW5zZm9ybT0idHJhbnNsYXRlKDU4OS4wMDAwMDAsIDE5Mi4wMDAwMDApIj4KICAgICAgICAgICAgPGcgaWQ9Im1pZGRsZS1ibG9jayI+CiAgICAgICAgICAgICAgICA8dXNlIGZpbGwtb3BhY2l0eT0iMC4yIiBmaWxsPSIjRkZGRkZGIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIHhsaW5rOmhyZWY9IiNwYXRoLTEiPjwvdXNlPgogICAgICAgICAgICAgICAgPHBhdGggc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utd2lkdGg9IjEiIGQ9Ik0wLjUsMzQuNDYwNjM0NiBMMC41LDU5LjA2Njk4MDggQzAuNSw2MC4xNTAwMTExIDEuMzc2MzA3OTYsNjEuMDI3NjE1NCAyLjQ1Nyw2MS4wMjc2MTU0IEw4LjgxLDYxLjAyNzYxNTQgQzkuNTk0NzA1MjcsNjEuMDI3NjE1NCAxMC4zNDcwMDMyLDYxLjMzOTc1NjQgMTAuOTAxODE0Niw2MS44OTUzODg1IEwxNC4zNzU4MTQ2LDY1LjM3NDUyNzUgQzE0Ljc0MzEwNTgsNjUuNzQyMzYyMSAxNS4yNDA4NTAzLDY1Ljk0ODg4NDYgMTUuNzYsNjUuOTQ4ODg0NiBMMjMuNTUyLDY1Ljk0ODg4NDYgQzI0LjA3MTE0OTcsNjUuOTQ4ODg0NiAyNC41Njg4OTQyLDY1Ljc0MjM2MjEgMjQuOTM2MTg1NCw2NS4zNzQ1Mjc1IEwyOC40MTAxODU0LDYxLjg5NTM4ODUgQzI4Ljk2NDk5NjgsNjEuMzM5NzU2NCAyOS43MTcyOTQ3LDYxLjAyNzYxNTQgMzAuNTAyLDYxLjAyNzYxNTQgTDY1LjM2NCw2MS4wMjc2MTU0IEM2Ni40NDQ2OTIsNjEuMDI3NjE1NCA2Ny4zMjEsNjAuMTUwMDExMSA2Ny4zMjEsNTkuMDY2OTgwOCBMNjcuMzIxLDM0LjQ2MDYzNDYgQzY3LjMyMSwzMy4zNzc2MDQzIDY2LjQ0NDY5MiwzMi41IDY1LjM2NCwzMi41IEwzMC41MDIsMzIuNSBDMjkuOTgyODUwMywzMi41IDI5LjQ4NTEwNTgsMzIuNzA2NTIyNSAyOS4xMTc4MTQ2LDMzLjA3NDM1NzEgTDI1LjY0MzgxNDYsMzYuNTUzNDk2MSBDMjUuMDg5MDAzMiwzNy4xMDkxMjgyIDI0LjMzNjcwNTMsMzcuNDIxMjY5MiAyMy41NTIsMzcuNDIxMjY5MiBMMTUuNzYsMzcuNDIxMjY5MiBDMTQuOTc1Mjk0NywzNy40MjEyNjkyIDE0LjIyMjk5NjgsMzcuMTA5MTI4MiAxMy42NjgxODU0LDM2LjU1MzQ5NjEgTDEwLjE5NDE4NTQsMzMuMDc0MzU3MSBDOS44MjY4OTQxNiwzMi43MDY1MjI1IDkuMzI5MTQ5NjksMzIuNSA4LjgxLDMyLjUgTDIuNDU3LDMyLjUgQzEuMzc2MzA3OTYsMzIuNSAwLjUsMzMuMzc3NjA0MyAwLjUsMzQuNDYwNjM0NiBaIj48L3BhdGg+CiAgICAgICAgICAgIDwvZz4KICAgICAgICA8L2c+CiAgICA8L2c+Cjwvc3ZnPg==">
-                <img class="loader-block block-bottom" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+Cjxzdmcgd2lkdGg9Ijg1cHgiIGhlaWdodD0iMzVweCIgdmlld0JveD0iMCAwIDg1IDM1IiB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPgogICAgPCEtLSBHZW5lcmF0b3I6IFNrZXRjaCA0OC4xICg0NzI1MCkgLSBodHRwOi8vd3d3LmJvaGVtaWFuY29kaW5nLmNvbS9za2V0Y2ggLS0+CiAgICA8dGl0bGU+Ym90dG9tLWJsb2NrPC90aXRsZT4KICAgIDxkZXNjPkNyZWF0ZWQgd2l0aCBTa2V0Y2guPC9kZXNjPgogICAgPGRlZnM+CiAgICAgICAgPHBhdGggZD0iTTAsNjYuNDYwNjM0NiBDMCw2NS4xMDE2MjcyIDEuMSw2NCAyLjQ1Nyw2NCBMOC44MSw2NCBDOS40NjIsNjQgMTAuMDg3LDY0LjI1OTM4MzEgMTAuNTQ4LDY0LjcyMTA2NTEgTDE0LjAyMiw2OC4yMDAyMDQxIEMxNC40ODMsNjguNjYxODg2MSAxNS4xMDgsNjguOTIxMjY5MiAxNS43Niw2OC45MjEyNjkyIEwyMy41NTIsNjguOTIxMjY5MiBDMjQuMjA0LDY4LjkyMTI2OTIgMjQuODI5LDY4LjY2MTg4NjEgMjUuMjksNjguMjAwMjA0MSBMMjguNzY0LDY0LjcyMTA2NTEgQzI5LjIyNSw2NC4yNTkzODMxIDI5Ljg1LDY0IDMwLjUwMiw2NCBMODIuMzY0LDY0IEM4My43MjEsNjQgODQuODIxLDY1LjEwMTYyNzIgODQuODIxLDY2LjQ2MDYzNDYgTDg0LjgyMSw5MS4wNjY5ODA4IEM4NC44MjEsOTIuNDI1OTg4MiA4My43MjEsOTMuNTI3NjE1NCA4Mi4zNjQsOTMuNTI3NjE1NCBMMzAuNTAyLDkzLjUyNzYxNTQgQzI5Ljg1LDkzLjUyNzYxNTQgMjkuMjI1LDkzLjc4Njk5ODUgMjguNzY0LDk0LjI0ODY4MDUgTDI1LjI5LDk3LjcyNzgxOTUgQzI0LjgyOSw5OC4xODk1MDE1IDI0LjIwNCw5OC40NDg4ODQ2IDIzLjU1Miw5OC40NDg4ODQ2IEwxNS43Niw5OC40NDg4ODQ2IEMxNS4xMDgsOTguNDQ4ODg0NiAxNC40ODMsOTguMTg5NTAxNSAxNC4wMjIsOTcuNzI3ODE5NSBMMTAuNTQ4LDk0LjI0ODY4MDUgQzEwLjA4Nyw5My43ODY5OTg1IDkuNDYyLDkzLjUyNzYxNTQgOC44MSw5My41Mjc2MTU0IEwyLjQ1Nyw5My41Mjc2MTU0IEMxLjEsOTMuNTI3NjE1NCAwLDkyLjQyNTk4ODIgMCw5MS4wNjY5ODA4IEwwLDY2LjQ2MDYzNDYgWiIgaWQ9InBhdGgtMSI+PC9wYXRoPgogICAgPC9kZWZzPgogICAgPGcgaWQ9IkxvYWRpbmctU3RhdGUiIHN0cm9rZT0ibm9uZSIgc3Ryb2tlLXdpZHRoPSIxIiBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC01ODkuMDAwMDAwLCAtMjU2LjAwMDAwMCkiPgogICAgICAgIDxnIGlkPSJBbmltYXRpb24iIHRyYW5zZm9ybT0idHJhbnNsYXRlKDU4OS4wMDAwMDAsIDE5Mi4wMDAwMDApIj4KICAgICAgICAgICAgPGcgaWQ9ImJvdHRvbS1ibG9jayI+CiAgICAgICAgICAgICAgICA8dXNlIGZpbGwtb3BhY2l0eT0iMC4yIiBmaWxsPSIjRkZGRkZGIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIHhsaW5rOmhyZWY9IiNwYXRoLTEiPjwvdXNlPgogICAgICAgICAgICAgICAgPHBhdGggc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utd2lkdGg9IjEiIGQ9Ik0wLjUsNjYuNDYwNjM0NiBMMC41LDkxLjA2Njk4MDggQzAuNSw5Mi4xNTAwMTExIDEuMzc2MzA3OTYsOTMuMDI3NjE1NCAyLjQ1Nyw5My4wMjc2MTU0IEw4LjgxLDkzLjAyNzYxNTQgQzkuNTk0NzA1MjcsOTMuMDI3NjE1NCAxMC4zNDcwMDMyLDkzLjMzOTc1NjQgMTAuOTAxODE0Niw5My44OTUzODg1IEwxNC4zNzU4MTQ2LDk3LjM3NDUyNzUgQzE0Ljc0MzEwNTgsOTcuNzQyMzYyMSAxNS4yNDA4NTAzLDk3Ljk0ODg4NDYgMTUuNzYsOTcuOTQ4ODg0NiBMMjMuNTUyLDk3Ljk0ODg4NDYgQzI0LjA3MTE0OTcsOTcuOTQ4ODg0NiAyNC41Njg4OTQyLDk3Ljc0MjM2MjEgMjQuOTM2MTg1NCw5Ny4zNzQ1Mjc1IEwyOC40MTAxODU0LDkzLjg5NTM4ODUgQzI4Ljk2NDk5NjgsOTMuMzM5NzU2NCAyOS43MTcyOTQ3LDkzLjAyNzYxNTQgMzAuNTAyLDkzLjAyNzYxNTQgTDgyLjM2NCw5My4wMjc2MTU0IEM4My40NDQ2OTIsOTMuMDI3NjE1NCA4NC4zMjEsOTIuMTUwMDExMSA4NC4zMjEsOTEuMDY2OTgwOCBMODQuMzIxLDY2LjQ2MDYzNDYgQzg0LjMyMSw2NS4zNzc2MDQzIDgzLjQ0NDY5Miw2NC41IDgyLjM2NCw2NC41IEwzMC41MDIsNjQuNSBDMjkuOTgyODUwMyw2NC41IDI5LjQ4NTEwNTgsNjQuNzA2NTIyNSAyOS4xMTc4MTQ2LDY1LjA3NDM1NzEgTDI1LjY0MzgxNDYsNjguNTUzNDk2MSBDMjUuMDg5MDAzMiw2OS4xMDkxMjgyIDI0LjMzNjcwNTMsNjkuNDIxMjY5MiAyMy41NTIsNjkuNDIxMjY5MiBMMTUuNzYsNjkuNDIxMjY5MiBDMTQuOTc1Mjk0Nyw2OS40MjEyNjkyIDE0LjIyMjk5NjgsNjkuMTA5MTI4MiAxMy42NjgxODU0LDY4LjU1MzQ5NjEgTDEwLjE5NDE4NTQsNjUuMDc0MzU3MSBDOS44MjY4OTQxNiw2NC43MDY1MjI1IDkuMzI5MTQ5NjksNjQuNSA4LjgxLDY0LjUgTDIuNDU3LDY0LjUgQzEuMzc2MzA3OTYsNjQuNSAwLjUsNjUuMzc3NjA0MyAwLjUsNjYuNDYwNjM0NiBaIj48L3BhdGg+CiAgICAgICAgICAgIDwvZz4KICAgICAgICA8L2c+CiAgICA8L2c+Cjwvc3ZnPg==">
+        <section class="panel">
+            <div class="panel-header">
+                <h2 class="panel-title small">Projects</h2>
             </div>
 
-            <div class="progress-container" id="loadholder">
-                <div class="progress-bar" id="loadprogress" style="width: 0%;"></div>
-            </div>
-        </div>
+            <div class="panel-body">
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-content">
+                            <h3>ScratchFlash</h3>
+                            <p style="font-size: 10px; margin-top: -5px;">This project is a fork of <a href="https://github.com/s2online/s2online.github.io">s2online</a></p>
 
-        <script>
-            (function(){
-                window.hasFlash = false;
+                            <p>Modern Scratch 3 removed or altered several classic behaviors, including auto-scrolling lists and stage monitor ordering. ScratchFlash restores these features by running a slightly modified build of Scratch 2 using Ruffle.</p>
+                            <p>Online projects work through cloud variable support. Support for local storage and web fetching is also included (<a href="https://scratchflash.pages.dev/#1379521299">see fetch demo</a>).</p>
+                            <p>Gamepad and controller support is also included out of the box.</p>
+
+                            <br><p><strong>Current issues:</strong></p>
+                            <ul>
+                                <li>Sound volume can not be changed while playing</li>
+                                <li>Sounds lag when starting</li>
+                                <li>Large sounds not playing</li>
+                                <li>No noteblock sound support</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-content">
+                            <h3>ScratchX</h3>
+                            <p>ScratchX is brought back using the same Scratch 2 SWF (since ScratchX was built into every copy of Scratch 2), with added Scratch 3 extension support.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-content">
+                            <h3>Convert SB3 projects to SB2</h3>
+                            <p>Convert modern Scratch 3 (.sb3) projects into Scratch 2 (.sb2) projects, using just your browser.</p>
+                            <p>The conversion library was initially based on <a href="https://github.com/RexScratch/sb3tosb2">RexScratch/sb3tosb2</a>.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-inner">
+            <p class="footer-disclaimer">Scratch is a trademark of the Scratch Foundation and MIT Media Lab. They are not affiliated with these projects.</p>
+        </div>
+    </footer>
+
+    <div class="page-transition-overlay"></div>
+
+    <script>
+        const overlay = document.querySelector('.page-transition-overlay');
+        let resetTimeout = null;
+
+        function handleHistoryBack(e) {
+            clearTimeout(resetTimeout);
+            let data = null;
+            try {
+                const raw = sessionStorage.getItem('scratchflash_nav');
+                if (raw) data = JSON.parse(raw);
+            } catch (err) {}
+
+            const navEntry = window.performance && performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+            const isBack = (e && e.persisted) || (navEntry && navEntry.type === 'back_forward') || (window.performance && performance.navigation && performance.navigation.type === 2);
+
+            if (data && isBack) {
+                const elapsed = Date.now() - data.time;
+                const color = elapsed > 3000 ? '#eceff3' : data.color;
+                const x = data.x;
+                const y = data.y;
+                overlay.style.transition = 'none';
+                overlay.style.backgroundColor = color;
+                overlay.style.clipPath = `circle(150vmax at ${x}px ${y}px)`;
+                document.body.classList.add('leaving');
+                void overlay.offsetWidth;
+                overlay.style.transition = 'clip-path 0.42s cubic-bezier(0.4, 0, 0.2, 1)';
+                overlay.style.clipPath = `circle(0px at ${x}px ${y}px)`;
+                document.body.classList.remove('leaving');
+
                 try {
-                    hasFlash=Boolean(new ActiveXObject("ShockwaveFlash.ShockwaveFlash"));
-                } catch(e) {
-                    hasFlash=navigator.mimeTypes && navigator.mimeTypes["application/x-shockwave-flash"] !== undefined;
-                }
-                if (!hasFlash) {
-                    window.RufflePlayer = window.RufflePlayer || {};
-                    window.RufflePlayer.config = {
-                        allowScriptAccess: true 
-                    };
-                    var s = document.createElement("script"); // https://unpkg.com/@ruffle-rs/ruffle
-                    s.src = "https://unpkg.com/@ruffle-rs/ruffle";
-                    s.onload = function(){
-                        var ruffle=window.RufflePlayer.newest();
-                        var player=ruffle.createPlayer();
-                        player.style.width="100%";
-                        player.style.height="100%";
-                        document.getElementById("flash").innerHTML = "";
-                        document.getElementById("flash").appendChild(player);
-                        player.load({url:"Scratch.swf", autoplay:"on", unmuteOverlay:"hidden", "quality": "low", "wmode": "opaque", maxExecutionDuration: 99999999999});
-                    };
-                    document.head.appendChild(s);
+                    sessionStorage.removeItem('scratchflash_nav');
+                } catch (err) {}
+            } else {
+                document.body.classList.remove('leaving');
+                overlay.style.transition = 'none';
+                overlay.style.clipPath = 'circle(0px at 50% 50%)';
+                try {
+                    sessionStorage.removeItem('scratchflash_nav');
+                } catch (err) {}
+            }
+        }
 
-                    var s2 = document.createElement("script");
-                    s2.src = "/controller.js";
-                    document.head.appendChild(s2);
+        window.addEventListener('pageshow', handleHistoryBack);
+        window.addEventListener('popstate', handleHistoryBack);
 
-                    window.scratchActiveSounds = true;
-                    var s3 = document.createElement("script");
-                    s3.src = "/rufflesound.js";
-                    document.head.appendChild(s3);
-                }
-            })();
+        document.querySelectorAll('.action-bar .btn').forEach(btn => {
+            btn.addEventListener('click', e => {
+                e.preventDefault();
 
-            document.addEventListener('keydown', (e) => {
-                if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
-                    window.location.reload();
+                const href = btn.getAttribute('href');
+                if (!href) return;
+
+                const rect = btn.getBoundingClientRect();
+                const x = rect.left + rect.width / 2;
+                const y = rect.top + rect.height / 2;
+
+                let color = '#eceff3';
+                if (btn.classList.contains('btn-primary')) {
+                    color = '#4d97ff';
+                } else if (btn.classList.contains('btn-scratchx')) {
+                    color = '#30485f';
                 }
+
+                try {
+                    sessionStorage.setItem('scratchflash_nav', JSON.stringify({
+                        time: Date.now(),
+                        x: x,
+                        y: y,
+                        color: color
+                    }));
+                } catch (err) {}
+
+                overlay.style.transition = 'none';
+                overlay.style.backgroundColor = color;
+                overlay.style.clipPath = `circle(0px at ${x}px ${y}px)`;
+                void overlay.offsetWidth;
+                overlay.style.transition = 'clip-path 0.42s cubic-bezier(0.4, 0, 0.2, 1)';
+                overlay.style.clipPath = `circle(150vmax at ${x}px ${y}px)`;
+                document.body.classList.add('leaving');
+
+                clearTimeout(resetTimeout);
+                resetTimeout = setTimeout(() => {
+                    overlay.style.transition = 'clip-path 0.42s cubic-bezier(0.4, 0, 0.2, 1)';
+                    overlay.style.clipPath = `circle(0px at ${x}px ${y}px)`;
+                    document.body.classList.remove('leaving');
+
+                    try {
+                        sessionStorage.removeItem('scratchflash_nav');
+                    } catch (err) {}
+                }, 20000);
+
+                setTimeout(() => {
+                    window.location.href = href;
+                }, 420);
             });
-        </script>
-
-        <div id="container">
-            <div id="downloader">
-                <div id="progress"></div>
-                <pre id="output"><code id="log"></code></pre>
-            </div>
-
-            <div id="flash">
-                <object width='100%' height='100%' id='scratch'>
-                    <param name='allowscriptaccess' value='always'>
-                    <param name='FlashVars' value='extensionDevMode=true'>
-                    <param name="wmode" value="opaque" />
-                    <embed src='Scratch.swf' allowScriptAccess="always" wmode="opaque" width='100%' height='100%'>
-                </object>
-            </div>
-        </div>
-
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/1.7.22/fabric.min.js"></script>
-
-        <script src="scriptTranspiler.js"></script>
-        <script src="main.js"></script>
-        <script src="cloud.js"></script>
-    </body>
+        });
+    </script>
+</body>
 </html>
